@@ -16,6 +16,7 @@
 #include "Vehicle.h"
 #include "Group.h"
 #include "CreatureAI.h"
+#include "GarrisonMgr.hpp"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -2022,6 +2023,20 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
 
             return map_id == 1116 ? SPELL_CAST_OK : SPELL_FAILED_INCORRECT_AREA;
         }
+        case 176061:
+        case 176049:
+        {
+            if (!player)
+                break;
+
+            if (MS::Garrison::Manager* l_GarrisonMgr = player->GetGarrison())
+            {
+                MS::Garrison::GarrisonPlotInstanceInfoLocation l_Plot = l_GarrisonMgr->GetPlot(player->m_positionX, player->m_positionY, player->m_positionZ);
+
+                if (l_Plot.PlotInstanceID != 59) ///< Mine plot instance ID
+                    return SPELL_FAILED_REQUIRES_AREA;
+            }
+        }
     }
 
     // aura limitations
@@ -2815,6 +2830,19 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
             if (Effects[i].Effect == SPELL_EFFECT_SKILL && Effects[i].MiscValue == SKILL_HERBALISM)
             {
                 l_CastTime = CalculatePct(l_CastTime, 66);
+                break;
+            }
+        }
+    }
+
+    /// Mining
+    if (HasEffect(SPELL_EFFECT_SKILL) && p_Caster->HasAura(176061) && AttributesEx10 & SPELL_ATTR10_HERB_GATHERING_MINING || (Id == 170599 && p_Caster->HasAura(176061))) ///< Specific mining spell
+    {
+        for (uint8 i = 0; i < EffectCount; ++i)
+        {
+            if ((Effects[i].Effect == SPELL_EFFECT_SKILL && Effects[i].MiscValue == SKILL_MINING) || Id == 170599)
+            {
+                l_CastTime = CalculatePct(l_CastTime, 50);
                 break;
             }
         }

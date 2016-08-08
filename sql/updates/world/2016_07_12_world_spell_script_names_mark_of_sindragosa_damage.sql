@@ -1,0 +1,2 @@
+DELETE FROM spell_script_names WHERE spell_id = 155166 AND ScriptName = "spell_dk_mark_of_sindragosa_damage";
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( 155166,'spell_dk_mark_of_sindragosa_damage'); 

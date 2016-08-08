@@ -30,6 +30,13 @@ enum LoginDatabaseStatements
     LOGIN_SEL_ACCOUNT_BANNED_BY_USERNAME,
     LOGIN_INS_ACCOUNT_AUTO_BANNED,
     LOGIN_DEL_ACCOUNT_BANNED,
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Note
+    LOGIN_INS_ACCOUNT_NOTE,
+    LOGIN_SEL_ACCOUNT_NOTE,
+    //////////////////////////////////////////////////////////////////////////
+
     LOGIN_SEL_SESSIONKEY,
     LOGIN_UPD_VS,
     LOGIN_UPD_LOGONPROOF,

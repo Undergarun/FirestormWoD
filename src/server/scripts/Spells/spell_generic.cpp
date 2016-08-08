@@ -5917,11 +5917,17 @@ class spell_gen_capturing : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                Unit* l_Caster = GetCaster();
+                Player *l_Player = GetCaster()->ToPlayer();
 
-                l_Caster->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
-                l_Caster->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
-                l_Caster->RemoveAurasByType(SPELL_AURA_MOD_CAMOUFLAGE);
+                if (l_Player == nullptr)
+                    return SpellCastResult::SPELL_FAILED_SUCCESS;
+
+                if (l_Player->isTotalImmunity())
+                    return SpellCastResult::SPELL_FAILED_IMMUNE;
+
+                l_Player->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+                l_Player->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
+                l_Player->RemoveAurasByType(SPELL_AURA_MOD_CAMOUFLAGE);
                 return SpellCastResult::SPELL_CAST_OK;
             }
 
@@ -6064,6 +6070,17 @@ class spell_gen_golbin_glider : public SpellScriptLoader
                 if (!l_Player || l_Player->IsFalling())
                     return;
 
+                SpellInfo const* l_SpellInfo = GetSpellInfo();
+                if (!l_SpellInfo)
+                    return;
+
+                Aura* l_Aura = l_Player->GetAura(l_SpellInfo->Id);
+                if (!l_Aura)
+                    return;
+
+                if ((l_Aura->GetMaxDuration() - l_Aura->GetDuration()) < 500)
+                    return;
+
                 if (Aura* l_Aura = l_Player->GetAura(GetSpellInfo()->Id))
                     l_Player->RemoveAura(l_Aura);
             }
@@ -6080,9 +6097,102 @@ class spell_gen_golbin_glider : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Dreanor Feast
+/// Call by Feast of Blood - 160745, Savage Feast - 175217
+class spell_gen_draenor_feast : public SpellScriptLoader
+{
+    public:
+        spell_gen_draenor_feast() : SpellScriptLoader("spell_gen_draenor_feast") { }
+
+        class spell_gen_draenor_feast_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_draenor_feast_AuraScript);
+
+            enum eSpells
+            {
+                CriticalBuff    = 160724,
+                MasteryBuff     = 160793,
+                VersatilityBuff = 160839,
+                MultistrikeBuff = 160832,
+                HasteBuff       = 160726,
+                StaminaBuff     = 160600
+            };
+
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
+                {
+                case SpecIndex::SPEC_PALADIN_RETRIBUTION:
+                case SpecIndex::SPEC_WARRIOR_PROTECTION:
+                case SpecIndex::SPEC_WARRIOR_ARMS:
+                case SpecIndex::SPEC_SHAMAN_RESTORATION:
+                case SpecIndex::SPEC_HUNTER_BEASTMASTERY:
+                case SpecIndex::SPEC_DRUID_GUARDIAN:
+                case SpecIndex::SPEC_DRUID_BALANCE:
+                case SpecIndex::SPEC_ROGUE_ASSASSINATION:
+                case SpecIndex::SPEC_WARLOCK_DEMONOLOGY:
+                case SpecIndex::SPEC_MAGE_ARCANE:
+                    l_Player->CastSpell(l_Player, eSpells::MasteryBuff, true);
+                    break;
+                case SpecIndex::SPEC_HUNTER_MARKSMANSHIP:
+                case SpecIndex::SPEC_PALADIN_HOLY:
+                case SpecIndex::SPEC_WARRIOR_FURY:
+                case SpecIndex::SPEC_DRUID_FERAL:
+                case SpecIndex::SPEC_MONK_BREWMASTER:
+                case SpecIndex::SPEC_WARLOCK_DESTRUCTION:
+                case SpecIndex::SPEC_MAGE_FIRE:
+                    l_Player->CastSpell(l_Player, eSpells::CriticalBuff, true);
+                    break;
+                case SpecIndex::SPEC_SHAMAN_ENHANCEMENT:
+                case SpecIndex::SPEC_DK_FROST:
+                case SpecIndex::SPEC_PALADIN_PROTECTION:
+                case SpecIndex::SPEC_DRUID_RESTORATION:
+                case SpecIndex::SPEC_ROGUE_COMBAT:
+                case SpecIndex::SPEC_WARLOCK_AFFLICTION:
+                case SpecIndex::SPEC_PRIEST_SHADOW:
+                    l_Player->CastSpell(l_Player, eSpells::HasteBuff, true);
+                    break;
+                case SpecIndex::SPEC_SHAMAN_ELEMENTAL:
+                case SpecIndex::SPEC_DK_BLOOD:
+                case SpecIndex::SPEC_DK_UNHOLY:
+                case SpecIndex::SPEC_HUNTER_SURVIVAL:
+                case SpecIndex::SPEC_ROGUE_SUBTLETY:
+                case SpecIndex::SPEC_MONK_WINDWALKER:
+                case SpecIndex::SPEC_MONK_MISTWEAVER:
+                case SpecIndex::SPEC_PRIEST_DISCIPLINE:
+                case SpecIndex::SPEC_PRIEST_HOLY:
+                case SpecIndex::SPEC_MAGE_FROST:
+                    l_Player->CastSpell(l_Player, eSpells::MultistrikeBuff, true);
+                    break;
+                default:
+                    l_Player->CastSpell(l_Player, eSpells::HasteBuff, true);
+                    break;
+                }
+                
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_draenor_feast_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_draenor_feast_AuraScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_draenor_feast();
     new spell_gen_appraisal();
     new spell_gen_capturing();
     new spell_gen_pvp_trinket();

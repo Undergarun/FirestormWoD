@@ -642,12 +642,16 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     Unit* caster = mover;
     if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(l_SpellID))
     {
-        // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
-        // change caster to player and let him cast
-        if (!m_Player->IsOnVehicle(caster) || spellInfo->CheckVehicle(m_Player) != SPELL_CAST_OK)
+        /// Hackfix Glyph of eye of killrog
+        if (!(caster->ToCreature() && caster->GetEntry() == 4277 && l_SpellID == 48018))
         {
-            p_RecvPacket.rfinish(); // prevent spam at ignore packet
-            return;
+            // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
+            // change caster to player and let him cast
+            if (!m_Player->IsOnVehicle(caster) || spellInfo->CheckVehicle(m_Player) != SPELL_CAST_OK)
+            {
+                p_RecvPacket.rfinish(); // prevent spam at ignore packet
+                return;
+            }
         }
 
         caster = m_Player;
@@ -750,8 +754,17 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     // can't use our own spells when we're in possession of another unit,
     if (m_Player->isPossessing())
     {
-        p_RecvPacket.rfinish(); // prevent spam at ignore packet
-        return;
+        bool l_Break = true;
+
+        /// Hackfix for the eye of kilrogg to be able to cast Demonic Circle : Summom
+        if (l_SpellID == 48018 && m_Player->GetCharm() && m_Player->GetCharm()->GetEntry() == 4277 && m_Player->HasAura(58081))
+            l_Break = false;
+
+        if (l_Break)
+        {
+            p_RecvPacket.rfinish(); // prevent spam at ignore packet
+            return;
+        }
     }
 
     // client provided targets

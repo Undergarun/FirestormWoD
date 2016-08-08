@@ -1,0 +1,1 @@
+ALTER TABLE `item_instance` CHANGE `transmogrifyId` `transmogrifyId` INT(10) DEFAULT 0 NOT NULL;

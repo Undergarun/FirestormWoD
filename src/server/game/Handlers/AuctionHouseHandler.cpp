@@ -256,7 +256,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
         uint32 l_AuctionTime = uint32(l_ETTime * sWorld->getRate(RATE_AUCTION_TIME));
         AuctionHouseObject* l_AuctionHouseObj = sAuctionMgr->GetAuctionsMap(l_Auctioneer->getFaction());
 
-        uint32 l_Deposit = sAuctionMgr->GetAuctionDeposit(l_AuctionHouse, l_ETTime, l_Item, l_FinalCount);
+        uint32 l_Deposit = sAuctionMgr->GetAuctionDeposit(l_ETTime, l_Item, l_FinalCount);
         if (!m_Player->HasEnoughMoney((uint64)l_Deposit))
         {
             SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);

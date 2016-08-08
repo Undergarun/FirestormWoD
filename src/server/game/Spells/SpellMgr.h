@@ -815,6 +815,12 @@ class SpellMgr
         void LoadSpellUpgradeItemStage();
         bool HaveSameItemSourceSkill(Item* p_Item1, Item* p_Item2) const;
 
+        void LoadSpellAurasNotSave();
+        bool IsInSpellAurasNotSave(uint32 p_SpellID) const
+        {
+            return m_SpellAurasNotSave.find(p_SpellID) != m_SpellAurasNotSave.end();
+        }
+
         std::vector<uint32>        mSpellCreateItemList;
 
     private:
@@ -858,6 +864,7 @@ class SpellMgr
         ItemSourceSkills           m_ItemSourceSkills;
         TradeSpellSkills           m_SkillTradeSpells;
         SpellUpgradeItemStages     m_SpellUpgradeItemStages;
+        std::set<uint32>           m_SpellAurasNotSave;
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()

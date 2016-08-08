@@ -65,22 +65,25 @@ enum CreatureFlagsExtra
 
 // Creature Pet entries
 // Warlock
-#define ENTRY_INFERNAL          89
-#define ENTRY_IMP               416
-#define ENTRY_VOIDWALKER        1860
-#define ENTRY_SUCCUBUS          1863
-#define ENTRY_FELHUNTER         417
-#define ENTRY_FELGUARD          17252
-#define ENTRY_FEL_IMP           58959
-#define ENTRY_VOIDLORD          58960
-#define ENTRY_SHIVARRA          58963
-#define ENTRY_OBSERVER          58964
-#define ENTRY_WRATHGUARD        58965
-#define ENTRY_DOOMGUARD         11859
-#define ENTRY_ABYSSAL           58997
-#define ENTRY_TERRORGUARD       59000
-#define ENTRY_INFERNAL_PET      78217
-#define ENTRY_DOOMGUARD_PET     78158
+#define ENTRY_INFERNAL                  89
+#define ENTRY_IMP                       416
+#define ENTRY_VOIDWALKER                1860
+#define ENTRY_SUCCUBUS                  1863
+#define ENTRY_FELHUNTER                 417
+#define ENTRY_FELGUARD                  17252
+#define ENTRY_FEL_IMP                   58959
+#define ENTRY_VOIDLORD                  58960
+#define ENTRY_SHIVARRA                  58963
+#define ENTRY_OBSERVER                  58964
+#define ENTRY_WRATHGUARD                58965
+#define ENTRY_DOOMGUARD                 11859
+#define ENTRY_ABYSSAL                   58997
+#define ENTRY_ABYSSAL_PET               78216
+#define ENTRY_ABYSSAL_PET_GREENFIRED    78218
+#define ENTRY_TERRORGUARD               59000
+#define ENTRY_TERRORGUARD_PET           78215
+#define ENTRY_INFERNAL_PET              78217
+#define ENTRY_DOOMGUARD_PET             78158
 
 // Mage
 #define ENTRY_WATER_ELEMENTAL   510
@@ -737,18 +740,19 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         MovementGeneratorType GetDefaultMovementType() const { return m_defaultMovementType; }
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
 
-        void RemoveCorpse(bool setSpawnTime = true);
+        void RemoveCorpse(bool setSpawnTime = true, bool p_HomePosAsRespawn = false);
 
         void DespawnOrUnsummon(uint32 msTimeToDespawn = 0);
         void DespawnCreaturesInArea(uint32 p_Entry, float p_Range = 100.0f);
         void DespawnCreaturesInArea(std::vector<uint32> p_Entry, float p_Range = 100.0f);
+        void DespawnGameObjectsInArea(std::vector<uint32> p_Entries, float p_Range = 100.0f);
         void DespawnAreaTriggersInArea(uint32 p_SpellID, float p_Range = 100.0f);
         void DespawnAreaTriggersInArea(std::vector<uint32> p_SpellIDs, float p_Range = 100.0f);
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
         void SetRespawnTime(uint32 respawn) { m_respawnTime = respawn ? time(NULL) + respawn : 0; }
-        void Respawn(bool force = false);
+        void Respawn(bool force = false, bool p_HomePosAsRespawn = false, uint32 p_RespawnTime = 2 * TimeConstants::IN_MILLISECONDS);
 
         void SaveRespawnTime() override;
 

@@ -681,6 +681,34 @@ void Aura::FillMechanicAndControlTypes(Mechanics& p_Mechanics, LossOfControlType
     }
 }
 
+void Aura::CopyAura(Unit* p_AuraCaster, Unit* p_Caster)
+{
+    SpellInfo const* l_SpellInfo = GetSpellInfo();
+
+    if (Aura* l_DiffusedAura = p_AuraCaster->AddAura(l_SpellInfo->Id, p_AuraCaster))
+    {
+        l_DiffusedAura->SetDuration(GetDuration());
+        l_DiffusedAura->SetMaxDuration(GetMaxDuration());
+
+        if (IsUsingCharges())
+            l_DiffusedAura->SetCharges(GetCharges());
+        else
+            l_DiffusedAura->SetStackAmount(GetStackAmount());
+
+        for (uint32 l_I = 0; l_I < l_SpellInfo->EffectCount; ++l_I)
+        {
+            AuraEffect* l_OriginalEffect = p_Caster->GetAuraEffect(l_SpellInfo->Id, l_I);
+            AuraEffect* l_NewEffect = p_AuraCaster->GetAuraEffect(l_SpellInfo->Id, l_I);
+
+            if (l_OriginalEffect && l_NewEffect)
+            {
+                l_NewEffect->ChangeAmount(l_OriginalEffect->GetAmount());
+                l_NewEffect->SetAmplitude(l_OriginalEffect->GetAmplitude());
+            }
+        }
+    }
+}
+
 Unit* Aura::GetCaster() const
 {
     if (!GetOwner())
@@ -1352,6 +1380,9 @@ bool Aura::IsDeathPersistent() const
 
 bool Aura::CanBeSaved() const
 {
+    if (sSpellMgr->IsInSpellAurasNotSave(GetId()))
+        return false;
+
     /// Blood of the North and Cho'gall Night (for phase handling)
     if (GetId() == 54637 || GetId() == 163661)
         return true;
@@ -1374,37 +1405,6 @@ bool Aura::CanBeSaved() const
     // Can't save vehicle auras, it requires both caster & target to be in world
     if (HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
         return false;
-
-    // Incanter's Absorbtion - considering the minimal duration and problems with aura stacking
-    // we skip saving this aura
-    // Also for some reason other auras put as MultiSlot crash core on keeping them after restart,
-    // so put here only these for which you are sure they get removed
-    switch (GetId())
-    {
-        // Silithyst
-        case 29519:
-        // Incanter's Absorbtion - considering the minimal duration and problems with aura stacking
-        // we skip saving this aura
-        case 40075: // Fel Flak Fire
-        case 55849: // Power Spark
-        // Nature's Bounty //< @todo this spell is rename since 5.0.1
-        case 96206:
-        // Dark Flames
-        case 99158:
-        // Don't save special liquid auras
-        case 101619: // Magma, Fall of Azeroth
-        case 97151: // Magma, Firelands
-        case 81114: // Magma, Blackwing Descent
-        case 57634: // Magma, CoA Black / Chamber
-        case 42201: // Water, Hyjal Past
-        case 37025: // Water, Coilfang Raid
-        case 36444: // Water, Lake Wintergrasp
-        case 28801: // Slime, Naxxramas
-        case 168506:///< Ancient Artifact (Ashran PvP Zone)
-            return false;
-        default:
-            break;
-    }
 
     // don't save auras removed by proc system
     if (IsUsingCharges() && !GetCharges())

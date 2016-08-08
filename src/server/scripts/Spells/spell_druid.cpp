@@ -718,7 +718,7 @@ class spell_dru_natures_vigil: public SpellScriptLoader
             {
                 NatureVigilHeal = 124988,
                 NatureVigilDamage = 124991,
-				Starfall = 50288
+                Starfall = 50288
             };
 
             void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_EventInfo)
@@ -737,9 +737,9 @@ class spell_dru_natures_vigil: public SpellScriptLoader
                         l_SpellProcInfo->Effects[i].TargetB.GetTarget() == 0)
                         l_SingleTarget = true;
                 }
-				///< Starfall is not a mono target spell
-				if (l_SpellProcInfo->Id == eSpells::Starfall)
-					l_SingleTarget = false;
+                ///< Starfall is not a mono target spell
+                if (l_SpellProcInfo->Id == eSpells::Starfall)
+                    l_SingleTarget = false;
 
                 if (!l_SingleTarget)
                     return;
@@ -6119,42 +6119,42 @@ public:
 /// Glyph of One with Nature - 146656
 class spell_dru_one_with_nature_glyph : public SpellScriptLoader
 {
-public:
-    spell_dru_one_with_nature_glyph() : SpellScriptLoader("spell_dru_one_with_nature_glyph") { }
+    public:
+        spell_dru_one_with_nature_glyph() : SpellScriptLoader("spell_dru_one_with_nature_glyph") { }
 
-    class spell_dru_one_with_nature_glyph_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_one_with_nature_glyph_AuraScript);
-
-        enum eSpells
+        class spell_dru_one_with_nature_glyph_AuraScript : public AuraScript
         {
-            OneWithNatureGlyph = 146656,
-            OneWithNature = 147420
+            PrepareAuraScript(spell_dru_one_with_nature_glyph_AuraScript);
+
+            enum eSpells
+            {
+                OneWithNatureGlyph = 146656,
+                OneWithNature = 147420
+            };
+
+            void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    l_Player->learnSpell(OneWithNature, true);
+            }
+
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    l_Player->removeSpell(OneWithNature);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_one_with_nature_glyph_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectApplyFn(spell_dru_one_with_nature_glyph_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
         };
 
-        void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+        AuraScript* GetAuraScript() const
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->learnSpell(OneWithNature, true);
+            return new spell_dru_one_with_nature_glyph_AuraScript();
         }
-
-        void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
-        {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-                l_Player->removeSpell(OneWithNature);
-        }
-
-        void Register()
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_dru_one_with_nature_glyph_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectApplyFn(spell_dru_one_with_nature_glyph_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dru_one_with_nature_glyph_AuraScript();
-    }
 };
 
 /// Glyph of Charm Woodland Creature - 57855

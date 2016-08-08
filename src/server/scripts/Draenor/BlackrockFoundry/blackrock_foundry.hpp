@@ -99,12 +99,18 @@ enum eFoundryCreatures
     ZiplineStalker          = 82538,
     IronCannon              = 78152,
     /// Blackhand's Crucible - Part 4
+    ForgemistressFlamehand  = 87989,
     /// Blackhand
-    BossBlackhand           = 77325
+    BossBlackhand           = 77325,
+    BlackrockFoundryTrigger = 77558,
+    CeilingStalker          = 77570,
+    AchievementStalker      = 80831
 };
 
 enum eFoundryGameObjects
 {
+    HardenedSlagEntrance        = 238838,
+    HardenedSlagBlastFurnace    = 238834,
     /// Slagworks - Part 1
     SlagworksDoor               = 238835,
     GruulSpikeDoor              = 230930,
@@ -176,7 +182,16 @@ enum eFoundryGameObjects
     AmmoLoader                  = 234028,
     /// Blackhand's Crucible - Part 4
     SpikeGate                   = 232556,
-    CrucibleDoor                = 233006
+    CrucibleDoor                = 233006,
+    PreBlackhandsGate           = 237109,
+    BlackhandsGate              = 233007,
+    BlackhandsCrucible01        = 233950,
+    BlackhandsCrucible02        = 233951,
+    BlackhandsCrucible03        = 233952,
+    BlackhandsCrucible04        = 233953,
+    BlackhandsCrucible05        = 233954,
+    BlackhandAPlatform          = 230193,
+    HangingIronStar             = 233841
 };
 
 enum eFoundryDatas
@@ -212,6 +227,7 @@ enum eFoundryDatas
     DataAfterFightAddCount,
     DataThogarIntroStarted,
     IronMaidensKillTimer,
+    BlackhandAshCollected,
 
     /// Counters
     /// Gruul
@@ -238,7 +254,9 @@ enum eFoundryDatas
     DataGromkarFiremender   = 2,
     /// Iron Maidens
     IronMaidensCount        = 3,
-    ShipExplosionSceneID    = 777
+    ShipExplosionSceneID    = 777,
+    /// Blackhand
+    MaxAshesToCollect       = 20
 };
 
 enum eFoundrySpells
@@ -256,7 +274,8 @@ enum eFoundryAchievements
     TheSteelHasBeenBrought  = 8929,
     WouldYouGiveMeAHand     = 8983,
     FainWouldLieDown        = 8981,
-    BeQuickOrBeDead         = 8984
+    BeQuickOrBeDead         = 8984,
+    AshesAshes              = 8952
 };
 
 enum eFoundryCriterias

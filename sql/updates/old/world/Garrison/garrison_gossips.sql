@@ -20,8 +20,10 @@ replace into `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`
 ('1','18','0','Create me a garrison.','0','0','0','0','0','0',NULL),
 ('1','19','0','Time to get back to work.','0','0','0','0','0','0',NULL),
 ('1','20','0','Gather Shelly\'s report.','0','0','0','0','0','0',NULL),
-('1','21','0','Gazlowe needs you.','0','0','0','0','0','0',NULL);
+('1','21','0','Gazlowe needs you.','0','0','0','0','0','0',NULL),
+('1','22','0','I would like to recruit a follower','0','0','0','0','0','0',NULL),
+('1','23','0','I would like to pick what we plant next.','0','0','0','0','0','0',NULL);
 
 -- need another parse of BroadcastText.db2 for all used locales, updated to 6.2.3 DBCs.
-INSERT INTO locales_gossip_menu_option (menu_id, id, option_text_loc1, option_text_loc2, option_text_loc3, option_text_loc8, option_text_loc9) VALUE
+REPLACE INTO locales_gossip_menu_option (menu_id, id, option_text_loc1, option_text_loc2, option_text_loc3, option_text_loc8, option_text_loc9) VALUE
 (1, 0, "I would like to place an order.", "Je voudrais passer une commande.", "Ich möchte einen Arbeitsauftrag erteilen.", "Я хочу сделать заказ.", "Me gustaría realizar un pedido.");

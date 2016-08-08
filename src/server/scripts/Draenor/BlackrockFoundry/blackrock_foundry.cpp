@@ -8,6 +8,7 @@
 
 # include "boss_operator_thogar.hpp"
 # include "boss_iron_maidens.hpp"
+# include "boss_blackhand.hpp"
 
 /// Iron Flame Binder - 87515
 class npc_foundry_iron_flame_binder : public CreatureScript
@@ -517,7 +518,7 @@ class npc_foundry_iron_slag_shaper : public CreatureScript
             {
                 m_Events.Reset();
 
-                AddTimedDelayedOperation(100, [this]() -> void
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     me->CastSpell(me, eSpells::AnimateSlag, false);
                 });
@@ -533,7 +534,7 @@ class npc_foundry_iron_slag_shaper : public CreatureScript
             {
                 if (p_Action == eAction::ActionRescheduleSlag)
                 {
-                    AddTimedDelayedOperation(100, [this]() -> void
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
                         me->CastSpell(me, eSpells::AnimateSlag, false);
                     });
@@ -620,7 +621,7 @@ class npc_foundry_slagshop_worker : public CreatureScript
 
                 if (me->FindNearestCreature(eCreature::SlagshopBrute, 10.0f) != nullptr)
                 {
-                    AddTimedDelayedOperation(urand(1 * TimeConstants::IN_MILLISECONDS, 120 * TimeConstants::IN_MILLISECONDS), [this]() -> void
+                    AddTimedDelayedOperation(urand(30 * TimeConstants::IN_MILLISECONDS, 120 * TimeConstants::IN_MILLISECONDS), [this]() -> void
                     {
                         Talk(eTalk::TalkCosmetic);
 
@@ -669,7 +670,7 @@ class npc_foundry_slagshop_worker : public CreatureScript
 
             void LastOperationCalled() override
             {
-                AddTimedDelayedOperation(urand(1 * TimeConstants::IN_MILLISECONDS, 120 * TimeConstants::IN_MILLISECONDS), [this]() -> void
+                AddTimedDelayedOperation(urand(30 * TimeConstants::IN_MILLISECONDS, 120 * TimeConstants::IN_MILLISECONDS), [this]() -> void
                 {
                     Talk(eTalk::TalkCosmetic);
 
@@ -4257,6 +4258,124 @@ class npc_foundry_iron_cleaver : public CreatureScript
         }
 };
 
+/// Forgemistress Flamehand - 87989
+class npc_foundry_forgemistress_flamehand : public CreatureScript
+{
+    public:
+        npc_foundry_forgemistress_flamehand() : CreatureScript("npc_foundry_forgemistress_flamehand") { }
+
+        enum eSpells
+        {
+            FlameJetsAoETarget  = 175576,
+            DisableFlameJets    = 177554,
+            FlameJetAreaTrigger = 175579,
+            LivingBlazeCasting  = 175583
+        };
+
+        enum eEvents
+        {
+            EventActivateFlameJets = 1,
+            EventLivingBlaze
+        };
+
+        struct npc_foundry_forgemistress_flamehandAI : public ScriptedAI
+        {
+            npc_foundry_forgemistress_flamehandAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                me->CastSpell(me, eSpells::DisableFlameJets, true);
+            }
+
+            void EnterCombat(Unit* /*p_Attacker*/) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventActivateFlameJets, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventLivingBlaze, 12 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::FlameJetsAoETarget:
+                    {
+                        p_Target->CastSpell(p_Target, eSpells::FlameJetAreaTrigger, true);
+                        break;
+                    }
+                    case eSpells::DisableFlameJets:
+                    {
+                        p_Target->RemoveAllAreasTrigger();
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void JustDied(Unit* /*p_Killer*/) override
+            {
+                me->CastSpell(me, eSpells::DisableFlameJets, true);
+
+                if (InstanceScript* l_Instance = me->GetInstanceScript())
+                {
+                    if (GameObject* l_Door = GameObject::GetGameObject(*me, l_Instance->GetData64(eFoundryGameObjects::PreBlackhandsGate)))
+                        l_Door->SetGoState(GOState::GO_STATE_ACTIVE);
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                UpdateOperations(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                if (me->GetDistance(me->GetHomePosition()) >= 70.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventActivateFlameJets:
+                    {
+                        me->CastSpell(me, eSpells::FlameJetsAoETarget, true);
+                        m_Events.ScheduleEvent(eEvents::EventActivateFlameJets, 21 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventLivingBlaze:
+                    {
+                        me->CastSpell(me, eSpells::LivingBlazeCasting, false);
+                        m_Events.ScheduleEvent(eEvents::EventLivingBlaze, 23 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_foundry_forgemistress_flamehandAI(p_Creature);
+        }
+};
+
 /// Grievous Mortal Wounds - 175624
 class spell_foundry_grievous_mortal_wounds : public SpellScriptLoader
 {
@@ -5295,6 +5414,95 @@ class areatrigger_foundry_workers_solidarity : public AreaTriggerEntityScript
         }
 };
 
+/// Flame Jet - 175579
+class areatrigger_foundry_flame_jet : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_foundry_flame_jet() : AreaTriggerEntityScript("areatrigger_foundry_flame_jet") { }
+
+        enum eSpell
+        {
+            FlameJetDoT = 175577
+        };
+
+        std::set<uint64> m_AffectedPlayers;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+
+                float l_Radius  = 20.0f;
+                float l_Width   = 5.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
+                l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                if (!l_TargetList.empty())
+                {
+                    l_TargetList.remove_if([this, l_Caster, l_Width](Unit* p_Unit) -> bool
+                    {
+                        if (p_Unit == nullptr)
+                            return true;
+
+                        if (!l_Caster->HasInLine(p_Unit, l_Width))
+                            return true;
+
+                        return false;
+                    });
+                }
+
+                std::set<uint64> l_Targets;
+
+                for (Unit* l_Iter : l_TargetList)
+                {
+                    l_Targets.insert(l_Iter->GetGUID());
+
+                    if (!l_Iter->HasAura(eSpell::FlameJetDoT))
+                    {
+                        m_AffectedPlayers.insert(l_Iter->GetGUID());
+                        l_Iter->CastSpell(l_Iter, eSpell::FlameJetDoT, true);
+                    }
+                }
+
+                for (std::set<uint64>::iterator l_Iter = m_AffectedPlayers.begin(); l_Iter != m_AffectedPlayers.end();)
+                {
+                    if (l_Targets.find((*l_Iter)) != l_Targets.end())
+                    {
+                        ++l_Iter;
+                        continue;
+                    }
+
+                    if (Unit* l_Unit = Unit::GetUnit(*l_Caster, (*l_Iter)))
+                    {
+                        l_Iter = m_AffectedPlayers.erase(l_Iter);
+                        l_Unit->RemoveAura(eSpell::FlameJetDoT);
+
+                        continue;
+                    }
+
+                    ++l_Iter;
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
+        {
+            for (uint64 l_Iter : m_AffectedPlayers)
+            {
+                if (Unit* l_Unit = Unit::GetUnit(*p_AreaTrigger, l_Iter))
+                    l_Unit->RemoveAura(eSpell::FlameJetDoT);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_foundry_flame_jet();
+        }
+};
+
 /// First Floor Trap - 10276
 class areatrigger_at_foundry_first_floor_trap : public AreaTriggerScript
 {
@@ -5480,6 +5688,37 @@ class areatrigger_at_foundry_iron_maidens_entrance : public AreaTriggerScript
         }
 };
 
+/// Blackhand Entrance - 10275
+class areatrigger_at_foundry_blackhand_entrance : public AreaTriggerScript
+{
+    public:
+        areatrigger_at_foundry_blackhand_entrance() : AreaTriggerScript("areatrigger_at_foundry_blackhand_entrance")
+        {
+            m_Activated = false;
+        }
+
+        bool m_Activated;
+
+        void OnEnter(Player* p_Player, AreaTriggerEntry const* /*p_AreaTrigger*/) override
+        {
+            if (m_Activated)
+                return;
+
+            if (InstanceScript* l_Instance = p_Player->GetInstanceScript())
+            {
+                l_Instance->instance->SetObjectVisibility(500.0f);
+
+                if (Creature* l_Blackhand = Creature::GetCreature(*p_Player, l_Instance->GetData64(eFoundryCreatures::BossBlackhand)))
+                {
+                    if (l_Blackhand->IsAIEnabled)
+                        l_Blackhand->AI()->DoAction(eBlackhandActions::BlackhandIntro);
+                }
+            }
+
+            m_Activated = true;
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_blackrock_foundry()
 {
@@ -5526,6 +5765,7 @@ void AddSC_blackrock_foundry()
     new npc_foundry_inferno_totem();
     new npc_foundry_iron_mauler();
     new npc_foundry_iron_cleaver();
+    new npc_foundry_forgemistress_flamehand();
 
     /// Spells
     new spell_foundry_grievous_mortal_wounds();
@@ -5551,6 +5791,7 @@ void AddSC_blackrock_foundry()
     new areatrigger_foundry_electrical_storm();
     new areatrigger_foundry_ice_trap();
     new areatrigger_foundry_workers_solidarity();
+    new areatrigger_foundry_flame_jet();
 
     /// AreaTriggers (world)
     new areatrigger_at_foundry_first_floor_trap();
@@ -5558,5 +5799,6 @@ void AddSC_blackrock_foundry()
     new areatrigger_at_foundry_hansgar_and_franzok_entrance();
     new areatrigger_at_foundry_hansgar_and_franzok_exit();
     new areatrigger_at_foundry_iron_maidens_entrance();
+    new areatrigger_at_foundry_blackhand_entrance();
 }
 #endif

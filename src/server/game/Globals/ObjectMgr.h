@@ -1617,12 +1617,14 @@ class ObjectMgr
         CharacterConversionMap FactionChange_Spells;
         CharacterConversionMap FactionChange_Reputation;
         CharacterConversionMap FactionChange_Titles;
+        CharacterConversionMap FactionChange_Quests;
 
         void LoadFactionChangeAchievements();
         void LoadFactionChangeItems();
         void LoadFactionChangeSpells();
         void LoadFactionChangeReputations();
         void LoadFactionChangeTitles();
+        void LoadFactionChangeQuests();
 
         void LoadHotfixData(bool p_Reload = false);
         void LoadHotfixTableHashs();

@@ -19,6 +19,7 @@
 #include "ObjectMgr.h"
 #include "MapRefManager.h"
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 
 /// Put scripts in the execution queue
 void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, Object* target)
@@ -919,4 +920,21 @@ void Map::ScriptsProcess()
         iter = m_scriptSchedule.begin();
         sScriptMgr->DecreaseScheduledScriptCount();
     }
+}
+
+bool Map::CollideWithScriptedGameObject(float p_X, float p_Y, float p_Z, float* p_OutZ /*= nullptr*/) const
+{
+    for (uint64 l_Guid : m_ScriptedCollisionGobs)
+    {
+        if (GameObject* l_GoB = HashMapHolder<GameObject>::Find(l_Guid))
+        {
+            if (l_GoB->AI())
+            {
+                if (l_GoB->AI()->ScriptedCollide(p_X, p_Y, p_Z, p_OutZ))
+                    return true;
+            }
+        }
+    }
+
+    return false;
 }

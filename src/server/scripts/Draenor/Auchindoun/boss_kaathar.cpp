@@ -589,7 +589,6 @@ class boss_kaathar : public CreatureScript
         {
             _JustReachedHome();      
             summons.DespawnAll();
-			ActivateDoors();
         }
 
         void MoveInLineOfSight(Unit* p_Who) override
@@ -705,28 +704,6 @@ class boss_kaathar : public CreatureScript
                 }               
             }
 
-            /// Phases Teronogor and all the other creatures back to phase 1
-            uint32 l_CreaturesTeronogorPhaseIn[7] = { eAuchindounCreatures::CreatureZipteq, eAuchindounCreatures::CreatureZashoo, eAuchindounCreatures::CreatureShaadum,
-                eAuchindounCreatures::CreatureGromtashTheDestructor, eAuchindounCreatures::CreatureGulkosh, eAuchindounCreatures::CreatureDurem, eAuchindounBosses::BossTeronogor };
-
-            std::list<Creature*> l_ListCreatures;
-
-            for (uint8 l_I = 0; l_I < 7; l_I++)
-            {
-                me->GetCreatureListWithEntryInGrid(l_ListCreatures, l_CreaturesTeronogorPhaseIn[l_I], 700.0f);
-            }
-
-            if (!l_ListCreatures.empty())
-            {
-                for (Creature* l_Itr : l_ListCreatures)
-                {
-                    if (!l_Itr)
-                        continue;
-
-                    l_Itr->SetPhaseMask(4, true);
-                }
-            }
-
 			DespawnAllAucheniDraeneis();
 
             /// Remove the auchenai shield npc
@@ -825,23 +802,17 @@ class boss_kaathar : public CreatureScript
                 }
                 case eKaatharEvents::EventSanctifiedStrike:
                 {
-                    DoCastVictim(eKaatharSpells::SpellSanctifiedStrikeDummy);
-                    float l_PosX = me->GetPositionX();
-                    float l_PosY = me->GetPositionY();
-                    float l_Orientation = me->GetOrientation() * M_PI;
+                    DoCastVictim(eKaatharSpells::SpellSanctifiedStrikeDummy);             
+  
                     for (uint8 l_I = 0; l_I <= 10; l_I++)
                     {
-                        if (l_I == 9 || l_I == 5 || l_I == 6)
-                            l_Orientation = l_Orientation / 4;
-                        me->SummonCreature(eKaatharCreatures::TriggerFissureSummoner, l_PosX, l_PosY, me->GetPositionZ(), l_Orientation, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS);
+                        float l_PosX = me->GetPositionX() + (l_I + 1) * cos(me->m_orientation);;
+                        float l_PosY = me->GetPositionY() + l_I * sin(me->m_orientation);
+
                         l_PosX += frand(0.5f, 1.8f);
                         l_PosY += frand(0.7f, 1.9f);
-                    }
-                    for (uint8 l_I = 0; l_I <= 4; l_I++)
-                    {
-                        l_PosX -= 3;
-                        l_PosY -= float(2.7);
-                        me->SummonCreature(eKaatharCreatures::TriggerFissureSummoner, l_PosX, l_PosY, me->GetPositionZ(), l_Orientation / 2 + l_I, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS);
+
+                        me->SummonCreature(eKaatharCreatures::TriggerFissureSummoner, l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS);                 
                     }
                     events.ScheduleEvent(eKaatharEvents::EventSanctifiedStrike, 8 * TimeConstants::IN_MILLISECONDS);
                     break;
@@ -981,6 +952,50 @@ public:
     }
 };
 
+/// Post Fight Summoner to Center - 324235
+class auchindoun_kaathar_mob_teleport_players : public CreatureScript
+{
+public:
+
+    auchindoun_kaathar_mob_teleport_players() : CreatureScript("auchindoun_kaathar_mob_teleport_players") { }
+
+    struct auchindoun_kaathar_mob_teleport_playersAI : public ScriptedAI
+    {
+        auchindoun_kaathar_mob_teleport_playersAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        {
+            m_Instance = p_Creature->GetInstanceScript();
+        }
+
+        InstanceScript* m_Instance;
+
+        void Reset() override
+        {
+            me->SetReactState(ReactStates::REACT_PASSIVE);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+        }
+
+        void UpdateAI(const uint32 p_Diff) override
+        {
+            if (m_Instance != nullptr)
+            {
+                if (Creature* l_Kaathar = m_Instance->instance->GetCreature(m_Instance->GetData64(eAuchindounDatas::DataBossKathaar)))
+                {
+                    if (l_Kaathar->isDead())
+                    {
+                        if (Player * l_Player = me->FindNearestPlayer(10.0f, true))
+                            l_Player->TeleportTo(1182, 1904.29f, 3185.111f, 30.799f, 3.34086f);
+                    }
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const override
+    {
+        return new auchindoun_kaathar_mob_teleport_playersAI(p_Creature);
+    }
+};
 
 /// Holy Shield - 76071
 class auchindoun_kaathar_mob_holy_shield : public CreatureScript
@@ -1314,6 +1329,7 @@ void AddSC_boss_kaathar()
     new auchindoun_kaathar_mob_hallowed_ground();                       ///< 537324
     new auchindoun_kaathar_mob_holy_shield();                           ///< 76071
     new auchindoun_kaathar_mob_nyami();                                 ///< 77810
+    new auchindoun_kaathar_mob_teleport_players();                      ///< 3242352
     new auchindoun_kaathar_spell_consecrated_light();                   ///< 153006
     new auchindoun_kaathar_spell_fate();                                ///< 157465
     new auchindoun_kaathar_spell_sanctified_ground();                   ///< 153430

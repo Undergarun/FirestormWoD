@@ -408,15 +408,18 @@ class spell_at_hun_binding_shot : public AreaTriggerEntityScript
                     return;
 
                 l_TargetList.remove_if([this, l_Caster](Unit* p_Unit) -> bool
-                                       {
-                                           if (p_Unit == nullptr || !l_Caster->IsValidAttackTarget(p_Unit))
-                                               return true;
+                {
+                    if (p_Unit == nullptr || !l_Caster->IsValidAttackTarget(p_Unit))
+                        return true;
 
-                                           if (p_Unit->HasAura(eSpells::BindingShotImmune))
-                                               return true;
+                    if (!l_Caster->IsWithinLOSInMap(p_Unit))
+                        return true;
 
-                                           return false;
-                                       });
+                    if (p_Unit->HasAura(eSpells::BindingShotImmune))
+                        return true;
+
+                    return false;
+                });
 
                 for (Unit* l_Target : l_TargetList)
                 {
@@ -613,7 +616,8 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
             SpellIncapacitate         = 3355,
             SpellGlyphOfSolace        = 119407,
             HunterWodPvp2PBonus       = 166005,
-            HunterWodPvp2PBonusEffect = 166009
+            HunterWodPvp2PBonusEffect = 166009,
+            MurderOfCrows             = 131894
         };
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
@@ -641,6 +645,7 @@ class spell_at_hun_freezing_trap : public AreaTriggerEntityScript
                             l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
                             l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                             l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+                            l_Target->RemoveAura((uint32)HunterFreezingTrap::MurderOfCrows); ///< Special Case for Murder of Crows
                         }
                         l_AreaTriggerCaster->CastSpell(l_Target, (uint32)HunterFreezingTrap::SpellIncapacitate, true);
                         p_AreaTrigger->Remove(0);
@@ -1405,8 +1410,7 @@ class spell_at_monk_chi_burst : public AreaTriggerEntityScript
             if (l_Caster == nullptr)
                 return;
 
-            Player* l_Player = l_Caster->ToPlayer();
-
+            Player* l_Player = l_Caster->GetSpellModOwner();
             if (l_Player == nullptr)
                 return;
 
@@ -1417,11 +1421,14 @@ class spell_at_monk_chi_burst : public AreaTriggerEntityScript
             JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
             p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
-            float l_DmgMult = l_Player->HasSpell(eSpells::FierceTiger) ? 1.2f : 1.0f;
-            float l_HealMult = l_Player->HasSpell(eSpells::SerpentsWise) ? 1.2f : 1.0f;
+            SpellInfo const* l_SpellInfoDamage = sSpellMgr->GetSpellInfo(eSpells::ChiBurstDamage);
+            SpellInfo const* l_SpellInfoHeal = sSpellMgr->GetSpellInfo(eSpells::ChiBurstHeal);
 
-            int32 l_Damage = sSpellMgr->GetSpellInfo(eSpells::ChiBurstDamage)->Effects[EFFECT_0].BasePoints + l_DmgMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
-            int32 l_Healing = sSpellMgr->GetSpellInfo(eSpells::ChiBurstHeal)->Effects[EFFECT_0].BasePoints + l_HealMult * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
+            if (l_SpellInfoDamage == nullptr || l_SpellInfoHeal == nullptr)
+                return;
+
+            int32 l_Damage = l_SpellInfoDamage->Effects[EFFECT_0].BasePoints * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
+            int32 l_Healing = l_SpellInfoHeal->Effects[EFFECT_0].BasePoints * l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 2.75f;
 
             std::list<uint64> l_UnitGUIDList = m_UnitGUIDList;
             l_TargetList.remove_if([this, l_Caster, l_UnitGUIDList](Unit* p_Unit) -> bool

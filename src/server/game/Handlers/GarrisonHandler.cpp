@@ -25,7 +25,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket& /*p_RecvData*/)
     if (!m_Player)
         return;
 
-    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison || !l_Garrison->GetGarrisonSiteLevelEntry())
         return;
@@ -945,7 +945,7 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData)
             return;
         }
 
-        const CharShipmentEntry * l_ShipmentEntry = sCharShipmentStore.LookupEntry(l_ShipmentID);
+        const CharShipmentEntry* l_ShipmentEntry = sCharShipmentStore.LookupEntry(l_ShipmentID);
 
         if (!l_ShipmentEntry)
         {
@@ -953,7 +953,7 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket& p_RecvData)
             return;
         }
 
-        const SpellInfo * l_Spell = sSpellMgr->GetSpellInfo(l_ShipmentEntry->SpellID);
+        const SpellInfo* l_Spell = sSpellMgr->GetSpellInfo(l_ShipmentEntry->SpellID);
 
         if (!l_Spell)
         {
@@ -1056,7 +1056,7 @@ void WorldSession::HandleGarrisonDecommisionShip(WorldPacket& p_RecvData)
 
 void WorldSession::SendGarrisonOpenArchitect(uint64 p_CreatureGUID)
 {
-    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+    MS::Garrison::Manager* l_Garrison = m_Player->GetGarrison();
 
     if (!l_Garrison)
         return;

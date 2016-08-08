@@ -184,3 +184,6 @@ CMakeFiles
 Makefile
 cmake_install.cmake
 install_manifest.txt
+src/server/scripts/Draenor/BlackrockFoundry/blackrock_foundry.cpp
+src/server/scripts/Draenor/BlackrockFoundry/boss_iron_maidens.cpp
+src/server/scripts/Spells/spell_warlock.cpp

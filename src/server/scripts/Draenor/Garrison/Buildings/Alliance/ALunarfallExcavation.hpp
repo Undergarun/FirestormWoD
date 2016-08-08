@@ -30,12 +30,13 @@ namespace MS { namespace Garrison
 
     /// FarmSimulator/GoatSimulator positions
     extern std::vector<GatheringPlotInfos> g_AllyMineDeposits;
+    extern std::vector<SequencePosition> g_PlaceholderAllyVector;
 
     //////////////////////////////////////////////////////////////////////////
     /// 77730 - Timothy Leens                                              ///
     //////////////////////////////////////////////////////////////////////////
 
-    class npc_TimothyLeensAI : public GatheringBuildingMaster<&g_AllyMineDeposits>
+    class npc_TimothyLeensAI : public GatheringBuildingMaster<&g_AllyMineDeposits, &g_PlaceholderAllyVector>
     {
         public:
             /// Constructor

@@ -2442,17 +2442,22 @@ void Guild::LoadRankFromDB(Field* fields)
     m_ranks.push_back(rankInfo);
 }
 
-bool Guild::LoadMemberFromDB(Field* fields)
+bool Guild::LoadMemberFromDB(Field* p_Fields)
 {
-    uint32 lowguid = fields[1].GetUInt32();
-    Member *member = new Member(m_id, MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER), fields[2].GetUInt8());
-    if (!member->LoadFromDB(fields))
+    uint32 l_LowGuid = p_Fields[1].GetUInt32();
+    uint8  l_RankID  = p_Fields[2].GetUInt8();
+
+    if (!RankExist(l_RankID))
+        l_RankID = GR_INITIATE;
+
+    Member *member = new Member(m_id, MAKE_NEW_GUID(l_LowGuid, 0, HIGHGUID_PLAYER), l_RankID);
+    if (!member->LoadFromDB(p_Fields))
     {
-        _DeleteMemberFromDB(lowguid);
+        _DeleteMemberFromDB(l_LowGuid);
         delete member;
         return false;
     }
-    m_members[lowguid] = member;
+    m_members[l_LowGuid] = member;
     return true;
 }
 

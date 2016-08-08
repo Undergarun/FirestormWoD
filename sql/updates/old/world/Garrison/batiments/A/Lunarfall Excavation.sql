@@ -63,10 +63,26 @@
 	55524);
 	
 	UPDATE gameobject_loot_template SET chanceorquestchance = 28 where item = 120945 and entry in (55500, 55519, 55521, 55524);
+	UPDATE gameobject_template SET data17 = 43000 WHERE entry = 232541;
 
 -- LEVEL 2
 
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -62 AND faction_index = 1;
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-62','1','77730','36.5396','-62.3678','30.6719','5.1964');
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-62','1','81348','43.5391','-59.5392','30.6719','5.57049');
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-62','1','-235886','38.5198','-61.2837','30.0886','4.71848');
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-62','1','-232529','42.2523','-62.4901','30.2248','0.061085');
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-62','1','-232530','42.2627','-62.4907','30.0491','3.18522');
+
 -- LEVEL 3
+
+	DELETE FROM garrison_plot_content WHERE plot_type_or_building = -63 AND faction_index = 1;
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-63','1','77730','36.5396','-62.3678','30.6719','5.1964');
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-63','1','81348','43.5391','-59.5392','30.6719','5.57049');
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-63','1','-235886','38.5198','-61.2837','30.0886','4.71848');
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-63','1','-232529','42.2523','-62.4901','30.2248','0.061085');
+	INSERT INTO `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) VALUES('-63','1','-232530','42.2627','-62.4907','30.0491','3.18522');
+
 
 -- Old spawn Datas
 
@@ -407,3 +423,9 @@
 	UPDATE gameobject SET spawntimesecs = 86400 WHERE id IN (232542, 232543, 232544, 232545) AND map = 1330;
 
 	UPDATE gameobject SET spawntimesecs = 86400 WHERE id IN (232542, 232543, 232544, 232545) AND map = 1331;
+	
+-- spellscript for 2 items used in mine
+
+	replace into spell_script_names values 
+	(176049, "spell_aura_garrison_mine_area_check"),
+	(176061, "spell_aura_garrison_mine_area_check");

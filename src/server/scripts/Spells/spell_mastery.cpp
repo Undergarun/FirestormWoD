@@ -71,10 +71,6 @@ class spell_mastery_molten_earth : public SpellScriptLoader
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
 
-                /// Assuming it's a 33.33% proc chance
-                if (!roll_chance_f(33.33f))
-                    return;
-
                 if (l_Target->HasAura(MoltenEarthSpells::MoltenEarthPeriodic, l_Caster->GetGUID()))
                 {
                     if (Aura* l_PeriodicAura = l_Target->GetAura(MoltenEarthSpells::MoltenEarthPeriodic, l_Caster->GetGUID()))
@@ -84,13 +80,13 @@ class spell_mastery_molten_earth : public SpellScriptLoader
                     l_Caster->AddAura(MoltenEarthSpells::MoltenEarthPeriodic, l_Target);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectProc += AuraEffectProcFn(spell_mastery_molten_earth_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_mastery_molten_earth_AuraScript();
         }
@@ -113,25 +109,27 @@ class spell_mastery_molten_earth_periodic: public SpellScriptLoader
                 if (GetOwner() == nullptr)
                     return;
 
-                if (Unit* l_Owner = GetOwner()->ToUnit())
-                {
-                    if (Unit* l_Caster = GetCaster())
-                    {
-                        uint8 l_Count = irand(1, 2);
+                Unit* l_Owner = GetOwner()->ToUnit();
+                if (l_Owner == nullptr)
+                    return;
 
-                        for (uint8 l_I = 0; l_I < l_Count; l_I++)
-                            l_Caster->CastSpell(l_Owner, MoltenEarthSpells::MoltenEarthDamage, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                uint8 l_Count = irand(0, 2);
+
+                for (uint8 l_I = 0; l_I < l_Count; l_I++)
+                    l_Caster->CastSpell(l_Owner, MoltenEarthSpells::MoltenEarthDamage, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_mastery_molten_earth_periodic_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_mastery_molten_earth_periodic_AuraScript();
         }
@@ -168,13 +166,13 @@ class spell_mastery_molten_earth_damage : public SpellScriptLoader
             }
 
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_mastery_molten_earth_damage_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_mastery_molten_earth_damage_SpellScript;
         }

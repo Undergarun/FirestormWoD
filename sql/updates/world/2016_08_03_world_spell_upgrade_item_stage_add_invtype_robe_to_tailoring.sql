@@ -1,0 +1,1 @@
+UPDATE spell_upgrade_item_stage SET InventoryTypeMask = 1050628 WHERE ItemBonusTreeCategory = 205 AND ItemClass = 4 AND MaxIlevel = 685;

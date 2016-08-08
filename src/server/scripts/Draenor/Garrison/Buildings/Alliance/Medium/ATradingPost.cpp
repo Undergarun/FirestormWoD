@@ -71,7 +71,7 @@ namespace MS { namespace Garrison
 
     bool npc_TraderJoseph::OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/)
     {
-        if (p_Quest->GetQuestId() == Quests::Horde_TricksOfTheTrade)
+        if (p_Quest->GetQuestId() == Quests::Alliance_TricksOfTheTrade)
         {
             GarrisonNPCAI* l_AI = p_Creature->ToGarrisonNPCAI();
 

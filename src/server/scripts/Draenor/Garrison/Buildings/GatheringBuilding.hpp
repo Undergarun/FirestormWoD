@@ -38,13 +38,13 @@ namespace MS { namespace Garrison
     /// @t_ScriptName   : Script name
     /// @t_Skill        : Building target skill type
     /// @t_QuestID      : Building work order quest
-    template<std::vector<GatheringPlotInfos>* t_Plots>
+    template<std::vector<GatheringPlotInfos>* t_Plots, std::vector<SequencePosition>* t_FruitsPosition>
     class GatheringBuildingMaster : public GarrisonNPCAI
     {
         public:
             /// Constructor
             /// @p_Creature : Creature instance
-            GatheringBuildingMaster(Creature * p_Creature)
+            GatheringBuildingMaster(Creature* p_Creature)
                 : GarrisonNPCAI(p_Creature), m_GatheringPlotsAreSpawned(false), m_NextUpdate(1 * IN_MILLISECONDS)
             {
 
@@ -60,7 +60,92 @@ namespace MS { namespace Garrison
                 {
                     UpdateGatheringPlots();
                     m_NextUpdate = MINUTE * IN_MILLISECONDS;
+
+                    /// Special check for Herb Garden trees
+                    if (GetBuildingID() == Building::ID::HerbGarden_HerbGarden_Level3)
+                    {
+                        Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
+
+                        if (!l_GarrisonSite)
+                            return;
+
+                        GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(GetBuildingID());
+
+                        if (!l_BuildingEntry)
+                            return;
+
+                        Player* l_Owner = l_GarrisonSite->GetOwner();
+
+                        if (l_Owner == nullptr)
+                            return;
+
+                        if ((uint64)time(nullptr) >= (l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonHerbGardenFruitGatheringTimestamp) + (2 * HOUR * IN_MILLISECONDS)))
+                        {
+                            for (uint64 l_GobGUID : m_HerbGardenFruitsGUIDs)
+                            {
+                                GameObject* l_Gob = HashMapHolder<GameObject>::Find(l_GobGUID);
+
+                                if (l_Gob == nullptr)
+                                    continue;
+
+                                l_Owner->SendObjectDeSpawnAnim(l_GobGUID);
+                                l_Gob->DestroyForNearbyPlayers();
+                                l_Gob->AddObjectToRemoveList();
+                            }
+
+                            for (uint32 l_I = 0; l_I < t_FruitsPosition->size(); ++l_I)
+                            {
+                                if (GameObject* l_Gob = SummonRelativeGameObject(l_Owner->GetCharacterWorldStateValue(CharacterWorldStates::GarrisonHerbGardenFruitType), t_FruitsPosition->at(l_I).X, t_FruitsPosition->at(l_I).Y, t_FruitsPosition->at(l_I).Z, 0.0f))
+                                    m_HerbGardenFruitsGUIDs.push_back(l_Gob->GetGUID());
+                            }
+
+                            l_Owner->SetCharacterWorldState(CharacterWorldStates::GarrisonHerbGardenFruitGatheringTimestamp, (uint64)time(nullptr));
+                        }
+                    }
                 }
+            }
+
+            virtual void OnDailyDataReset() override
+            {
+                if (me->GetEntry() == 81981 || me->GetEntry() == 85344) ///< Herb Garden (Tarnon/Naron Bloomthistle)
+                {
+                    InitGatheringPlots(6);   ///< HerbSpawnType::Random (missing script include)
+
+                /// Handling Tree fruits reset
+                    {
+                        std::array<uint32, 5> const l_Gobs =
+                        {
+                            GameObjects::GobGiantNagrandCherry,
+                            GameObjects::GobFuzzyPear,
+                            GameObjects::GobGreenskinApple,
+                            GameObjects::GobORukOrange,
+                            GameObjects::GobIronpeelPlantain
+                        };
+
+                        Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
+
+                        if (!l_GarrisonSite)
+                            return;
+
+                        GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(GetBuildingID());
+
+                        if (!l_BuildingEntry)
+                            return;
+
+                        Player* l_Owner = l_GarrisonSite->GetOwner();
+
+                        if (l_Owner == nullptr)
+                            return;
+
+                        if (GetBuildingID() == Building::ID::HerbGarden_HerbGarden_Level3)
+                        {
+                            l_Owner->SetCharacterWorldState(CharacterWorldStates::GarrisonHerbGardenFruitGatheringTimestamp, ((uint64)time(nullptr) - (2 * HOUR * IN_MILLISECONDS)));
+                            l_Owner->SetCharacterWorldState(CharacterWorldStates::GarrisonHerbGardenFruitType, l_Gobs[urand(0, l_Gobs.size() - 1)]);
+                        }
+                    }
+                }
+                else
+                    InitGatheringPlots(0);
             }
 
             /// Select game object entry for a fresh gathering spawn
@@ -160,6 +245,52 @@ namespace MS { namespace Garrison
 
                 l_Owner->GetGarrison()->SetBuildingGatheringData(GetPlotInstanceID(), l_Str.str());
             }
+            /// Reset gathering plots
+            void ResetGatheringPlots(uint32 p_NewMiscData)
+            {
+                Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
+
+                if (l_GarrisonSite == nullptr)
+                    return;
+
+                Player* l_Owner = l_GarrisonSite->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                Manager* l_GarrisonMgr = l_Owner->GetGarrison();
+
+                if (l_GarrisonMgr == nullptr)
+                    return;
+
+                Tokenizer l_Datas(l_GarrisonMgr->GetBuildingGatheringData(GetPlotInstanceID()), ' ');
+
+                uint8  l_Index = 0;
+                uint32 l_MiscData = atol(l_Datas[l_Index++]);
+                uint32 l_PrevSpawnTimeStamp = atol(l_Datas[l_Index++]);
+                uint32 l_NextSpawnTimeStamp = atol(l_Datas[l_Index++]);
+                uint32 l_BuildingLevel = atol(l_Datas[l_Index++]);
+
+                GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(l_GarrisonMgr->GetBuilding(GetPlotInstanceID()).BuildingID);
+
+                if (l_BuildingEntry == nullptr)
+                    return;
+
+                std::ostringstream l_Str;
+                l_Str << p_NewMiscData << " " << l_PrevSpawnTimeStamp << " " << l_NextSpawnTimeStamp << " " << l_BuildingEntry->Level;
+
+                for (uint32 l_I = 0; l_I < t_Plots->size(); ++l_I)
+                {
+                    if (t_Plots->at(l_I).BuildingLevel != l_BuildingEntry->Level)
+                        continue;
+
+                    l_Str << " " << SelectGameObjectEntryForGatheringSpawn(p_NewMiscData);
+                }
+
+                l_Owner->GetGarrison()->SetBuildingGatheringData(GetPlotInstanceID(), l_Str.str());
+
+                UpdateGatheringPlots();
+            }
             /// Update gathering plots
             void UpdateGatheringPlots(int p_Recursion = 0)
             {
@@ -173,28 +304,37 @@ namespace MS { namespace Garrison
 
                 GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(GetBuildingID());
 
-                if (!l_BuildingEntry)
+                if (l_BuildingEntry == nullptr)
                     return;
 
                 Player* l_Owner = l_GarrisonSite->GetOwner();
 
-                if (!l_Owner)
+                if (l_Owner == nullptr)
                     return;
 
                 MS::Garrison::Manager* l_Manager = l_Owner->GetGarrison();
-                if (!l_Manager)
+                if (l_Manager == nullptr)
+                    return;
+
+                GarrBuildingEntry const* l_Building = sGarrBuildingStore.LookupEntry(l_Manager->GetBuilding(GetPlotInstanceID()).BuildingID);
+
+                if (l_Building == nullptr)
                     return;
 
                 Tokenizer l_Datas(l_Manager->GetBuildingGatheringData(GetPlotInstanceID()), ' ');
 
                 if (l_Datas.size() < 4 || l_Manager->GetBuildingGatheringData(GetPlotInstanceID()) == "" || p_Recursion >= 5)
                 {
-                    InitGatheringPlots(0);
+                    if (l_Building->Type == Building::Type::Farm)
+                        InitGatheringPlots(6); ///< HerbSpawnType::Random (missing script include)
+                    else
+                        InitGatheringPlots(0);
+
                     UpdateGatheringPlots(p_Recursion + 1);
                     return;
                 }
                 
-                uint8 l_Index = 0;
+                uint8  l_Index              = 0;
                 uint32 l_MiscData           = atol(l_Datas[l_Index++]);
                 uint32 l_PrevSpawnTimeStamp = atol(l_Datas[l_Index++]);
                 uint32 l_NextSpawnTimeStamp = atol(l_Datas[l_Index++]);
@@ -232,14 +372,42 @@ namespace MS { namespace Garrison
                     {
                         for (uint32 l_I = 0; l_I < t_Plots->size(); ++l_I)
                         {
-                            GatheringPlotInfos& l_Plot = t_Plots->at(l_I);
-                            if (l_Plot.BuildingLevel != l_BuildingEntry->Level)
+                            GatheringPlotInfos& l_Plot = (*t_Plots)[l_I];
+                            if (l_Plot.BuildingLevel != l_BuildingEntry->Level || l_Index + 1 > l_Datas.size())
+                                continue;
+
+                            bool l_Cart = false;
+
+                            /// This switch will select specific entries in the vector to spawn carts at the right place (it's about Mine building)
+                            switch (l_I)
+                            {
+                                case 22:
+                                case 23:
+                                case 24:
+                                case 46:
+                                case 47:
+                                case 48:
+                                case 49:
+                                    if (l_BuildingEntry->Type == Building::Type::Mine)
+                                    {
+                                        l_Cart = true;
+                                        SummonRelativeGameObject(232541, l_Plot.X, l_Plot.Y, l_Plot.Z, l_Plot.O); ///< Mining cart - 232541
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            if (l_Cart)
                                 continue;
 
                             uint32 l_StateOrGobEntry = atol(l_Datas[l_Index++]);
                     
                             if (l_StateOrGobEntry != 0)
-                                SummonRelativeGameObject(l_StateOrGobEntry, l_Plot.X, l_Plot.Y, l_Plot.Z, l_Plot.O);
+                            {
+                                if (GameObject* l_Gob = SummonRelativeGameObject(l_StateOrGobEntry, l_Plot.X, l_Plot.Y, l_Plot.Z, l_Plot.O))
+                                    m_GatheringPlotGUIDs.push_back(l_Gob->GetGUID());
+                            }
                         }
 
                         m_GatheringPlotsAreSpawned = true;
@@ -318,6 +486,8 @@ namespace MS { namespace Garrison
             }
 
         private:
+            std::vector<uint64> m_GatheringPlotGUIDs;
+            std::vector<uint64> m_HerbGardenFruitsGUIDs;
             bool m_GatheringPlotsAreSpawned;    ///< Is gathering plots spawned
             int32 m_NextUpdate;                 ///< Last update
 

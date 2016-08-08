@@ -162,6 +162,20 @@ bool PlayerTaxi::SetTaximaskNode(uint32 p_NodeID)
         return false;
 }
 
+bool PlayerTaxi::RemoveTaximaskNode(uint32 p_NodeID)
+{
+    uint8  l_Field = uint8((p_NodeID - 1) / 8);
+    uint32 l_SubMask = 1 << ((p_NodeID - 1) % 8);
+
+    if (m_TaxiMask[l_Field] & l_SubMask)
+    {
+        m_TaxiMask[l_Field] &= ~l_SubMask;
+        return true;
+    }
+    else
+        return false;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 

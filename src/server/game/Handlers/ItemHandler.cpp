@@ -1103,6 +1103,9 @@ void WorldSession::HandleDepositAllReagentsOpcode(WorldPacket& p_RecvData)
                     if (l_Item->GetTemplate()->Class != ITEM_CLASS_TRADE_GOODS)
                         continue;
 
+                    if (!(l_Item->GetTemplate()->Flags2 & ITEM_FLAG2_CRAFTING_MATERIAL))
+                        continue;
+
                     uint8 l_Slot2 = m_Player->GetFreeReagentBankSlot();
 
                     if (!m_Player->IsValidPos(INVENTORY_SLOT_BAG_0, l_J, true))
@@ -1125,6 +1128,9 @@ void WorldSession::HandleDepositAllReagentsOpcode(WorldPacket& p_RecvData)
         if (Item* l_Item = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_I))
         {
             if (l_Item->GetTemplate()->Class != ITEM_CLASS_TRADE_GOODS)
+                continue;
+
+            if (!(l_Item->GetTemplate()->Flags2 & ITEM_FLAG2_CRAFTING_MATERIAL))
                 continue;
 
             uint8 l_Slot2 = m_Player->GetFreeReagentBankSlot();
@@ -1185,6 +1191,62 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPacket& p_RecvData)
     m_Player->BankItem(l_Dest, l_Item, true);
 }
 
+void WorldSession::HandleAutoBankReagentOpcode(WorldPacket& p_RecvPacket)
+{
+    uint8 l_PackSlot;
+    uint8 l_Slot;
+    uint8 l_ItemCount;
+
+    l_ItemCount = p_RecvPacket.ReadBits(2);
+
+    for (uint32 l_I = 0; l_I < l_ItemCount; ++l_I)
+    {
+        p_RecvPacket.read_skip<uint8>();    ///< ContainerSlot
+        p_RecvPacket.read_skip<uint8>();    ///< Slot
+    }
+
+    p_RecvPacket >> l_PackSlot;
+    p_RecvPacket >> l_Slot;
+
+    Item* l_Item = m_Player->GetItemByPos(l_PackSlot, l_Slot);
+    if (!l_Item)
+    {
+        m_Player->SendEquipError(InventoryResult::EQUIP_ERR_ITEM_NOT_FOUND, l_Item, nullptr);
+        return;
+    }
+
+    if (l_Item->GetTemplate()->Class != ItemClass::ITEM_CLASS_TRADE_GOODS)
+    {
+        m_Player->SendEquipError(InventoryResult::EQUIP_ERR_CANT_SWAP, l_Item, nullptr);
+        return;
+    }
+
+    if (!(l_Item->GetTemplate()->Flags2 & ItemFlags2::ITEM_FLAG2_CRAFTING_MATERIAL))
+    {
+        m_Player->SendEquipError(InventoryResult::EQUIP_ERR_CANT_SWAP, l_Item, nullptr);
+        return;
+    }
+
+    ItemPosCountVec l_Dest;
+    InventoryResult l_Msg = m_Player->CanReagentBankItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Dest, l_Item, false);
+
+    if (l_Msg != InventoryResult::EQUIP_ERR_OK)
+    {
+        m_Player->SendEquipError(l_Msg, l_Item, nullptr);
+        return;
+    }
+
+    if (l_Dest.size() == 1 && l_Dest[0].pos == l_Item->GetPos())
+    {
+        m_Player->SendEquipError(InventoryResult::EQUIP_ERR_CANT_SWAP, l_Item, nullptr);
+        return;
+    }
+
+    m_Player->RemoveItem(l_PackSlot, l_Slot, true);
+    m_Player->ItemRemovedQuestCheck(l_Item->GetEntry(), l_Item->GetCount());
+    m_Player->BankItem(l_Dest, l_Item, true);
+}
+
 void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& p_RecvData)
 {
     uint8 l_PackSlot;
@@ -1236,6 +1298,61 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& p_RecvData)
         }
 
         m_Player->RemoveItem(l_PackSlot, l_Slot, true);
+        m_Player->BankItem(l_Dest, l_Item, true);
+    }
+}
+
+void WorldSession::HandleAutoStoreBankReagentOpcode(WorldPacket& p_RecvPacket)
+{
+    uint8 l_PackSlot;
+    uint8 l_Slot;
+    uint8 l_ItemCount;
+
+    l_ItemCount = p_RecvPacket.ReadBits(2);
+
+    for (uint32 l_I = 0; l_I < l_ItemCount; ++l_I)
+    {
+        p_RecvPacket.read_skip<uint8>();    ///< ContainerSlot
+        p_RecvPacket.read_skip<uint8>();    ///< Slot
+    }
+
+    p_RecvPacket >> l_PackSlot;
+    p_RecvPacket >> l_Slot;
+
+    Item* l_Item = m_Player->GetItemByPos(l_PackSlot, l_Slot);
+    if (!l_Item)
+        return;
+
+    /// Moving from bank to inventory
+    if (m_Player->IsReagentBankPos(l_PackSlot, l_Slot))
+    {
+        ItemPosCountVec l_Dest;
+        InventoryResult l_Msg = m_Player->CanStoreItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Dest, l_Item, false);
+
+        if (l_Msg != InventoryResult::EQUIP_ERR_OK)
+        {
+            m_Player->SendEquipError(l_Msg, l_Item, nullptr);
+            return;
+        }
+
+        m_Player->RemoveItem(l_PackSlot, l_Slot, true);
+        l_Item = m_Player->StoreItem(l_Dest, l_Item, true);
+        m_Player->ItemAddedQuestCheck(l_Item->GetEntry(), l_Item->GetCount());
+    }
+    /// Moving from inventory to bank
+    else
+    {
+        ItemPosCountVec l_Dest;
+        InventoryResult l_Msg = m_Player->CanReagentBankItem(InventorySlot::NULL_BAG, InventorySlot::NULL_SLOT, l_Dest, l_Item, false);
+
+        if (l_Msg != InventoryResult::EQUIP_ERR_OK)
+        {
+            m_Player->SendEquipError(l_Msg, l_Item, nullptr);
+            return;
+        }
+
+        m_Player->RemoveItem(l_PackSlot, l_Slot, true);
+        m_Player->ItemRemovedQuestCheck(l_Item->GetEntry(), l_Item->GetCount());
         m_Player->BankItem(l_Dest, l_Item, true);
     }
 }
@@ -1864,6 +1981,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
 
         if (!l_ItemIDs[l_I]) ///< Reset look
         {
+            l_ItemTransmogrified->SetModifier(eItemModifiers::TransmogAppearanceMod, 0);
             l_ItemTransmogrified->SetModifier(eItemModifiers::TransmogItemID, 0);
             m_Player->SetVisibleItemSlot(l_Slots[l_I], l_ItemTransmogrified);
         }
@@ -1876,6 +1994,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
                 return;
 
             /// All okay, proceed
+            l_ItemTransmogrified->SetModifier(eItemModifiers::TransmogAppearanceMod, l_ItemTransmogrifier != nullptr ? l_ItemTransmogrifier->GetAppearanceModID() : 0);
             l_ItemTransmogrified->SetModifier(eItemModifiers::TransmogItemID, l_Template->ItemId);
             m_Player->SetVisibleItemSlot(l_Slots[l_I], l_ItemTransmogrified);
 

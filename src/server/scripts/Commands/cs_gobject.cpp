@@ -34,6 +34,7 @@ class gobject_commandscript: public CommandScript
                 { "field",          SEC_ADMINISTRATOR,  false, &HandleGameObjectSetFieldCommand,  "", NULL },
                 { "animkit",        SEC_ADMINISTRATOR,  false, &HandleGameObjectSetAnimKitCommand,"", NULL },
                 { "activateanim",   SEC_ADMINISTRATOR,  false, &HandleGameObjectActivateAnim,     "", NULL },
+                { "destructible",   SEC_ADMINISTRATOR,  false, &HandleGameObjectSetDestructible,  "", NULL },
                 { NULL,             0,                  false, NULL,                              "", NULL }
             };
             static ChatCommand gobjectGetCommandTable[] =
@@ -65,6 +66,42 @@ class gobject_commandscript: public CommandScript
                 { NULL,             0,                  false, NULL,                               "", NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleGameObjectSetDestructible(ChatHandler* p_Handler, char const* p_Args)
+        {
+            uint32 l_GuidLow = GetGuidLowFromArgsOrLastTargetedGo(p_Handler, p_Args);
+            if (!l_GuidLow)
+                return false;
+
+            GameObject* l_GoB = nullptr;
+
+            if (GameObjectData const* l_GoBData = sObjectMgr->GetGOData(l_GuidLow))
+                l_GoB = p_Handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(l_GuidLow, l_GoBData->id);
+
+            if (!l_GoB)
+            {
+                p_Handler->PSendSysMessage(TrinityStrings::LANG_COMMAND_OBJNOTFOUND, l_GuidLow);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_State = strtok(nullptr, " ");
+            if (!l_State)
+                return false;
+
+            uint32 l_DisplayID = 0;
+            char* l_Display = strtok(nullptr, " ");
+            if (l_Display)
+                l_DisplayID = atoi(l_Display);
+
+            l_GoB->SetDestructibleState(GameObjectDestructibleState(atoi(l_State)), p_Handler->GetSession()->GetPlayer());
+
+            if (l_DisplayID)
+                l_GoB->SetDisplayId(l_DisplayID);
+
+            p_Handler->PSendSysMessage("Set gobject destructible state %d", atoi(l_State));
+            return true;
         }
 
         static uint32 GetGuidLowFromArgsOrLastTargetedGo(ChatHandler* handler, char const* args)

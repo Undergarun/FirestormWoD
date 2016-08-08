@@ -338,6 +338,22 @@ class boss_gruul_foundry : public CreatureScript
                 }
             }
 
+            void OnCalculateCastingTime(SpellInfo const* p_SpellInfo, int32& p_CastingTime) override
+            {
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::OverheadSmash:
+                    {
+                        if (me->HasAura(eSpells::SpellDestructiveRampage))
+                            p_CastingTime = 3 * TimeConstants::IN_MILLISECONDS;
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
             {
                 if (p_Target == nullptr)
@@ -397,7 +413,7 @@ class boss_gruul_foundry : public CreatureScript
                             me->CastSpell(me, eSpells::OverheadSmash, false);
                         });
 
-                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::CosmeticEventOverheadSmash, 5 * TimeConstants::IN_MILLISECONDS);
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::CosmeticEventOverheadSmash, 3 * TimeConstants::IN_MILLISECONDS + 500);
                         break;
                     }
                     case eCosmeticEvents::CosmeticEventEndOfDestructiveRampage:
@@ -475,7 +491,12 @@ class boss_gruul_foundry : public CreatureScript
                     case eEvents::EventCaveIn:
                     {
                         if (Unit* l_Target = SelectRangedTarget())
-                            me->SummonCreature(eCreatures::TriggerCaveIn, *l_Target);
+                        {
+                            Position l_Pos = *l_Target;
+
+                            l_Target->GetNearPoint(l_Pos, 0.0f, frand(5.0f, 10.0f), frand(0.0f, 2.0f * M_PI));
+                            me->SummonCreature(eCreatures::TriggerCaveIn, l_Pos);
+                        }
 
                         m_Events.ScheduleEvent(eEvents::EventCaveIn, 30 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -768,7 +789,7 @@ class spell_foundry_cave_in : public SpellScriptLoader
                 if (Unit* l_Caster = GetCaster())
                 {
                     std::list<Unit*> l_TargetList;
-                    float l_Radius = 4.5f;
+                    float l_Radius = 5.0f;
 
                     JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
                     JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);

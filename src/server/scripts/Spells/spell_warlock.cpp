@@ -74,6 +74,7 @@ enum WarlockSpells
     WARLOCK_FELHUNTER_SPELL_LOCK            = 132409,
     WARLOCK_FELGUARD_PURSUIT                = 132410,
     WARLOCK_INFERNAL_METEOR_STRIKE          = 171017,
+    WARLOCK_ABYSSAL_METEOR_STRIKE           = 171018,
     WARLOCK_DOOMGUARD_SHADOW_LOCK           = 171139,
     WARLOCK_SHADOW_BOLT                     = 686,
     WARLOCK_TWILIGHT_WARD                   = 6229,
@@ -841,7 +842,12 @@ class spell_warl_grimoire_of_sacrifice: public SpellScriptLoader
                                     bp = WARLOCK_INFERNAL_METEOR_STRIKE;
                                     break;
                                 case ENTRY_DOOMGUARD_PET:
+                                case ENTRY_TERRORGUARD_PET:
                                     bp = WARLOCK_DOOMGUARD_SHADOW_LOCK;
+                                    break;
+                                case ENTRY_ABYSSAL_PET:
+                                case ENTRY_ABYSSAL_PET_GREENFIRED:
+                                    bp = WARLOCK_ABYSSAL_METEOR_STRIKE;
                                     break;
                                 default:
                                     break;
@@ -1496,8 +1502,7 @@ class spell_warl_soul_leech: public SpellScriptLoader
 
                 /// Limit at 15%
                 int32 l_Limit = (l_Player->GetMaxHealth() / 100) * 15;
-                if (l_Bp > l_Limit)
-                    l_Bp = l_Limit;
+                l_Bp = std::min(l_Bp, l_Limit);
 
                 if (l_AuraEffect == nullptr)
                 {
@@ -1560,8 +1565,7 @@ class spell_warl_soul_leech: public SpellScriptLoader
 
                 /// Limit at 15%
                 int32 l_Limit = (l_Player->GetMaxHealth() / 100) * 15;
-                if (l_Bp > l_Limit)
-                    l_Bp = l_Limit;
+                l_Bp = std::min(l_Bp, l_Limit);
 
                 if (l_AuraEffect == nullptr)
                 {
@@ -1670,6 +1674,7 @@ class spell_warl_hand_of_guldan: public SpellScriptLoader
 };
 
 // Hand of Gul'Dan (damage) - 86040
+/// Hand of Gul'Dan (Glyphed) - 123197
 class spell_warl_hand_of_guldan_damage: public SpellScriptLoader
 {
     public:
@@ -1686,7 +1691,7 @@ class spell_warl_hand_of_guldan_damage: public SpellScriptLoader
                         caster->CastSpell(target, WARLOCK_SHADOWFLAME, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_warl_hand_of_guldan_damage_SpellScript::HandleOnHit);
             }
@@ -2281,13 +2286,21 @@ class spell_warl_demonic_gateway: public SpellScriptLoader
                 if (!GetCaster() || !GetCaster()->ToPlayer())
                     return SPELL_FAILED_DONT_REPORT;
 
-                Player* player = GetCaster()->ToPlayer();
+                Player* l_Player = GetCaster()->ToPlayer();
 
-                WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
-                if (!dest)
+                WorldLocation* l_SpellDest = const_cast<WorldLocation*>(GetExplTargetDest());
+                if (!l_SpellDest)
                     return SPELL_FAILED_DONT_REPORT;
 
-                if (dest->GetPositionZ() > player->GetPositionZ() + 5.0f || dest->GetPositionZ() < player->GetPositionZ() - 5.0f)
+                Map* l_Map = l_Player->GetMap();
+                if (l_Map == nullptr)
+                    return SPELL_FAILED_SUCCESS;
+
+                PathGenerator l_Path(l_Player);
+                l_Path.SetPathLengthLimit(40.0f);
+                bool l_Result = l_Path.CalculatePath(l_SpellDest->GetPositionX(), l_SpellDest->GetPositionY(), l_SpellDest->GetPositionZ());
+
+                if (!l_Result || (l_Path.GetPathType() != PATHFIND_NORMAL))
                     return SPELL_FAILED_NOPATH;
 
                 return SPELL_CAST_OK;
@@ -2299,14 +2312,14 @@ class spell_warl_demonic_gateway: public SpellScriptLoader
                     caster->CastSpell(caster, WARLOCK_SPAWN_PURPLE_DEMONIC_GATEWAY, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnCheckCast += SpellCheckCastFn(spell_warl_demonic_gateway_SpellScript::CheckElevation);
                 AfterCast += SpellCastFn(spell_warl_demonic_gateway_SpellScript::HandleAfterCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_warl_demonic_gateway_SpellScript();
         }
@@ -2780,6 +2793,19 @@ class spell_warl_burning_embers: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_burning_embers_SpellScript);
 
+            size_t m_TargetNb = 1;
+
+            enum eSpells
+            {
+                Incinerate  = 114654,
+                Conflagrate = 108685
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                m_TargetNb = p_Targets.size();
+            }
+
             void HandleAfterCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -2797,11 +2823,22 @@ class spell_warl_burning_embers: public SpellScriptLoader
                 if (Aura* l_CharredRemains = l_Caster->GetAura(SPELL_WARL_CHARRED_REMAINS))
                     AddPct(l_BurningEmbersPct, l_CharredRemains->GetEffect(EFFECT_1)->GetBaseAmount());
 
-                l_Caster->ModifyPower(POWER_BURNING_EMBERS, l_BurningEmbersPct * l_Caster->GetPowerCoeff(POWER_BURNING_EMBERS));
+                for (uint8 i = 0; i < m_TargetNb; ++i)
+                    l_Caster->ModifyPower(POWER_BURNING_EMBERS, l_BurningEmbersPct * l_Caster->GetPowerCoeff(POWER_BURNING_EMBERS));
             }
 
             void Register() override
             {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::Incinerate:
+                case eSpells::Conflagrate:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warl_burning_embers_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                    break;
+                default:
+                    break;
+                }
+
                 AfterCast += SpellCastFn(spell_warl_burning_embers_SpellScript::HandleAfterCast);
             }
         };
@@ -3296,15 +3333,81 @@ class spell_warl_soulshatter: public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Demonic Circle : Summon - 48018
+/// Demonic Circle : Summon - 48018 Demonic Circle : Summon - Metaporphosis - 104135
 class spell_warl_demonic_circle_summon: public SpellScriptLoader
 {
     public:
         spell_warl_demonic_circle_summon() : SpellScriptLoader("spell_warl_demonic_circle_summon") { }
 
+        class spell_warl_demonic_circle_summon_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_demonic_circle_summon_SpellScript);
+
+            enum eSpell
+            {
+                GlyphOfEyeOfKilrogg = 58081
+            };
+
+            WorldLocation m_Dest;
+
+            void HandleCircleDespawn()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (GameObject* l_OldCircle = l_Caster->GetGameObject(GetSpellInfo()->Id))
+                        l_Caster->RemoveGameObject(l_OldCircle, true);
+                }
+            }
+
+            void SetTarget()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Player* l_Player = l_Caster->ToPlayer())
+                    {
+                        if (Unit* l_Mover = l_Player->m_mover)
+                            m_Dest = *l_Mover;
+                    }
+                }
+            }
+
+            void OnSummon(SpellEffIndex p_Index)
+            {
+                GetHitDest()->Relocate(&m_Dest);
+            }
+
+            void Register() override
+            {
+                OnCast += SpellCastFn(spell_warl_demonic_circle_summon_SpellScript::HandleCircleDespawn);
+                OnPrepare += SpellOnPrepareFn(spell_warl_demonic_circle_summon_SpellScript::SetTarget);
+                OnEffectHit += SpellEffectFn(spell_warl_demonic_circle_summon_SpellScript::OnSummon, EFFECT_1, SPELL_EFFECT_SUMMON_OBJECT_SLOT1);
+            }
+        };
+
         class spell_warl_demonic_circle_summon_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_warl_demonic_circle_summon_AuraScript);
+
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                if (l_Target && l_Target->ToCreature() && l_Target->GetEntry() == 4277 && l_Target->ToCreature()->GetOwner() && l_Target->ToCreature()->GetOwner()->IsPlayer())
+                {
+                    Player* l_RealCaster = GetTarget()->ToCreature()->GetOwner()->ToPlayer();
+                    GameObject* l_Circle = GetTarget()->GetGameObject(GetId());
+                    AuraApplication* l_CircleAura = l_Target->GetAuraApplication(GetSpellInfo()->Id, l_Target->GetGUID());
+
+                    if (!l_RealCaster || !l_Circle || !l_CircleAura)
+                        return;
+
+                    if (GameObject* l_OldCircle = l_RealCaster->GetGameObject(GetId()))
+                        l_RealCaster->RemoveGameObject(l_OldCircle, true);
+
+                    l_CircleAura->GetBase()->CopyAura(l_RealCaster, l_Target);
+                    l_Target->RemoveGameObject(l_Circle, false);
+                    l_RealCaster->AddGameObject(l_Circle);
+                }
+            }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes p_Mode)
             {
@@ -3312,9 +3415,12 @@ class spell_warl_demonic_circle_summon: public SpellScriptLoader
                 {
                     // If effect is removed by expire remove the summoned demonic circle too.
                     if (!(p_Mode & AURA_EFFECT_HANDLE_REAPPLY))
-                        l_Target->RemoveGameObject(WARLOCK_DEMONIC_CIRCLE_SUMMON, true);
+                    {
+                        if (!(l_Target && l_Target->ToCreature() && l_Target->GetEntry() == 4277 && l_Target->ToCreature()->GetOwner() && l_Target->ToCreature()->GetOwner()->IsPlayer()))
+                            l_Target->RemoveGameObject(GetSpellInfo()->Id, true);
+                    }
 
-                    if (AuraApplication* l_Circle = l_Target->GetAuraApplication(WARLOCK_DEMONIC_CIRCLE_SUMMON, l_Target->GetGUID()))
+                    if (AuraApplication* l_Circle = l_Target->GetAuraApplication(GetSpellInfo()->Id, l_Target->GetGUID()))
                         l_Circle->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, true);
                 }
             }
@@ -3335,7 +3441,7 @@ class spell_warl_demonic_circle_summon: public SpellScriptLoader
                 // Here we check if player is in demonic circle teleport range, if so add
                 // WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST; allowing him to cast the WARLOCK_DEMONIC_CIRCLE_TELEPORT.
                 // If not in range remove the WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST.
-                if (AuraApplication* l_CircleSummon = l_Target->GetAuraApplication(WARLOCK_DEMONIC_CIRCLE_SUMMON, l_Target->GetGUID()))
+                if (AuraApplication* l_CircleSummon = l_Target->GetAuraApplication(GetSpellInfo()->Id, l_Target->GetGUID()))
                 {
                     if (l_Target->IsWithinDist(l_Circle, l_SpellInfo->GetMaxRange(true)))
                         l_CircleSummon->SendFakeAuraUpdate(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, false);
@@ -3346,12 +3452,18 @@ class spell_warl_demonic_circle_summon: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_demonic_circle_summon_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_demonic_circle_summon_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_demonic_circle_summon_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_warl_demonic_circle_summon_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const override
         {
             return new spell_warl_demonic_circle_summon_AuraScript();
         }
@@ -3367,31 +3479,40 @@ class spell_warl_demonic_circle_teleport: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_demonic_circle_teleport_AuraScript);
 
-            void HandleTeleport(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            enum eSpells
             {
-                if (Player* player = GetTarget()->ToPlayer())
+                MetamorphosisDemonicCircle = 104135
+            };
+
+            void HandleTeleport(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* l_Player = GetTarget()->ToPlayer())
                 {
-                    if (GameObject* circle = player->GetGameObject(WARLOCK_DEMONIC_CIRCLE_SUMMON))
+                    GameObject* l_Circle = l_Player->GetGameObject(WARLOCK_DEMONIC_CIRCLE_SUMMON);
+                    if (!l_Circle)
+                        l_Circle = l_Player->GetGameObject(eSpells::MetamorphosisDemonicCircle);
+
+                    if (l_Circle)
                     {
                         /// Item - Warlock WoD PvP Affliction 4P Bonus
-                        if (player->getLevel() == 100 && player->HasAura(WARLOCK_WOD_PVP_AFFLICTION_4P_BONUS))
-                            player->CastSpell(player, WARLOCK_WOD_PVP_AFFLICTION_4P_BONUS_EFF, true);
-                        player->NearTeleportTo(circle->GetPositionX(), circle->GetPositionY(), circle->GetPositionZ(), circle->GetOrientation());
-                        player->RemoveMovementImpairingAuras();
-                        player->Relocate(circle->GetPositionX(), circle->GetPositionY(), circle->GetPositionZ(), circle->GetOrientation());
+                        if (l_Player->getLevel() == 100 && l_Player->HasAura(WARLOCK_WOD_PVP_AFFLICTION_4P_BONUS))
+                            l_Player->CastSpell(l_Player, WARLOCK_WOD_PVP_AFFLICTION_4P_BONUS_EFF, true);
+                        l_Player->NearTeleportTo(l_Circle->GetPositionX(), l_Circle->GetPositionY(), l_Circle->GetPositionZ(), l_Circle->GetOrientation());
+                        l_Player->RemoveMovementImpairingAuras();
+                        l_Player->Relocate(l_Circle->GetPositionX(), l_Circle->GetPositionY(), l_Circle->GetPositionZ(), l_Circle->GetOrientation());
 
-                        if (aurEff->GetSpellInfo()->Id == WARLOCK_SOULBURN_DEMONIC_CIRCLE_TELE)
-                            if (player->HasAura(WARLOCK_SOULBURN_AURA))
-                                player->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
+                        if (p_AurEff->GetSpellInfo()->Id == WARLOCK_SOULBURN_DEMONIC_CIRCLE_TELE)
+                            if (l_Player->HasAura(WARLOCK_SOULBURN_AURA))
+                                l_Player->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
 
                         WorldPacket data(SMSG_MOVE_UPDATE);
-                        player->m_movementInfo.pos.m_positionX = player->GetPositionX();
-                        player->m_movementInfo.pos.m_positionY = player->GetPositionY();
-                        player->m_movementInfo.pos.m_positionZ = player->GetPositionZ();
-                        player->m_movementInfo.pos.m_orientation = player->GetOrientation();
-                        player->m_movementInfo.time = getMSTime();
-                        WorldSession::WriteMovementInfo(data, &player->m_movementInfo);
-                        player->SendMessageToSet(&data, player);
+                        l_Player->m_movementInfo.pos.m_positionX = l_Player->GetPositionX();
+                        l_Player->m_movementInfo.pos.m_positionY = l_Player->GetPositionY();
+                        l_Player->m_movementInfo.pos.m_positionZ = l_Player->GetPositionZ();
+                        l_Player->m_movementInfo.pos.m_orientation = l_Player->GetOrientation();
+                        l_Player->m_movementInfo.time = getMSTime();
+                        WorldSession::WriteMovementInfo(data, &l_Player->m_movementInfo);
+                        l_Player->SendMessageToSet(&data, l_Player);
                     }
                 }
             }
@@ -4075,8 +4196,6 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
 
                     if (l_Creature->GetEntry() == eDatas::WildImp)
                     {
-                        l_Creature->AI()->DropCharge();
-
                         if (Unit* l_Owner = l_Creature->GetOwner())
                         {
                             if (AuraEffect* l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
@@ -4087,9 +4206,26 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void HandleCharge()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (m_scriptSpellId == eSpells::Firebolt)
+                {
+                    Creature* l_Creature = l_Caster->ToCreature();
+
+                    if (l_Creature == nullptr)
+                        return;
+
+                    if (l_Creature->GetEntry() == eDatas::WildImp)
+                        l_Creature->AI()->DropCharge();
+                }
+            }
+
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_warl_fel_firebolt_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                AfterCast += SpellCastFn(spell_warl_fel_firebolt_SpellScript::HandleCharge);
             }
         };
 
@@ -4505,7 +4641,7 @@ public:
 };
 
 /// Command Demon
-/// 119905 - (Cauterize Master), 119907 - (Disarm), 119909 - (Whiplash), 119913 - (Fellash), 119910 - (Spell Lock), 119911 - (Optical Blast), 119914 - (Felstorm), 119915 - (Wrathstorm)
+/// 119905 - (Cauterize Master), 119907 - (Disarm), 119909 - (Whiplash), 119913 - (Fellash), 119910 - (Spell Lock), 119911 - (Optical Blast), 119914 - (Felstorm), 119915 - (Wrathstorm), 171140 - (Shadow Lock), 171152 - (Meteor Strike) (Infernal), 171154 - (Meteor Strike) (Abyssal)
 class spell_warl_command_demon_spells : public SpellScriptLoader
 {
     public:
@@ -4514,6 +4650,14 @@ class spell_warl_command_demon_spells : public SpellScriptLoader
         class spell_warl_command_demon_spells_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warl_command_demon_spells_SpellScript);
+
+            enum eSpells
+            {
+                FelguardFelstorm        = 89751,
+                CommandDemonFelstorm    = 119914,
+                CommandDemonWrathstorm  = 119915,
+                WrathguardWrathstorm    = 115831
+            };
 
             SpellCastResult CheckConditions()
             {
@@ -4528,6 +4672,12 @@ class spell_warl_command_demon_spells : public SpellScriptLoader
                     return SPELL_FAILED_DONT_REPORT;
 
                 if (l_Pet->HasAurasPreventCasting())
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                if (GetSpellInfo()->Id == eSpells::CommandDemonFelstorm && l_Pet->HasSpellCooldown(eSpells::FelguardFelstorm))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                if (GetSpellInfo()->Id == eSpells::CommandDemonWrathstorm && l_Pet->HasSpellCooldown(eSpells::WrathguardWrathstorm))
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
                 return SPELL_CAST_OK;
@@ -4712,6 +4862,107 @@ class spell_warl_incinerate : public SpellScriptLoader
         {
             return new spell_warl_incinerate_SpellScript();
         }
+};
+
+/// last update : 6.2.3
+/// Eye of Kilrogg - 126
+class spell_warl_eye_of_kilrogg : public SpellScriptLoader
+{
+    public:
+        spell_warl_eye_of_kilrogg() : SpellScriptLoader("spell_warl_eye_of_kilrogg") { }
+
+        enum eSpells
+        {
+            EyeOfKilroggAuras   = 2585,
+            EyeOfkilroggFly     = 58083,
+            GlyphOfEyeOfKilrogg = 58081
+        };
+
+        enum eEntry
+        {
+            EyeOfKilrogg = 4277
+        };
+
+        class spell_warl_eye_of_kilrogg_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_eye_of_kilrogg_AuraScript);
+
+            void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*modes*/)
+            {
+                if (!GetCaster()->IsPlayer())
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                std::vector<Unit*> l_ToDespawn;
+                l_ToDespawn.reserve(l_Player->m_Controlled.size());
+
+                for (Unit* l_Controlled : l_Player->m_Controlled)
+                {
+                    if (l_Controlled->ToCreature() && l_Controlled->GetEntry() == eEntry::EyeOfKilrogg) 
+                    {
+                        l_Controlled->CastSpell(l_Controlled, eSpells::EyeOfKilroggAuras, true);
+                        if (l_Player->HasAura(eSpells::GlyphOfEyeOfKilrogg))
+                        {
+                            l_Controlled->CastSpell(l_Controlled, eSpells::GlyphOfEyeOfKilrogg, true);
+
+                            if (l_Player->IsKnowHowFlyIn(l_Player->GetMapId(), l_Player->GetZoneId()))
+                                l_Controlled->CastSpell(l_Controlled, eSpells::EyeOfkilroggFly, true);
+                        }
+                    }
+                    else if (l_Controlled->isPet())
+                    {
+                        if (AuraEffect* l_AuraEffect = l_Player->GetAura(GetSpellInfo()->Id)->GetEffect(EFFECT_1))
+                        {
+                            l_AuraEffect->SetAmplitude(l_Controlled->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL));
+                            l_ToDespawn.push_back(l_Controlled);
+                        }
+                    }
+                }
+                for (Unit* l_Unit : l_ToDespawn)
+                    l_Unit->ToCreature()->DespawnOrUnsummon();
+            }
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*modes*/)
+            {
+                if (!GetCaster()->IsPlayer())
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                if (p_AurEff->GetAmplitude() != 0)
+                {
+                    std::vector<Unit*> l_ToDespawn;
+                    l_ToDespawn.reserve(l_Player->m_Controlled.size());
+
+                    for (Unit* l_Controlled : l_Player->m_Controlled)
+                    {
+                        if (l_Controlled->ToCreature() && l_Controlled->GetEntry() == eEntry::EyeOfKilrogg)
+                            l_ToDespawn.push_back(l_Controlled);
+                    }
+
+                    for (Unit* l_Unit : l_ToDespawn)
+                        l_Unit->ToCreature()->DespawnOrUnsummon();
+
+                    l_Player->CastSpell(l_Player, p_AurEff->GetAmplitude(), true);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_warl_eye_of_kilrogg_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY_DETECT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warl_eye_of_kilrogg_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY_DETECT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warl_eye_of_kilrogg_AuraScript();
+        }
+
 };
 
 /// Last Update 6.2.3
@@ -4941,6 +5192,47 @@ public:
     }
 };
 
+/// Last update 6.2.3
+/// Glyph of Hand of Gul'dan - 56248
+class spell_warl_glyph_of_hand_of_guldan : public SpellScriptLoader
+{
+    public:
+        spell_warl_glyph_of_hand_of_guldan() : SpellScriptLoader("spell_warl_glyph_of_hand_of_guldan") { }
+
+        class spell_warl_glyph_of_hand_of_guldan_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_glyph_of_hand_of_guldan_AuraScript);
+
+            enum eSpells
+            {
+                HandOfGuldanGlyphed = 123194
+            };
+
+            void AfterApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    l_Player->learnSpell(HandOfGuldanGlyphed, true);
+            }
+
+            void AfterRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                    l_Player->removeSpell(HandOfGuldanGlyphed);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_warl_glyph_of_hand_of_guldan_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectApplyFn(spell_warl_glyph_of_hand_of_guldan_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_glyph_of_hand_of_guldan_AuraScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_warlock_spell_scripts()
 {
@@ -5032,6 +5324,8 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soul_shards_visual();
     new spell_warl_command_demon_spells();
     new spell_warl_cripple_doomguard();
+    new spell_warl_glyph_of_hand_of_guldan();
+    new spell_warl_eye_of_kilrogg();
     new PlayerScript_DemonicFury_On_Kill();
     new PlayerScript_spell_warl_drain_life_meta_cost();
 }

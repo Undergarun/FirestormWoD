@@ -3981,6 +3981,7 @@
     <field type="int" name="PowerType" />
     <field type="int" name="PowerTypeComp" />
     <field type="int" name="PowerTypeValue" />
+    <field type="int" name="newField" />
   </PlayerCondition>
   <UnitCondition build="19243">
     <index>
@@ -4302,17 +4303,17 @@
   </ItemLimitCategory>
   <ResearchProject build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
-    <field type="int" name="field8" />
+    <field type="int" name="ID" />
+    <field type="string" name="Name" />
+    <field type="string" name="Description" />
+    <field type="int" name="Rarity" />
+    <field type="int" name="Branch_ID" />
+    <field type="int" name="Spell_ID" />
+    <field type="int" name="Socket_Amount" />
+    <field type="string" name="Texture" />
+    <field type="int" name="Required Currency" />
   </ResearchProject>
   <ResearchBranch build="0">
     <index>

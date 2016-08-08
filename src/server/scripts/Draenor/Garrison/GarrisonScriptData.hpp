@@ -68,7 +68,9 @@ namespace MS { namespace Garrison
             ShellyQuestGossip1            = 19,
             ShellyQuestGossip2            = 20,
             GazloweQuestGossip1           = 21,
-            FollowerRecruitment           = 22
+            FollowerRecruitment           = 22,
+            HerbGardenChoose              = 23,
+            HerbRandom                    = 24
         };
 
     }
@@ -1102,7 +1104,7 @@ namespace MS { namespace Garrison
             73
         };
 
-        std::vector<uint32> const g_FollowerAbilities =
+        static std::vector<uint32> const g_FollowerAbilities =
         {
             139,
             158,
@@ -1250,7 +1252,14 @@ namespace MS { namespace Garrison
         GobBlackrockDeposit     = 232542,
         GobRichBlackrockDeposit = 232543,
         GobTrueIronDeposit      = 232544,
-        GobRichTrueIronDeposit  = 232545
+        GobRichTrueIronDeposit  = 232545,
+
+        /// Herb Garden Tree gameobjects
+        GobGiantNagrandCherry   = 236939,
+        GobFuzzyPear            = 236938,
+        GobGreenskinApple       = 236917,
+        GobORukOrange           = 236936,
+        GobIronpeelPlantain     = 236937
     };
 
     /// NPC texts id

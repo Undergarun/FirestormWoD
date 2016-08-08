@@ -502,6 +502,15 @@ namespace MS { namespace Garrison
         if (p_Player->HasAura(172424))
             p_Player->RemoveAura(172424);
 
+        /// Fix for taxi path to ashran
+        uint32 l_QuestID = p_Player->GetTeamId() == TEAM_ALLIANCE ? Quests::Alliance_LostInTransition : Quests::Horde_LostInTransition;
+
+        if (p_Player->GetQuestStatus(l_QuestID) != QUEST_STATUS_NONE)
+        {
+            p_Player->m_taxi.RemoveTaximaskNode(p_Player->GetTeamId() == TEAM_ALLIANCE ? 1547 : 1549);
+            p_Player->m_taxi.SetTaximaskNode(p_Player->GetTeamId()    == TEAM_ALLIANCE ? 1420 : 1408);
+        }
+
         switch (p_Player->GetMapId())
         {
             /// Garrison Phases
@@ -614,10 +623,10 @@ namespace MS { namespace Garrison
                 l_PhaseMask |= GarrisonPhases::PhaseLostInTransitionQuest;
                 break;
             case Quests::Alliance_AshranAppearance:
-                p_Player->m_taxi.SetTaximaskNode(1547);
+                p_Player->m_taxi.SetTaximaskNode(1420);
                 break;
             case Quests::Horde_AshranAppearance:
-                p_Player->m_taxi.SetTaximaskNode(1549);
+                p_Player->m_taxi.SetTaximaskNode(1408);
                 break;
             default:
                 break;

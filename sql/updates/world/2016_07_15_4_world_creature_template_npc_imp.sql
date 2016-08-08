@@ -1,0 +1,1 @@
+UPDATE creature_template SET ScriptName = "npc_imp" WHERE entry = 416;

@@ -253,6 +253,8 @@ namespace MS { namespace Garrison
             bool HasRequiredFollowerAssignedAbility(uint32 p_PlotInstanceID);
             /// Add new creature in plot datas, that way any summoned creature can be detected as part of the building
             void InsertNewCreatureInPlotDatas(uint32 p_PlotInstanceID, uint64 p_Guid);
+            /// Add new gameobject in plot datas, that way any summoned gameobject can be detected as part of the building
+            void InsertNewGameObjectInPlotDatas(uint32 p_PlotInstanceID, uint64 p_Guid);
             /// Get creature plot instance ID
             uint32 GetCreaturePlotInstanceID(uint64 p_GUID) const;
             /// Get gameobject plot instance ID
@@ -266,7 +268,7 @@ namespace MS { namespace Garrison
             void SetBuildingGatheringData(uint32 p_PlotInstanceID, std::string p_Data);
             /// Get list of creature in a specific building type
             /// @p_Type : Building type
-            std::vector<uint64> GetBuildingCreaturesByBuildingType(Building::Type p_Type);
+            std::vector<uint64> GetBuildingCreaturesByBuildingType(Building::Type p_Type, bool p_DontNeedActive = false);
             /// Get Garrison ID
             uint32 GetGarrisonID() { return m_ID; };
             /// Get Garrison Level
@@ -326,16 +328,16 @@ namespace MS { namespace Garrison
             uint32 GenerateCrewAbilityIdForShip(GarrisonFollower const& p_Follower);
 
             /// Generate random NPC Ability
-            uint32 GenerateRandomAbility(uint32 p_FollowerID);
+            uint32 GenerateRandomAbility(uint32 p_FollowerID, std::vector<uint32> p_FollowerAbilities);
 
             /// Generate random trait
             uint32 GenerateRandomTrait(uint32 p_Type, std::vector<uint32> const& p_KnownAbilities);
 
             /// Reroll Follower Abilities
-            void GenerateFollowerAbilities(GarrisonFollower& p_Follower, bool p_Reset = true, bool p_Abilities = true, bool p_Traits = true, bool p_Update = false);
+            void GenerateFollowerAbilities(GarrisonFollower& p_Follower, bool p_Reset = true, bool p_Abilities = true, bool p_Traits = true, bool p_Update = false, bool p_ResetAbilities = false, bool p_ResetTraits = false);
 
             /// Reroll Follower Abilities
-            void GenerateFollowerAbilities(uint32 p_FollowerID, bool p_Reset = true, bool p_Abilities = true, bool p_Traits = true, bool p_Update = false);
+            void GenerateFollowerAbilities(uint32 p_FollowerID, bool p_Reset = true, bool p_Abilities = true, bool p_Traits = true, bool p_Update = false, bool p_ResetAbilities = false, bool p_ResetTraits = false);
 
             /// Generates the followers list
             std::list<std::string> GenerateFollowerTextList(uint32 l_Type);

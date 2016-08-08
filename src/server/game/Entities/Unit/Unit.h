@@ -1549,9 +1549,11 @@ class Unit : public WorldObject
         bool CanDualWield() const { return m_canDualWield; }
         void SetCanDualWield(bool value) { m_canDualWield = value; }
         float GetCombatReach() const { return m_floatValues[UNIT_FIELD_COMBAT_REACH]; }
+        float GetBoundaryRadius() const { return m_floatValues[UNIT_FIELD_BOUNDING_RADIUS]; }
         float GetMeleeReach() const { float reach = m_floatValues[UNIT_FIELD_COMBAT_REACH]; return reach > MIN_MELEE_REACH ? reach : MIN_MELEE_REACH; }
         bool IsWithinCombatRange(const Unit* obj, float dist2compare) const;
         bool IsWithinMeleeRange(const Unit* obj, float dist = MELEE_RANGE) const;
+        bool IsWithinBoundaryRadius(Unit const* p_Unit) const;
         void GetRandomContactPoint(const Unit* target, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
@@ -1966,7 +1968,7 @@ class Unit : public WorldObject
         void UpdateHeight(float newZ);
 
         void SendMoveKnockBack(Player* player, float speedXY, float speedZ, float vcos, float vsin);
-        void KnockbackFrom(float x, float y, float speedXY, float speedZ);
+        void KnockbackFrom(float x, float y, float speedXY, float speedZ, Unit* p_Caster = nullptr);
         void JumpTo(float speedXY, float speedZ, bool forward = true);
         void JumpTo(WorldObject* obj, float speedZ);
 
@@ -2671,10 +2673,10 @@ class Unit : public WorldObject
 
 
         /// Helper for Rushing Jade Wind
-        bool GetRushingJadeWindTargets(uint64 p_Guid) { return m_RushingJadeWindTargetsGUID.count(p_Guid); }
-        int8 GetRushingJadeWindNbTargets () { return m_RushingJadeWindTargetsGUID.size(); }
-        void AddRushingJadeWindTargets(uint64 p_Guid) { m_RushingJadeWindTargetsGUID.insert(p_Guid); }
-        void CleanRushingJadeWindTargets() { m_RushingJadeWindTargetsGUID.clear(); }
+        bool GetHelperTargets(uint32 p_SpellID, uint64 p_Guid) { return m_HelperCountTargetsGUID[p_SpellID].count(p_Guid); }
+        int8 GetHelperCountNbNbTargets (uint32 p_SpellID) { return m_HelperCountTargetsGUID[p_SpellID].size(); }
+        void AddHelperCountNbTargets(uint32 p_SpellID, uint64 p_Guid) { m_HelperCountTargetsGUID[p_SpellID].insert(p_Guid); }
+        void CleanHelperCountNbTargets(uint32 p_SpellID) { m_HelperCountTargetsGUID[p_SpellID].clear(); }
 
         /// Helper for Glaive of Toss
         uint64 GetGlaiveOfTossTargetGUID() { return m_GlaiveOfTossTargetGUID;  }
@@ -2713,7 +2715,11 @@ class Unit : public WorldObject
         uint64 GetLastSunfireTarget() const { return lastSunfireTargetGUID; }
         void SetLastSunfireTarget(uint64 guid) { lastSunfireTargetGUID = guid; }
 
-        // helpers for Psychic Horror
+        /// helpers for Death from above
+        uint8 GetDFOComboPoints() const { return dfoComboPoints; }
+        void SetDFOComboPoints(uint8 p_ConboPoints) { dfoComboPoints = p_ConboPoints; }
+
+        /// helpers for Psychic Horror
         bool GetPsychicHorrorGainedPower() const { return psychicHorrorGainedPower; }
         void SetPsychicHorrorGainedPower(bool gained) { psychicHorrorGainedPower = gained; }
 
@@ -2725,6 +2731,9 @@ class Unit : public WorldObject
         /// helpers for Devouring Plague DOT damage
         void SetDevouringPlagueDamage(uint32 l_CurrentDamage) { m_DevouringPlagueDamage = l_CurrentDamage; }
         uint32 GetDevouringPlagueDamage() { return m_DevouringPlagueDamage; }
+
+        /// helper for Command Demon
+        int32 GetCommandDemonSpellByEntry(uint32 p_Entry);
 
         void DisableHealthRegen() { m_disableHealthRegen = true; }
         void ReenableHealthRegen() { m_disableHealthRegen = false; }
@@ -2930,10 +2939,11 @@ class Unit : public WorldObject
         uint64 simulacrumTargetGUID;
         uint64 m_GlaiveOfTossTargetGUID;
         std::set<uint64> m_FistsOfFuryStunTargetsGUID;
-        std::set<uint64> m_RushingJadeWindTargetsGUID;
+        std::map<uint32, std::set<uint64>> m_HelperCountTargetsGUID;
         uint64 iciclesTargetGUID;
         uint64 lastMoonfireTargetGUID;
         uint64 lastSunfireTargetGUID;
+        uint8 dfoComboPoints;
         uint32 m_AmountOfComets;
         float m_CometCoordinateX;
         float m_CometCoordinateY;

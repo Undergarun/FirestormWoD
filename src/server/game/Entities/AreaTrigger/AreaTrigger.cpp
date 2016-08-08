@@ -144,6 +144,8 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     sScriptMgr->OnSetCreatePositionEntity(this, p_Caster, l_SourcePosition, l_DestinationPosition, p_PathToDest);
 
     SetSource(l_SourcePosition);
+    Relocate(l_SourcePosition);
+
     SetDestination(l_DestinationPosition);
     SetPathToLinearDestination(p_PathToDest);
     SetTrajectory(l_SourcePosition != l_DestinationPosition || p_PathToDest.size()  ? AREATRIGGER_INTERPOLATION_LINEAR : AREATRIGGER_INTERPOLATION_NONE);

@@ -924,6 +924,11 @@ namespace MS { namespace Garrison
                     l_GarrisonAI->SendTradeSkillUI(p_Player);
                     break;
                 }
+                case Building::ID::HerbGarden_HerbGarden_Level2:
+                case Building::ID::HerbGarden_HerbGarden_Level3:
+                    p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::HerbGardenChoose, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+                    break;
                 default:
                     break;
             }
@@ -933,7 +938,7 @@ namespace MS { namespace Garrison
 
         return true;
     }
-
+    
     bool npc_follower_generic_script::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         Manager* l_GarrisonMgr = p_Player->GetGarrison();
@@ -957,6 +962,103 @@ namespace MS { namespace Garrison
                     {
                         p_Player->AddAura(eSpells::SpellSongOfTheAnvil, p_Player);
                         p_Player->AddAura(eSpells::SpellSolaceOfTheForge, p_Player);
+                    }
+
+                    break;
+                }
+                case Building::ID::HerbGarden_HerbGarden_Level2:
+                case Building::ID::HerbGarden_HerbGarden_Level3:
+                {
+                    if (l_GarrisonMgr->HasBuildingType(Building::Type::Farm))
+                    {
+                        p_Player->PlayerTalkClass->ClearMenus();
+
+						if (l_GarrisonMgr->HasBuildingType(Building::Type::Farm))
+						{
+							std::vector<uint64> l_CreatureGuids = l_GarrisonMgr->GetBuildingCreaturesByBuildingType(Building::Type::Farm);
+
+							for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
+							{
+								if (Creature* l_Creature = sObjectAccessor->GetCreature(*p_Player, *l_Itr))
+								{
+									/// Check if creature is Gathering master (Horde/Alliance)
+									if (l_Creature->GetEntry() != 81981 && l_Creature->GetEntry() != 85344)
+										continue;
+
+									GarrisonNPCAI* l_GarrisonAI = l_Creature->ToGarrisonNPCAI();
+
+									if (l_GarrisonAI == nullptr)
+										continue;
+
+									using namespace GarrisonGossipMenus;
+									
+									switch (p_Action)
+									{
+										case GOSSIP_ACTION_INFO_DEF + 1:
+										{
+											/// Test for removing already selected option
+
+                                            uint32 l_Type = reinterpret_cast<GatheringBuildingMaster<&g_HordeHerbGardenFlowerPlot, &g_AllianceTreeFruitsPosition>*>(l_GarrisonAI)->GetGatheringMiscData();
+
+                                            p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbRandom, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
+
+											if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Frostweed])
+												p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbFrostweed, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+											if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Starflower])
+												p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbStarflower, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+											if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Fireweed])
+												p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbFireweed, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+											if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::TaladorOrchid])
+												p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbTaladorOrchid, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+											if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::GorgrondFlytrap])
+												p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbGorgrondFlytrap, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+											if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::NagrandArrowbloom])
+												p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbNagrandArrowbloom, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+
+											p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
+											break;
+										}
+										case GOSSIP_ACTION_INFO_DEF + 2:
+                                            l_GarrisonAI->DoAction(HerbAction::Frostweed);
+                                            p_Player->PlayerTalkClass->ClearMenus();
+											p_Player->CLOSE_GOSSIP_MENU();
+											break;
+										case GOSSIP_ACTION_INFO_DEF + 3:
+                                            l_GarrisonAI->DoAction(HerbAction::Starflower);
+                                            p_Player->PlayerTalkClass->ClearMenus();
+											p_Player->CLOSE_GOSSIP_MENU();
+											break;
+										case GOSSIP_ACTION_INFO_DEF + 4:
+                                            l_GarrisonAI->DoAction(HerbAction::Fireweed);
+                                            p_Player->PlayerTalkClass->ClearMenus();
+											p_Player->CLOSE_GOSSIP_MENU();
+											break;
+										case GOSSIP_ACTION_INFO_DEF + 5:
+                                            l_GarrisonAI->DoAction(HerbAction::TaladorOrchid);
+                                            p_Player->PlayerTalkClass->ClearMenus();
+											p_Player->CLOSE_GOSSIP_MENU();
+											break;
+										case GOSSIP_ACTION_INFO_DEF + 6:
+                                            l_GarrisonAI->DoAction(HerbAction::GorgrondFlytrap);
+                                            p_Player->PlayerTalkClass->ClearMenus();
+											p_Player->CLOSE_GOSSIP_MENU();
+											break;
+										case GOSSIP_ACTION_INFO_DEF + 7:
+                                            l_GarrisonAI->DoAction(HerbAction::NagrandArrowbloom);
+                                            p_Player->PlayerTalkClass->ClearMenus();
+											p_Player->CLOSE_GOSSIP_MENU();
+											break;
+                                        case GOSSIP_ACTION_INFO_DEF + 8:
+                                            l_GarrisonAI->DoAction(0);
+                                            p_Player->PlayerTalkClass->ClearMenus();
+                                            p_Player->CLOSE_GOSSIP_MENU();
+                                            break;
+										default:
+											break;
+									}
+								}
+							}
+						}
                     }
 
                     break;

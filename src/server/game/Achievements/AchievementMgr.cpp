@@ -2318,7 +2318,7 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
     }
     
     bool l_SendAchievement = true;
-    sScriptMgr->OnAchievementEarned(p_ReferencePlayer, p_Achievement, l_SendAchievement, false);
+    sScriptMgr->OnAchievementEarned(GetOwner(), p_Achievement, l_SendAchievement, false);
 
     if (!l_SendAchievement)
         return;
@@ -2361,7 +2361,7 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
 
     RewardAchievement(p_Achievement);
 
-    sScriptMgr->OnAchievementEarned(p_ReferencePlayer, p_Achievement, l_SendAchievement, true);
+    sScriptMgr->OnAchievementEarned(GetOwner(), p_Achievement, l_SendAchievement, true);
 }
 
 #ifndef CROSS

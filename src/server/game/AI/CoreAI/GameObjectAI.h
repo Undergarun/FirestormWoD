@@ -73,6 +73,8 @@ class GameObjectAI
             m_EmptyWarned = false;
         }
 
+        virtual bool ScriptedCollide(float p_X, float p_Y, float p_Z, float* p_OutZ = nullptr) const { return false; }
+
         std::vector<std::pair<int32, std::function<void()>>>    m_TimedDelayedOperations;   ///< Delayed operations
         bool                                                    m_EmptyWarned;              ///< Warning when there are no more delayed operations
 };

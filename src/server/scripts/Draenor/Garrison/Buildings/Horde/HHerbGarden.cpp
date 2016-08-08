@@ -26,7 +26,7 @@ namespace MS { namespace Garrison
         235390  ///< HerbSpawnType::NagrandArrowbloom
     };
 
-    /// FarmSimulator/GoatSimulator positions
+    /// Farm plot positions
     std::vector<GatheringPlotInfos> g_HordeHerbGardenFlowerPlot
     {
         /// Level 1
@@ -35,11 +35,46 @@ namespace MS { namespace Garrison
         { 1, -36.1460f, 30.8179f, 2.8871f, 2.3398f },
         { 1, -34.6058f, 28.8384f, 2.8872f, 3.6122f },
         { 1, -42.7375f, 35.9599f, 2.8865f, 2.7247f },
-        { 1, -41.5901f, 37.4636f, 3.3671f, 0.8404f }
+        { 1, -41.5901f, 37.4636f, 3.3671f, 0.8404f },
 
         /// Level 2
+        { 2, -30.0838f, 34.7960f, 2.8899f, 1.1606f },
+        { 2, -32.8646f, 35.8498f, 3.2592f, 1.3884f },
+        { 2, -24.4076f, 35.8484f, 2.8864f, 3.7210f },
+        { 2, -25.5345f, 37.3289f, 3.4044f, 3.9213f },
+        { 2, -41.6903f, 37.3835f, 2.8861f, 5.5353f },
+        { 2, -42.6684f, 36.1353f, 2.8881f, 5.7199f },
+        { 2, -34.4991f, 28.6406f, 2.8856f, 4.0548f },
+        { 2, -36.3694f, 31.0295f, 2.8902f, 3.3637f },
+        { 2, -38.4641f, 25.0125f, 2.8900f, 0.7876f },
+        { 2, -37.0768f, 23.9160f, 2.8894f, 0.9171f },
 
         /// Level 3
+        { 3, -22.0056f, 32.6219f, 2.9004f, 3.7460f },
+        { 3, -23.2427f, 34.4142f, 2.9112f, 3.8905f },
+        { 3, -24.9024f, 36.7312f, 2.8858f, 3.8669f },
+        { 3, -26.2620f, 38.1862f, 3.1133f, 3.8983f },
+        { 3, -30.1770f, 34.8043f, 2.8866f, 1.0591f },
+        { 3, -32.8142f, 35.6323f, 2.8878f, 1.4597f },
+        { 3, -34.6969f, 35.6271f, 3.7698f, 1.5736f },
+        { 3, -36.5496f, 32.8353f, 2.8866f, 3.2975f },
+        { 3, -36.2112f, 30.9791f, 2.8891f, 3.4389f },
+        { 3, -34.4445f, 28.8961f, 2.8870f, 4.0279f },
+        { 3, -38.4482f, 24.9980f, 2.8897f, 0.8785f },
+        { 3, -36.8310f, 23.7710f, 3.1038f, 0.9217f },
+        { 3, -42.9678f, 35.9658f, 2.8863f, 5.7558f },
+        { 3, -41.7365f, 37.5816f, 2.8879f, 5.6537f },
+        { 3, -26.8490f, 21.7487f, 2.8885f, 1.2673f }
+    };
+
+    std::vector<SequencePosition> g_HordeTreeFruitsPosition =
+    {
+        { -29.4834f, 30.5917f, 2.5401f, 2.9513f },
+        { -30.8693f, 29.7693f, 2.5401f, 2.3898f },
+        { -32.2983f, 29.7496f, 2.5401f, 1.6201f },
+        { -29.8297f, 29.5411f, 2.5410f, 2.4408f },
+        { -28.0837f, 29.5566f, 2.5410f, 2.7204f },
+        { -29.6035f, 28.4041f, 2.5410f, 2.0097f }
     };
 
     //////////////////////////////////////////////////////////////////////////
@@ -85,7 +120,7 @@ namespace MS { namespace Garrison
 
     /// When the PlotInstance ID is set
     /// @p_BuildingID : Set plot instance ID
-    void npc_TarnonAI::OnSetPlotInstanceID(uint32 /*p_PlotInstanceID*/)
+    void npc_TarnonAI::OnSetPlotInstanceID(uint32 p_PlotInstanceID)
     {
         Sites::GarrisonSiteBase* l_GarrisonSite = (Sites::GarrisonSiteBase*)me->GetInstanceScript();
 
@@ -131,6 +166,40 @@ namespace MS { namespace Garrison
                     l_Creature->GetMotionMaster()->MoveRandom(10.0f);
             }
         }
+        
+        if (Manager* l_GarrisonMgr = l_Owner->GetGarrison())
+        {
+            if (l_GarrisonMgr->HasRequiredFollowerAssignedAbility(p_PlotInstanceID))
+            {
+                GarrisonFollower* l_Follower = l_GarrisonMgr->GetAssignedFollower(p_PlotInstanceID);
+
+                if (l_Follower == nullptr)
+                    return;
+
+                GarrFollowerEntry const* l_GarrFollEntry = l_Follower->GetEntry();
+
+                if (l_GarrFollEntry == nullptr)
+                    return;
+
+                switch (GetBuildingID())
+                {
+                    case Building::ID::HerbGarden_HerbGarden_Level2:
+                    case Building::ID::HerbGarden_HerbGarden_Level3:
+                        if (Creature* l_Creature = SummonRelativeCreature(l_GarrFollEntry->CreatureID[0], -10.5386f, 2.3247f, 0.0986f, 3.12f, TEMPSUMMON_MANUAL_DESPAWN))
+                        {
+                            if (CreatureTemplate const* l_FollowerTemplate = sObjectMgr->GetCreatureTemplate(l_GarrFollEntry->CreatureID[0]))
+                                l_Creature->SetDisplayId(l_FollowerTemplate->Modelid1);
+
+                            l_GarrisonMgr->InsertNewCreatureInPlotDatas(p_PlotInstanceID, l_Creature->GetGUID());
+                            l_Creature->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                            AddSummonGUID(l_Creature->GetGUID());
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -168,8 +237,6 @@ namespace MS { namespace Garrison
                 l_Owner->PlayStandaloneScene(l_Owner->GetGarrison()->GetGarrisonFactionIndex() ? l_BuildingEntry->HordeActivationScenePackageID : l_BuildingEntry->AllianceActivationScenePackageID, 0, l_Pos);
 
             l_Owner->GetGarrison()->ActivateBuilding(GetPlotInstanceID());
-
-            InitGatheringPlots(HerbSpawnType::Random);
         }
     }
 
@@ -183,7 +250,7 @@ namespace MS { namespace Garrison
         if (p_MiscData == HerbSpawnType::Random)
             return g_HordeHerbsGobsEntry[urand(0, HerbSpawnType::Random - 1)];
 
-        return g_HordeHerbsGobsEntry[(p_MiscData >= HerbSpawnType::Random) ? 0 : p_MiscData];
+        return g_HordeHerbsGobsEntry[(p_MiscData >= HerbSpawnType::Random) ? urand(0, HerbSpawnType::Random - 1) : p_MiscData];
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -192,7 +259,7 @@ namespace MS { namespace Garrison
     /// @p_Action : Action ID
     void npc_TarnonAI::DoAction(int32 p_Action)
     {
-        SetGatheringMiscData(g_HordeHerbsGobsEntry[p_Action]);
+        ResetGatheringPlots(p_Action);
     }
 
     /// Constructor
@@ -214,99 +281,14 @@ namespace MS { namespace Garrison
         else if (p_Player->GetQuestStatus(Quests::Horde_ClearingTheGarden) == QUEST_STATUS_COMPLETE)
             p_Player->PlayerTalkClass->SendQuestGiverOfferReward(l_Quest, p_Creature->GetGUID());
         else
-        {
-            if (p_Player->GetGarrison())
-            {
-                if (!p_Player->GetGarrison()->HasFollowerAbility(MS::Garrison::GarrisonAbilitiesEnum::AbilityHerbalism))
-                    p_Player->GetSession()->SendListInventory(p_Creature->GetGUID());
-                else
-                {
-                    p_Player->PlayerTalkClass->ClearMenus();
-                    p_Player->ADD_GOSSIP_ITEM_DB(GarrisonGossipMenus::MenuID::DefaultMenuGreetings, GarrisonGossipMenus::GossipOption::DefaultTrader, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-///                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to pick what we plant next.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-                }
-            }
-        }
-
-        return true;
-    }
-
-    bool npc_Tarnon::OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
-    {
-        MS::Garrison::Manager* l_GarrisonMgr = p_Player->GetGarrison();
-        CreatureAI* l_AI = p_Creature->AI();
-
-        if (!p_Player || !p_Creature || !l_GarrisonMgr || !l_AI)
-            return true;
-
-        p_Player->PlayerTalkClass->ClearMenus();
-
-        switch (p_Action)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-            {
-                p_Player->PlayerTalkClass->ClearMenus();
-
-                using namespace GarrisonGossipMenus;
-
-                /// Test for removing already selected option
-
-                uint32 l_Type = reinterpret_cast<GatheringBuildingMaster<&g_HordeHerbGardenFlowerPlot>*>(p_Creature->AI())->GetGatheringMiscData();
-
-                if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Frostweed])
-                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbFrostweed, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Starflower])
-                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbStarflower, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::Fireweed])
-                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbFireweed, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::TaladorOrchid])
-                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbTaladorOrchid, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::GorgrondFlytrap])
-                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbGorgrondFlytrap, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-                if (l_Type != g_AllyHerbsGobsEntry[HerbSpawnType::NagrandArrowbloom])
-                    p_Player->ADD_GOSSIP_ITEM_DB(MenuID::DefaultMenuGreetings, GossipOption::HerbNagrandArrowbloom, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-
-                p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-                break;
-            }
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                l_AI->DoAction(HerbAction::Frostweed);
-                p_Player->CLOSE_GOSSIP_MENU();
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 3:
-                l_AI->DoAction(HerbAction::Starflower);
-                p_Player->CLOSE_GOSSIP_MENU();
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 4:
-                l_AI->DoAction(HerbAction::Fireweed);
-                p_Player->CLOSE_GOSSIP_MENU();
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 5:
-                l_AI->DoAction(HerbAction::TaladorOrchid);
-                p_Player->CLOSE_GOSSIP_MENU();
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 6:
-                l_AI->DoAction(HerbAction::GorgrondFlytrap);
-                p_Player->CLOSE_GOSSIP_MENU();
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 7:
-                l_AI->DoAction(HerbAction::NagrandArrowbloom);
-                p_Player->CLOSE_GOSSIP_MENU();
-                break;
-            case GOSSIP_ACTION_TRADE:
-                p_Player->GetSession()->SendListInventory(p_Creature->GetGUID());
-                break;
-            default:
-                break;
-            }
+            p_Player->GetSession()->SendListInventory(p_Creature->GetGUID());
 
         return true;
     }
 
     /// Called when a CreatureAI object is needed for the creature.
     /// @p_Creature : Target creature instance
-    CreatureAI * npc_Tarnon::GetAI(Creature* p_Creature) const
+    CreatureAI* npc_Tarnon::GetAI(Creature* p_Creature) const
     {
         return new npc_TarnonAI(p_Creature);
     }

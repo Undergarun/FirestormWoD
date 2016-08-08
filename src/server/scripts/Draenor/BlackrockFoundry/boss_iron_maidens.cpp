@@ -145,11 +145,11 @@ class boss_admiral_garan : public CreatureScript
                     {
                         std::list<Creature*> l_TrashesList;
 
-                        me->GetCreatureListWithEntryInGrid(l_TrashesList, eIronMaidensCreatures::AquaticTechnician, 150.0f);
-                        me->GetCreatureListWithEntryInGridAppend(l_TrashesList, eIronMaidensCreatures::IronDockworker, 150.0f);
-                        me->GetCreatureListWithEntryInGridAppend(l_TrashesList, eIronMaidensCreatures::IronEarthbinder, 150.0f);
-                        me->GetCreatureListWithEntryInGridAppend(l_TrashesList, eIronMaidensCreatures::IronMauler, 150.0f);
-                        me->GetCreatureListWithEntryInGridAppend(l_TrashesList, eIronMaidensCreatures::IronCleaver, 150.0f);
+                        me->GetCreatureListWithEntryInGrid(l_TrashesList, eIronMaidensCreatures::AquaticTechnician, 300.0f);
+                        me->GetCreatureListWithEntryInGridAppend(l_TrashesList, eIronMaidensCreatures::IronDockworker, 300.0f);
+                        me->GetCreatureListWithEntryInGridAppend(l_TrashesList, eIronMaidensCreatures::IronEarthbinder, 300.0f);
+                        me->GetCreatureListWithEntryInGridAppend(l_TrashesList, eIronMaidensCreatures::IronMauler, 300.0f);
+                        me->GetCreatureListWithEntryInGridAppend(l_TrashesList, eIronMaidensCreatures::IronCleaver, 300.0f);
 
                         for (Creature* l_Trash : l_TrashesList)
                         {
@@ -183,13 +183,17 @@ class boss_admiral_garan : public CreatureScript
                     AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
                         std::list<Creature*> l_LoadingChains;
-                        me->GetCreatureListWithEntryInGrid(l_LoadingChains, eIronMaidensCreatures::LoadingChain, 150.0f);
+                        me->GetCreatureListWithEntryInGrid(l_LoadingChains, eIronMaidensCreatures::LoadingChain, 300.0f);
 
                         uint8 l_Count = 0;
                         for (Creature* l_Creature : l_LoadingChains)
                             m_LoadingChains[l_Count++] = l_Creature->GetGUID();
+
+                        ResetLoadingChains();
                     });
                 }
+                else
+                    ResetLoadingChains();
 
                 m_DeployTurret      = false;
 
@@ -197,18 +201,6 @@ class boss_admiral_garan : public CreatureScript
                 m_BossDisabled      = false;
                 m_CanJumpToShip     = true;
                 m_IsOnBoat          = false;
-
-                for (uint64 l_Guid : m_LoadingChains)
-                {
-                    if (Creature* l_Chain = Creature::GetCreature(*me, l_Guid))
-                    {
-                        l_Chain->RemoveFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_SPELLCLICK);
-                        l_Chain->NearTeleportTo(l_Chain->GetHomePosition());
-
-                        if (l_Chain->IsAIEnabled)
-                            l_Chain->AI()->SetData(eIronMaidensDatas::LoadingChainAvailable, uint32(true));
-                    }
-                }
 
                 if (m_Instance != nullptr)
                 {
@@ -315,6 +307,11 @@ class boss_admiral_garan : public CreatureScript
                     else
                         CastSpellToPlayers(me->GetMap(), me, eIronMaidensSpells::IronMaidensBonus, true);
                 }
+            }
+
+            void JustRespawned() override
+            {
+                EnterEvadeMode();
             }
 
             void EnterEvadeMode() override
@@ -716,7 +713,7 @@ class boss_admiral_garan : public CreatureScript
                 {
                     case eEvents::EventRapidFire:
                     {
-                        if (Player* l_Target = SelectPlayerTarget(eTargetTypeMask::TypeMaskNonTank))
+                        if (Player* l_Target = SelectPlayerTarget(eTargetTypeMask::TypeMaskNonTank, { -eIronMaidensSpells::OnABoatPeriodic }))
                         {
                             if (Creature* l_Stalker = me->SummonCreature(eIronMaidensCreatures::RapidFireStalker, *l_Target))
                             {
@@ -749,7 +746,7 @@ class boss_admiral_garan : public CreatureScript
                     }
                     case eEvents::EventPenetratingShot:
                     {
-                        if (Player* l_Target = SelectRangedTarget())
+                        if (Player* l_Target = SelectRangedTarget(true, -eIronMaidensSpells::OnABoatPeriodic))
                             me->CastSpell(l_Target, eSpells::SpellPenetratingShotAura, false);
 
                         Talk(eTalks::TalkPenetratingShot);
@@ -812,6 +809,21 @@ class boss_admiral_garan : public CreatureScript
 
                 m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellRapidFireRedArrow);
                 m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellDominatorBlastDoT);
+            }
+
+            void ResetLoadingChains()
+            {
+                for (uint64 l_Guid : m_LoadingChains)
+                {
+                    if (Creature* l_Chain = Creature::GetCreature(*me, l_Guid))
+                    {
+                        l_Chain->RemoveFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_SPELLCLICK);
+                        l_Chain->NearTeleportTo(l_Chain->GetHomePosition());
+
+                        if (l_Chain->IsAIEnabled)
+                            l_Chain->AI()->SetData(eIronMaidensDatas::LoadingChainAvailable, uint32(true));
+                    }
+                }
             }
         };
 
@@ -1005,6 +1017,11 @@ class boss_enforcer_sorka : public CreatureScript
                     else
                         CastSpellToPlayers(me->GetMap(), me, eIronMaidensSpells::IronMaidensBonus, true);
                 }
+            }
+
+            void JustRespawned() override
+            {
+                EnterEvadeMode();
             }
 
             void EnterEvadeMode() override
@@ -1616,6 +1633,11 @@ class boss_marak_the_blooded : public CreatureScript
                     else
                         CastSpellToPlayers(me->GetMap(), me, eIronMaidensSpells::IronMaidensBonus, true);
                 }
+            }
+
+            void JustRespawned() override
+            {
+                EnterEvadeMode();
             }
 
             void EnterEvadeMode() override

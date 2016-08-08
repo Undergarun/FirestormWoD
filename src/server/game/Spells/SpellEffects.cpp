@@ -570,6 +570,8 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                 m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, l_Damage, m_spellInfo->GetSchoolMask(), 0, 0, false, 0, false);
                                 m_caster->DealDamageMods(unitTarget, l_Damage, NULL);
                                 m_caster->DealDamage(unitTarget, l_Damage, NULL, SPELL_DIRECT_DAMAGE, m_spellInfo->GetSchoolMask(), m_spellInfo, false);
+                                if (l_Caster->HasAura(125732))
+                                    m_caster->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                             }
                         }
                         return;
@@ -957,7 +959,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                                 pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
                                 m_caster->ToPlayer()->AddSpellCooldown(119909, 0, 25 * IN_MILLISECONDS, true);
                             }
-
                     break;
                 }
                 case 119913:// Fellash (Command Demon)
@@ -969,7 +970,50 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                                 pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
                                 m_caster->ToPlayer()->AddSpellCooldown(119913, 0, 25 * IN_MILLISECONDS, true);
                             }
-
+                    break;
+                }
+                case 171140:///< Shadow Lock (Command Demon)
+                {
+                    if (!m_caster->IsFriendlyTo(unitTarget))
+                        if (m_caster->IsPlayer())
+                            if (Pet* pet = m_caster->ToPlayer()->GetPet())
+                            {
+                                pet->CastSpell(unitTarget, damage, false);
+                                m_caster->ToPlayer()->AddSpellCooldown(171140, 0, 24 * IN_MILLISECONDS, true);
+                            }
+                    break;
+                }
+                case 171152:///< Meteor Strike (Infernal) (Command Demon)
+                {
+                    if (m_caster->IsPlayer())
+                        if (targets.GetDstPos())
+                            if (Pet* pet = m_caster->ToPlayer()->GetPet())
+                            {
+                                pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
+                                m_caster->ToPlayer()->AddSpellCooldown(171152, 0, 60 * IN_MILLISECONDS, true);
+                            }
+                    break;
+                }
+                case 171018:///< Meteor Strike (Abyssal) (Command Demon)
+                {
+                    if (m_caster->IsPlayer())
+                        if (targets.GetDstPos())
+                            if (Pet* pet = m_caster->ToPlayer()->GetPet())
+                            {
+                                pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
+                                m_caster->ToPlayer()->AddSpellCooldown(171018, 0, 60 * IN_MILLISECONDS, true);
+                            }
+                    break;
+                }
+                case 171154:///< Suffering (Command Demon)
+                {
+                    if (m_caster->IsPlayer())
+                        if (targets.GetDstPos())
+                            if (Pet* pet = m_caster->ToPlayer()->GetPet())
+                            {
+                                pet->CastSpell(targets.GetDstPos()->GetPositionX(), targets.GetDstPos()->GetPositionY(), targets.GetDstPos()->GetPositionZ(), damage, true);
+                                m_caster->ToPlayer()->AddSpellCooldown(171154, 0, 60 * IN_MILLISECONDS, true);
+                            }
                     break;
                 }
                 default:
@@ -2209,22 +2253,29 @@ void Spell::EffectCreateItem2(SpellEffIndex effIndex)
         DoCreateItem(effIndex, item_id);
 
     // special case: fake item replaced by generate using spell_loot_template
-    if (m_spellInfo->IsLootCrafting())
+    if (player && m_spellInfo->IsLootCrafting())
     {
-        if (item_id && LootTemplates_Spell.HaveLootFor(m_spellInfo->Id))
+        Loot l_Loot;
+        l_Loot.FillLoot(item_id, LootTemplates_Spell, player, true, true);
+
+        uint32 l_Max_slot = l_Loot.GetMaxSlotInLootFor(player);
+        if (l_Max_slot)
         {
-            if (!player->HasItemCount(item_id))
-                return;
+            if (item_id && LootTemplates_Spell.HaveLootFor(m_spellInfo->Id))
+            {
+                if (!player->HasItemCount(item_id))
+                    return;
 
-            // remove reagent
-            uint32 count = 1;
-            player->DestroyItemCount(item_id, count, true);
+                // remove reagent
+                uint32 count = 1;
+                player->DestroyItemCount(item_id, count, true);
 
-            // create some random items
-            player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
+                // create some random items
+                player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
+            }
+            else
+                player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);    // create some random items
         }
-        else
-            player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);    // create some random items
     }
     // TODO: ExecuteLogEffectCreateItem(i, m_spellInfo->Effects[i].ItemType);
 }
@@ -3816,6 +3867,32 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
 
     Pet* OldSummon = owner->GetPet();
 
+    /// When warlock use instant summon pet with Soulborn, he receive 1 minute cooldown on summon spells
+    if (owner->getClass() == CLASS_WARLOCK && owner->HasAura(74434))
+    {
+        /// Grimoire of Supremacy
+        if (owner->HasAura(108499))
+        {
+            owner->AddSpellCooldown(112866, 0, 60 * IN_MILLISECONDS, true);  ///< Summon Fel Imp
+            owner->AddSpellCooldown(112867, 0, 60 * IN_MILLISECONDS, true);  ///< Summon Voidlord
+            owner->AddSpellCooldown(112868, 0, 60 * IN_MILLISECONDS, true);  ///< Summon Shivarra
+            owner->AddSpellCooldown(112869, 0, 60 * IN_MILLISECONDS, true);  ///< Summon Observer
+            owner->AddSpellCooldown(112870, 0, 60 * IN_MILLISECONDS, true);  ///< Summon Wrathguard
+            owner->AddSpellCooldown(112921, 0, 60 * IN_MILLISECONDS, true);  ///< Summon Abyssal
+            owner->AddSpellCooldown(112927, 0, 60 * IN_MILLISECONDS, true);  ///< Summon Terrorguard
+        }
+        else
+        {
+            owner->AddSpellCooldown(688, 0, 60 * IN_MILLISECONDS, true);     ///< Summon Imp
+            owner->AddSpellCooldown(691, 0, 60 * IN_MILLISECONDS, true);     ///< Summon Felhunter
+            owner->AddSpellCooldown(697, 0, 60 * IN_MILLISECONDS, true);     ///< Summon Voidwalker
+            owner->AddSpellCooldown(712, 0, 60 * IN_MILLISECONDS, true);     ///< Summon Succubus
+            owner->AddSpellCooldown(30146, 0, 60 * IN_MILLISECONDS, true);   ///< Summon Felguard
+            owner->AddSpellCooldown(1122, 0, 60 * IN_MILLISECONDS, true);    ///< Summon Infernal
+            owner->AddSpellCooldown(18540, 0, 60 * IN_MILLISECONDS, true);   ///< Summon Doomguard
+        }
+    }
+
     // if pet requested type already exist
     if (OldSummon)
     {
@@ -3992,12 +4069,6 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
             charmInfo->SetIsAtStay(false);
             charmInfo->SetIsFollowing(false);
             charmInfo->SetIsReturning(false);
-        }
-
-        if (CreatureAI* l_AI = unitTarget->ToCreature()->AI())
-        {
-            l_AI->OnTaunt(m_caster);
-            l_AI->AttackStart(m_caster);
         }
     }
 }
@@ -5044,11 +5115,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Earthquake (stun effect)
-                case 77478:
-                    if (roll_chance_i(10))
-                        m_caster->CastSpell(unitTarget, 77505, true);
-                    break;
                     // Taming the Flames, Item - Shaman T12 Elemental 2P Bonus
                 case 99202:
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -6049,7 +6115,7 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
     else
         m_caster->GetPosition(x, y);
 
-    unitTarget->KnockbackFrom(x, y, speedxy, speedz);
+    unitTarget->KnockbackFrom(x, y, speedxy, speedz, m_caster);
 
     if (unitTarget->IsPlayer())
         unitTarget->ToPlayer()->SetKnockBackTime(getMSTime());
@@ -8023,11 +8089,12 @@ void Spell::EffectIncreaseFollowerExperience(SpellEffIndex p_EffIndex)
     if (l_GarrisonMgr == nullptr)
         return;
 
-    l_GarrisonMgr->UpgradeFollowerItemLevelWith(m_Misc[0], GetSpellInfo(), p_EffIndex);
+    if (MS::Garrison::GarrisonFollower* l_Follower = l_GarrisonMgr->GetFollower(m_Misc[0]))
+        l_Follower->EarnXP(m_spellInfo->Effects[p_EffIndex].BasePoints, l_Player);
 #endif
 }
 
-void Spell::EffectRerollFollowerAbilities(SpellEffIndex /*p_EffIndex*/)
+void Spell::EffectRerollFollowerAbilities(SpellEffIndex p_EffIndex)
 {
 #ifndef CROSS
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -8046,7 +8113,22 @@ void Spell::EffectRerollFollowerAbilities(SpellEffIndex /*p_EffIndex*/)
         return;
 
     if (MS::Garrison::GarrisonFollower* l_Follower = l_GarrisonMgr->GetFollower(m_Misc[0]))
-        l_GarrisonMgr->GenerateFollowerAbilities(l_Follower->DatabaseID, true, true, true, true);
+    {
+        switch (m_spellInfo->Effects[p_EffIndex].MiscValue)
+        {
+            case 0:
+                l_GarrisonMgr->GenerateFollowerAbilities(l_Follower->DatabaseID, true, true, true, true);
+                break;
+            case 1:
+                l_GarrisonMgr->GenerateFollowerAbilities(l_Follower->DatabaseID, false, true, false, true, true);
+                break;
+            case 2:
+                l_GarrisonMgr->GenerateFollowerAbilities(l_Follower->DatabaseID, false, false, true, true, false, true);
+                break;
+            default:
+                break;
+        }
+    }
 #endif
 }
 
@@ -8277,61 +8359,58 @@ void Spell::EffectStampede(SpellEffIndex p_EffIndex)
     SpellInfo const* l_SpellInfo = GetSpellInfo();
 
     uint32 l_CurrentSlot = l_Player->m_currentPetSlot;
-    for (uint32 l_PetSlotIndex = uint32(PET_SLOT_HUNTER_FIRST); l_PetSlotIndex <= uint32(PET_SLOT_HUNTER_LAST) && l_PetSlotIndex < l_MaxTotalPet; ++l_PetSlotIndex)
+    for (uint32 l_PetSlotIndex = uint32(PET_SLOT_HUNTER_FIRST); l_PetSlotIndex <= uint32(PET_SLOT_HUNTER_LAST) && (l_OnlyCurrentPet || l_PetSlotIndex < l_MaxTotalPet); ++l_PetSlotIndex)
     {
-        if (l_PetSlotIndex != l_CurrentSlot)
+        float l_X, l_Y, l_Z;
+        unitTarget->GetClosePoint(l_X, l_Y, l_Z, unitTarget->GetObjectSize());
+        l_Player->SummonPet(0, l_X, l_Y, l_Z, unitTarget->GetOrientation(), SUMMON_PET, l_Player->CalcSpellDuration(GetSpellInfo()), PetSlot(l_OnlyCurrentPet ? l_CurrentSlot : l_PetSlotIndex), true,
+            [l_MalusSpell, l_SpellInfo, l_UnitTargetGUID](Pet* p_Pet, bool p_Result) -> void
         {
-            float l_X, l_Y, l_Z;
-            l_Player->GetClosePoint(l_X, l_Y, l_Z, l_Player->GetObjectSize());
-            l_Player->SummonPet(0, l_X, l_Y, l_Z, l_Player->GetOrientation(), SUMMON_PET, l_Player->CalcSpellDuration(GetSpellInfo()), PetSlot(l_OnlyCurrentPet ? l_CurrentSlot : l_PetSlotIndex), true,
-                [l_MalusSpell, l_SpellInfo, l_UnitTargetGUID](Pet* p_Pet, bool p_Result) -> void
+            if (!p_Result || !p_Pet)
+                return;
+
+            Player* l_Owner = p_Pet->GetOwner();
+            Unit*   l_Target = p_Pet->GetUnit(*p_Pet, l_UnitTargetGUID);
+
+            if (l_Owner == nullptr)
+                return;
+
+            if (!p_Pet->isAlive())
+                p_Pet->setDeathState(ALIVE);
+
+            /// Set pet at full health
+            p_Pet->SetHealth(p_Pet->GetMaxHealth());
+            p_Pet->SetReactState(REACT_HELPER);
+            p_Pet->m_Stampeded = true;
+
+            std::list<uint32> l_SpellsToRemove;
+            for (auto l_Iter : p_Pet->m_spells)
+                l_SpellsToRemove.push_back(l_Iter.first);
+
+            /// Summoned pets with Stamped don't use abilities
+            for (uint32 l_ID : l_SpellsToRemove)
             {
-                if (!p_Result || !p_Pet)
-                    return;
+                auto l_Iter = p_Pet->m_spells.find(l_ID);
+                p_Pet->m_spells.erase(l_Iter);
+            }
 
-                Player* l_Owner  = p_Pet->GetOwner();
-                Unit*   l_Target = p_Pet->GetUnit(*p_Pet, l_UnitTargetGUID);
+            /// Bestial Wrath stampe should have same duration of Bestial Wrath
+            if (l_SpellInfo->Id == 167135)
+            {
+                if (Aura* l_Aura = l_Owner->GetAura(19574))
+                    p_Pet->SetDuration(l_Aura->GetDuration());
+            }
 
-                if (l_Owner == nullptr)
-                    return;
+            p_Pet->m_autospells.clear();
+            p_Pet->m_Events.KillAllEvents(true);    ///< Disable automatic cast spells
 
-                if (!p_Pet->isAlive())
-                    p_Pet->setDeathState(ALIVE);
+            p_Pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, l_SpellInfo->Id);
 
-                /// Set pet at full health
-                p_Pet->SetHealth(p_Pet->GetMaxHealth());
-                p_Pet->SetReactState(REACT_HELPER);
-                p_Pet->m_Stampeded = true;
+            if (l_MalusSpell != 0 && l_Owner->GetBattleground())
+                p_Pet->CastSpell(p_Pet, l_MalusSpell, true);
 
-                std::list<uint32> l_SpellsToRemove;
-                for (auto l_Iter : p_Pet->m_spells)
-                    l_SpellsToRemove.push_back(l_Iter.first);
-
-                /// Summoned pets with Stamped don't use abilities
-                for (uint32 l_ID : l_SpellsToRemove)
-                {
-                    auto l_Iter = p_Pet->m_spells.find(l_ID);
-                    p_Pet->m_spells.erase(l_Iter);
-                }
-
-                /// Bestial Wrath stampe should have same duration of Bestial Wrath
-                if (l_SpellInfo->Id == 167135)
-                {
-                    if(Aura* l_Aura = l_Owner->GetAura(19574))
-                        p_Pet->SetDuration(l_Aura->GetDuration());
-                }
-
-                p_Pet->m_autospells.clear();
-                p_Pet->m_Events.KillAllEvents(true);    ///< Disable automatic cast spells
-
-                p_Pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, l_SpellInfo->Id);
-
-                if (l_MalusSpell != 0 && l_Owner->GetBattleground())
-                    p_Pet->CastSpell(p_Pet, l_MalusSpell, true);
-
-                p_Pet->AI()->AttackStart(l_Target);
-            });
-        }
+            p_Pet->AI()->AttackStart(l_Target);
+        });
     }
 }
 

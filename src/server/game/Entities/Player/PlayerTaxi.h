@@ -38,6 +38,9 @@ class PlayerTaxi
         /// Add a taxi destination for the player
         /// @p_NodeID : Destination node ID to add
         bool SetTaximaskNode(uint32 p_NodeID);
+        /// Remove a taxi destination for the player
+        /// @p_NodeID : Destination node ID to add
+        bool RemoveTaximaskNode(uint32 p_NodeID);
 
         /// Append taxi mask to a byte buffer
         /// @p_DataDest : Destination buffer

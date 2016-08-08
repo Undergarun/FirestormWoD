@@ -291,6 +291,8 @@ class iron_docks_mob_gromkar_footsoldier : public CreatureScript
             {
                 if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::CreatureIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
                     p_Who->Kill(me);
+
+                ScriptedAI::MoveInLineOfSight(p_Who);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -471,6 +473,8 @@ class iron_docks_mob_gromkar_technician : public CreatureScript
             {
                 if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::CreatureIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
                     p_Who->Kill(me);
+
+                ScriptedAI::MoveInLineOfSight(p_Who);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -918,7 +922,6 @@ class iron_docks_mob_iron_star_vehicle : public CreatureScript
     }
 };
 
-
 /// Iron Star - 812477
 class iron_docks_mob_iron_star : public CreatureScript
 {
@@ -956,9 +959,21 @@ public:
         {
             events.Reset();
             m_Activated = true;
+            ClearDelayedOperations();
             me->setFaction(FriendlyFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
+         
+            AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+            {
+                m_Activated = false;
+                me->CastSpell(me, eIronStarSpells::SpellQuietSuicide, true);
 
+                AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);
+                });
+            });
+     
             /// Takes iron star orientation
             if (TempSummon* l_TempSummon = me->ToTempSummon())
             {
@@ -971,42 +986,13 @@ public:
                 }
             }
 
-
             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
-        }
-        /*
-        void DoAction(int32 const p_Action) override
-        {
-        switch (p_Action)
-        {
-        case eIronDocksActions::ActionAcitvateIronStar:
-        {
-        m_Activated = true;
-
-        float l_X = me->m_positionX + 100 * cos(me->m_orientation);
-        float l_Y = me->m_positionY + 100 * sin(me->m_orientation);
-
-        me->GetMotionMaster()->MoveCharge(l_X, l_Y, me->GetPositionZ(), 42.0f, eMovementInformed::MovementInformedIronStarWallContact);
-        break;
-        }
-        default:
-        break;
-        }
-        }
-        */
-
-        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
-        {
-            if (p_Id == eMovementInformed::MovementInformedIronStarWallContact)
-            {
-                m_Activated = false;
-                me->CastSpell(me, eIronStarSpells::SpellQuietSuicide);
-                me->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);
-            }
         }
 
         void UpdateAI(uint32 const p_Diff) override
         {
+            UpdateOperations(p_Diff);
+
             if (m_Instance != nullptr)
             {
                 if (m_Activated)
@@ -1024,11 +1010,13 @@ public:
                         if (l_Unit->ToCreature()->GetEntry() == eIronDocksCreatures::CreatureIronStar)
                             continue;
 
+                        if (l_Unit->ToCreature()->GetEntry() == eIronDocksCreatures::CreatureArcheryTarget)
+                            continue;
+
                         l_Unit->SetFacingToObject(me);
                         l_Unit->SendPlaySpellVisualKit(eIronStarSpellVisualKit::SpellVisualKitAlert, 0);
                         l_Unit->CastSpell(l_Unit, eIronStarSpells::SpellCrushed);
-                        l_Unit->Kill(l_Unit);
-                        /// me->m_Events.AddEvent(new basicevent_kill(m_Instance, me->GetGUID(), l_Unit->GetGUID()), me->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
+                        l_Unit->Kill(l_Unit);                      
                     }
                 }
 
@@ -1117,6 +1105,8 @@ class iron_docks_mob_laborer_ogron : public CreatureScript
                     m_HasShouted = true;
                     me->MonsterYell("CRUSH THEM!!", Language::LANG_UNIVERSAL, me->GetGUID());
                 }
+
+                ScriptedAI::MoveInLineOfSight(p_Who);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1206,6 +1196,8 @@ class iron_docks_mob_gromkar_deck_hand : public CreatureScript
             {
                 if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::CreatureIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
                     p_Who->Kill(me);
+
+                ScriptedAI::MoveInLineOfSight(p_Who);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1414,6 +1406,8 @@ class iron_docks_mob_stand_third_event : public CreatureScript
                     if (InstanceScript* l_InstanceScript = me->GetInstanceScript())
                         l_InstanceScript->SetData(eIronDocksDatas::DataThirdEvent, uint32(true));
                 }
+
+                ScriptedAI::MoveInLineOfSight(p_Who);
             }
         };
 
@@ -1498,6 +1492,11 @@ class iron_docks_mob_rampaging_clefthoof : public CreatureScript
                 EventClefthoofStampede = 1
             };
 
+            enum eClefthoofActions
+            {
+                ActionStopStampede = 1
+            };
+
             enum eClefthoofSpells
             {
                 /// Rushing
@@ -1540,18 +1539,24 @@ class iron_docks_mob_rampaging_clefthoof : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
+            void DoAction(int32 const p_Action) override
             {
-                if (p_Id == eMovementInformed::MovementInformedClefthoofTargetArrivDest)
+                switch (p_Action)
                 {
-                    m_Stampede = false;          
+                case eClefthoofActions::ActionStopStampede:                   
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                     me->CastSpell(me, eClefthoofSpells::SpellClefthoofStampedeDamage);
-                    me->RemoveAura(eClefthoofSpells::SpellClefthoofStampedeVisualMovement);                          
+                    me->RemoveAura(eClefthoofSpells::SpellClefthoofStampedeVisualMovement);
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
 
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 20.0f, true))
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                    {
                         me->Attack(l_Target, true);
+                        me->GetMotionMaster()->MoveChase(l_Target);
+                    }
+                    break;
+                default:
+                    break;
                 }
             }
 
@@ -1564,6 +1569,20 @@ class iron_docks_mob_rampaging_clefthoof : public CreatureScript
 
                 if (m_Stampede)
                 {
+                    /// Stops Primal Assault when near a player
+                    if (m_StampedeGuid)
+                    {
+                        if (Player* l_Nearest = Player::GetPlayer(*me, m_StampedeGuid))
+                        {
+                            if (me->IsWithinMeleeRange(l_Nearest))
+                            {
+                                m_Stampede = false;
+                                m_StampedeGuid = 0;
+                                DoAction(eClefthoofActions::ActionStopStampede);
+                            }
+                        }
+                    }
+
                     if (m_StampedeDiff <= p_Diff)
                     {
                         std::list<Player*> l_PlayerList;
@@ -1573,13 +1592,13 @@ class iron_docks_mob_rampaging_clefthoof : public CreatureScript
                         if (l_PlayerList.empty())
                             return;
 
-                        for (auto l_Itr : l_PlayerList)
+                        for (Player* l_Itr : l_PlayerList)
                         {
                             if (me->isInFront(l_Itr, M_PI))
                                 l_Itr->AddAura(eClefthoofSpells::SpellClefthoofTrampled, l_Itr);
                         }
 
-                        m_StampedeDiff = 1 * TimeConstants::IN_MILLISECONDS;
+                        m_StampedeDiff = 2 * TimeConstants::IN_MILLISECONDS;
                     }
                     else
                         m_StampedeDiff -= p_Diff;
@@ -1596,6 +1615,8 @@ class iron_docks_mob_rampaging_clefthoof : public CreatureScript
                             if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 45.0f, true))
                             {
                                 m_Stampede = true;
+                                me->AttackStop();
+                                m_StampedeGuid = l_Target->GetGUID();
                                 me->SetReactState(ReactStates::REACT_PASSIVE);
                                 m_StampedeDiff = 1 * TimeConstants::IN_MILLISECONDS;
                                 me->CastSpell(l_Target, eClefthoofSpells::SpellClefthoofStampedeDummyCast);                                                           

@@ -1614,9 +1614,6 @@ void World::SetInitialWorldSettings()
         sObjectMgr->LoadResearchSiteLoot();
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Archeology research site loot...");
-    sObjectMgr->LoadResearchSiteLoot();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GameObject models...");
     LoadGameObjectModelList();
 
@@ -1629,8 +1626,6 @@ void World::SetInitialWorldSettings()
     // Must be called before `creature_respawn`/`gameobject_respawn` tables
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading instances...");
     sInstanceSaveMgr->LoadInstances();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Localization strings...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -2055,6 +2050,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading faction change title pairs...");
     sObjectMgr->LoadFactionChangeTitles();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading faction change title pairs...");
+    sObjectMgr->LoadFactionChangeQuests();
+
 #ifndef CROSS
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GM tickets...");
     sTicketMgr->LoadTickets();
@@ -2124,6 +2122,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading QuestForItem...");
     sObjectMgr->LoadQuestForItem();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Auras Not Save...");
+    sSpellMgr->LoadSpellAurasNotSave();
 
     ///- Initialize game time and timers
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");

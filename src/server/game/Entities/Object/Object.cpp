@@ -2065,16 +2065,21 @@ float Position::GetAngle(const float x, const float y) const
     return ang;
 }
 
-void Position::GetSinCos(const float x, const float y, float &vsin, float &vcos) const
+void Position::GetSinCos(const float x, const float y, float &vsin, float &vcos, Unit* p_Caster /*= nullptr*/) const
 {
     float dx = GetPositionX() - x;
     float dy = GetPositionY() - y;
 
     if (fabs(dx) < 0.001f && fabs(dy) < 0.001f)
     {
-        float angle = (float)rand_norm()*static_cast<float>(2*M_PI);
-        vcos = std::cos(angle);
-        vsin = std::sin(angle);
+        float l_Angle = 0.0f;
+        if (p_Caster)
+            l_Angle = NormalizeOrientation(GetAngle(p_Caster) - M_PI);
+        else
+            l_Angle = (float)rand_norm()*static_cast<float>(2 * M_PI);
+
+        vcos = std::cos(l_Angle);
+        vsin = std::sin(l_Angle);
     }
     else
     {
@@ -3166,45 +3171,12 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
                         // Supplant Command Demon
                         if (l_Player->getLevel() >= 56)
                         {
-                            int32 bp = 0;
-
                             l_Player->RemoveAura(119904);
 
-                            switch (p_Pet->GetEntry())
-                            {
-                                case ENTRY_IMP:
-                                case ENTRY_FEL_IMP:
-                                    bp = 119905;// Cauterize Master
-                                    break;
-                                case ENTRY_VOIDWALKER:
-                                case ENTRY_VOIDLORD:
-                                    bp = 119907;// Disarm
-                                    break;
-                                case ENTRY_SUCCUBUS:
-                                    bp = 119909;// Whilplash
-                                    break;
-                                case ENTRY_SHIVARRA:
-                                    bp = 119913;// Fellash
-                                    break;
-                                case ENTRY_FELHUNTER:
-                                    bp = 119910;// Spell Lock
-                                    break;
-                                case ENTRY_OBSERVER:
-                                    bp = 119911;// Optical Blast
-                                    break;
-                                case ENTRY_FELGUARD:
-                                    bp = 119914;// Felstorm
-                                    break;
-                                case ENTRY_WRATHGUARD:
-                                    bp = 119915;// Wrathstorm
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            if (bp)
-                                l_Player->CastCustomSpell(l_Player, 119904, &bp, NULL, NULL, true);
+                            if (int32 l_BasePoints = p_Pet->GetCommandDemonSpellByEntry(p_Pet->GetEntry()))
+                                l_Player->CastCustomSpell(l_Player, 119904, &l_BasePoints, NULL, NULL, true);
                         }
+
                         p_Pet->SetFullHealth();
                     }
 
@@ -3318,37 +3290,7 @@ void Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
             l_Pet->GetOwner()->RemoveAura(119904);
 
-            switch (l_Pet->GetEntry())
-            {
-                case ENTRY_IMP:
-                case ENTRY_FEL_IMP:
-                    bp = 119905;// Cauterize Master
-                    break;
-                case ENTRY_VOIDWALKER:
-                case ENTRY_VOIDLORD:
-                    bp = 119907;// Disarm Removed since 6.0.2 please clean me
-                    break;
-                case ENTRY_SUCCUBUS:
-                    bp = 119909; // Whiplash
-                    break;
-                case ENTRY_SHIVARRA:
-                    bp = 119913;// Fellash
-                    break;
-                case ENTRY_FELHUNTER:
-                    bp = 119910;// Spell Lock
-                    break;
-                case ENTRY_OBSERVER:
-                    bp = 119911;// Optical Blast
-                    break;
-                case ENTRY_FELGUARD:
-                    bp = 119914;// Felstorm
-                    break;
-                case ENTRY_WRATHGUARD:
-                    bp = 119915;// Wrathstorm
-                    break;
-                default:
-                    break;
-            }
+            bp = GetCommandDemonSpellByEntry(l_Pet->GetEntry());
 
             if (bp)
                 l_Pet->GetOwner()->CastCustomSpell(l_Pet->GetOwner(), 119904, &bp, NULL, NULL, true);
@@ -3709,6 +3651,46 @@ void WorldObject::GetNearPoint(WorldObject const* /*p_Searcher*/, float &p_InOut
     p_InOutZ = l_FirstZ;
 }
 
+void WorldObject::GetNearPoint(Position& p_Pos, float p_SearcherSize, float p_Distance2D, float p_AbsAngle) const
+{
+    GetNearPoint2D(p_Pos.m_positionX, p_Pos.m_positionY, p_Distance2D + p_SearcherSize, p_AbsAngle);
+    p_Pos.m_positionZ = GetPositionZ();
+
+    /// Should "searcher" be used instead of "this" when updating z coordinate ?
+    UpdateAllowedPositionZ(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ);
+
+    /// if detection disabled, return first point
+    if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_DETECT_POS_COLLISION))
+        return;
+
+    /// return if the point is already in LoS
+    if (IsWithinLOS(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ))
+        return;
+
+    /// Remember first point
+    float l_FirstX = p_Pos.m_positionX;
+    float l_FirstY = p_Pos.m_positionY;
+    float l_FirstZ = p_Pos.m_positionZ;
+
+    /// Loop in a circle to look for a point in LoS using small steps
+    for (float l_CurrentAngle = float(M_PI) / 8; l_CurrentAngle < float(M_PI) * 2; l_CurrentAngle += float(M_PI) / 8)
+    {
+        GetNearPoint2D(p_Pos.m_positionX, p_Pos.m_positionY, p_Distance2D + p_SearcherSize, p_AbsAngle + l_CurrentAngle);
+
+        p_Pos.m_positionZ = GetPositionZ();
+
+        UpdateAllowedPositionZ(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ);
+
+        if (IsWithinLOS(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ))
+            return;
+    }
+
+    // Still not in LoS, give up and return first position found
+    p_Pos.m_positionX = l_FirstX;
+    p_Pos.m_positionY = l_FirstY;
+    p_Pos.m_positionZ = l_FirstZ;
+}
+
 void WorldObject::MovePosition(Position &pos, float dist, float angle)
 {
     angle += GetOrientation();
@@ -3756,6 +3738,7 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
 
 void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float angle)
 {
+    Map* l_Map = GetMap();
     angle += GetOrientation();
     float destx, desty, destz, ground, floor;
     pos.m_positionZ += 2.0f;
@@ -3769,9 +3752,17 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         return;
     }
 
-    ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
-    floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
+    ground = l_Map->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
+    floor = l_Map->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
     destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
+
+    float l_OutDynZ         = 0.0f;
+    bool l_CustomCollide    = false;
+    if (l_Map->CollideWithScriptedGameObject(destx, desty, m_positionZ, &l_OutDynZ))
+    {
+        l_CustomCollide = true;
+        destz = l_OutDynZ;
+    }
 
     bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(), pos.m_positionX, pos.m_positionY, pos.m_positionZ+0.5f, destx, desty, destz+0.5f, destx, desty, destz, -0.5f);
 
@@ -3785,7 +3776,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     }
 
     // check dynamic collision
-    col = GetMap()->getObjectHitPos(GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ+0.5f, destx, desty, destz+0.5f, destx, desty, destz, -0.5f);
+    col = l_Map->getObjectHitPos(GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ+0.5f, destx, desty, destz+0.5f, destx, desty, destz, -0.5f);
 
     // Collided with a gameobject
     if (col)
@@ -3797,6 +3788,9 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
 
     float step = dist/10.0f;
 
+    if (l_CustomCollide)
+        destz = l_OutDynZ;
+
     for (uint8 j = 0; j < 10; ++j)
     {
         // do not allow too big z changes
@@ -3804,8 +3798,8 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         {
             destx -= step * std::cos(angle);
             desty -= step * std::sin(angle);
-            ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
-            floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
+            ground = l_Map->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
+            floor = l_Map->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
             destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
         }
         // we have correct destz now
@@ -3820,6 +3814,9 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     JadeCore::NormalizeMapCoord(pos.m_positionY);
     UpdateAllowedPositionZ(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
     pos.SetOrientation(GetOrientation());
+
+    if (l_CustomCollide)
+        pos.m_positionZ = l_OutDynZ;
 }
 
 void WorldObject::MovePositionToCollisionBetween(Position &pos, float distMin, float distMax, float angle)

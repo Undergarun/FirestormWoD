@@ -28,6 +28,7 @@ DoorData const g_DoorData[] =
     { eFoundryGameObjects::FreightElevatorDoor,         eFoundryDatas::DataOperatorThogar,      DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::IronMaidensRampDoor,         eFoundryDatas::DataIronMaidens,         DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { eFoundryGameObjects::IronMaidensExitDoor,         eFoundryDatas::DataIronMaidens,         DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eFoundryGameObjects::BlackhandsGate,              eFoundryDatas::DataBlackhand,           DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { 0,                                                0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -43,6 +44,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_Initialized               = false;
 
                 m_DungeonID                 = 0;
+
+                m_HardenedSlagEntranceGuid  = 0;
+                m_HardenedSlagFurnaceGuid   = 0;
+                m_CrucibleLeftGuid          = 0;
+                m_CrucibleRightGuid         = 0;
 
                 m_SlagworksEntrance         = 0;
                 m_GruulGuid                 = 0;
@@ -99,13 +105,26 @@ class instance_blackrock_foundry : public InstanceMapScript
                 m_IronMaidensKillTime       = 0;
                 m_BeQuickOrBeDeadAchiev     = false;
 
+                m_BlackhandGuid             = 0;
                 m_SpikeGateGuid             = 0;
                 m_CrucibleEntrance          = 0;
+                m_PreBlackhandsGate         = 0;
+                m_BRFTriggerGuid            = 0;
+                m_CeilingStalkerGuid        = 0;
+                m_BlackhandPlatform         = 0;
+                m_HangingIronStar           = 0;
+                m_AchievementStalker        = 0;
+                m_CollectedAshes            = 0;
             }
 
             bool m_Initialized;
 
             uint32 m_DungeonID;
+
+            uint64 m_HardenedSlagEntranceGuid;
+            uint64 m_HardenedSlagFurnaceGuid;
+            uint64 m_CrucibleLeftGuid;
+            uint64 m_CrucibleRightGuid;
 
             /// Slagworks
             uint64 m_SlagworksEntrance;
@@ -179,8 +198,17 @@ class instance_blackrock_foundry : public InstanceMapScript
             bool m_BeQuickOrBeDeadAchiev;
 
             /// Blackhand's Crucible
+            uint64 m_BlackhandGuid;
             uint64 m_SpikeGateGuid;
             uint64 m_CrucibleEntrance;
+            uint64 m_PreBlackhandsGate;
+            uint64 m_BRFTriggerGuid;
+            uint64 m_CeilingStalkerGuid;
+            uint64 m_BlackhandPlatform;
+            uint64 m_HangingIronStar;
+            uint64 m_AchievementStalker;
+            uint32 m_CollectedAshes;
+            std::map<uint32, uint64> m_BlackhandsCrucibles;
 
             void Initialize() override
             {
@@ -414,6 +442,38 @@ class instance_blackrock_foundry : public InstanceMapScript
                         m_IronCannonGuid = p_Creature->GetGUID();
                         break;
                     }
+                    case eFoundryCreatures::ForgemistressFlamehand:
+                    {
+                        if (!p_Creature->isAlive())
+                        {
+                            instance->SetObjectVisibility(500.0f);
+
+                            if (GameObject* l_Door = instance->GetGameObject(m_PreBlackhandsGate))
+                                l_Door->SetGoState(GOState::GO_STATE_ACTIVE);
+                        }
+
+                        break;
+                    }
+                    case eFoundryCreatures::BossBlackhand:
+                    {
+                        m_BlackhandGuid = p_Creature->GetGUID();
+                        break;
+                    }
+                    case eFoundryCreatures::BlackrockFoundryTrigger:
+                    {
+                        m_BRFTriggerGuid = p_Creature->GetGUID();
+                        break;
+                    }
+                    case eFoundryCreatures::CeilingStalker:
+                    {
+                        m_CeilingStalkerGuid = p_Creature->GetGUID();
+                        break;
+                    }
+                    case eFoundryCreatures::AchievementStalker:
+                    {
+                        m_AchievementStalker = p_Creature->GetGUID();
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -441,13 +501,18 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::FreightElevatorDoor:
                     case eFoundryGameObjects::IronMaidensRampDoor:
                     case eFoundryGameObjects::IronMaidensExitDoor:
+                    case eFoundryGameObjects::BlackhandsGate:
                         AddDoor(p_GameObject, true);
                         break;
                     case eFoundryGameObjects::VolatileBlackrockOre:
                         m_VolatileOreGuid = p_GameObject->GetGUID();
                         break;
                     case eFoundryGameObjects::CrucibleLeft:
+                        m_CrucibleLeftGuid = p_GameObject->GetGUID();
+                        p_GameObject->SetAIAnimKitId(eFoundryVisuals::CrucibleVisuals);
+                        break;
                     case eFoundryGameObjects::CrucibleRight:
+                        m_CrucibleRightGuid = p_GameObject->GetGUID();
                         p_GameObject->SetAIAnimKitId(eFoundryVisuals::CrucibleVisuals);
                         break;
                     case eFoundryGameObjects::FurnaceGate:
@@ -504,6 +569,29 @@ class instance_blackrock_foundry : public InstanceMapScript
                         m_AmmoLoaderGuid = p_GameObject->GetGUID();
                         p_GameObject->SetAIAnimKitId(eFoundryVisuals::AmmoLoaderAnim);
                         break;
+                    case eFoundryGameObjects::HardenedSlagEntrance:
+                        m_HardenedSlagEntranceGuid = p_GameObject->GetGUID();
+                        break;
+                    case eFoundryGameObjects::HardenedSlagBlastFurnace:
+                        m_HardenedSlagFurnaceGuid = p_GameObject->GetGUID();
+                        break;
+                    case eFoundryGameObjects::PreBlackhandsGate:
+                        m_PreBlackhandsGate = p_GameObject->GetGUID();
+                        break;
+                    case eFoundryGameObjects::BlackhandsCrucible01:
+                    case eFoundryGameObjects::BlackhandsCrucible02:
+                    case eFoundryGameObjects::BlackhandsCrucible03:
+                    case eFoundryGameObjects::BlackhandsCrucible04:
+                    case eFoundryGameObjects::BlackhandsCrucible05:
+                        m_BlackhandsCrucibles[p_GameObject->GetEntry()] = p_GameObject->GetGUID();
+                        break;
+                    case eFoundryGameObjects::BlackhandAPlatform:
+                        m_BlackhandPlatform = p_GameObject->GetGUID();
+                        instance->AddScriptedCollisionGameObject(m_BlackhandPlatform);
+                        break;
+                    case eFoundryGameObjects::HangingIronStar:
+                        m_HangingIronStar = p_GameObject->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -531,7 +619,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                     case eFoundryGameObjects::FreightElevatorDoor:
                     case eFoundryGameObjects::IronMaidensRampDoor:
                     case eFoundryGameObjects::IronMaidensExitDoor:
+                    case eFoundryGameObjects::BlackhandsGate:
                         AddDoor(p_GameObject, false);
+                        break;
+                    case eFoundryGameObjects::BlackhandAPlatform:
+                        instance->RemoveScriptedCollisionGameObject(m_BlackhandPlatform);
                         break;
                     default:
                         break;
@@ -568,13 +660,39 @@ class instance_blackrock_foundry : public InstanceMapScript
                 if (!InstanceScript::SetBossState(p_BossID, p_State))
                     return false;
 
-#ifndef CROSS
+                /// Handle Blackhand's doors - must be here in case of loading
+                for (uint8 l_I = 0; l_I < eFoundryDatas::DataBlackhand; ++l_I)
+                {
+                    if (GetBossState(l_I) != EncounterState::DONE)
+                        break;
+
+                    if (GameObject* l_SpikeGate = instance->GetGameObject(m_SpikeGateGuid))
+                        l_SpikeGate->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                    if (GameObject* l_CrucibleEntrance = instance->GetGameObject(m_CrucibleEntrance))
+                        l_CrucibleEntrance->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                    instance->SetObjectVisibility(500.0f);
+                }
+
+                /// Just cosmetic stuff
+                if (p_BossID == eFoundryDatas::DataBlastFurnace && p_State == EncounterState::DONE)
+                {
+                    if (GameObject* l_HardenedSlag = instance->GetGameObject(m_HardenedSlagEntranceGuid))
+                        l_HardenedSlag->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                    if (GameObject* l_HardenedSlagFurnace = instance->GetGameObject(m_HardenedSlagFurnaceGuid))
+                        l_HardenedSlagFurnace->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                    if (GameObject* l_CrucibleLeft = instance->GetGameObject(m_CrucibleLeftGuid))
+                        l_CrucibleLeft->SetAIAnimKitId(0);
+
+                    if (GameObject* l_CrucibleRight = instance->GetGameObject(m_CrucibleRightGuid))
+                        l_CrucibleRight->SetAIAnimKitId(0);
+                }
+
                 /// Don't handle the DONE state in case of loading
                 if (p_State == EncounterState::DONE && l_OldState != EncounterState::IN_PROGRESS)
-#else /* CROSS */
-                /// Don't handle the next in case of loading
-                if (l_OldState != EncounterState::IN_PROGRESS)
-#endif /* CROSS */
                     return true;
 
                 switch (p_BossID)
@@ -631,6 +749,18 @@ class instance_blackrock_foundry : public InstanceMapScript
                             {
                                 if (m_YaWeveGotTimeAchiev && !instance->IsLFR())
                                     DoCompleteAchievement(eFoundryAchievements::YaWeveGotTime);
+
+                                if (GameObject* l_HardenedSlag = instance->GetGameObject(m_HardenedSlagEntranceGuid))
+                                    l_HardenedSlag->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                                if (GameObject* l_HardenedSlagFurnace = instance->GetGameObject(m_HardenedSlagFurnaceGuid))
+                                    l_HardenedSlagFurnace->SetGoState(GOState::GO_STATE_ACTIVE);
+
+                                if (GameObject* l_CrucibleLeft = instance->GetGameObject(m_CrucibleLeftGuid))
+                                    l_CrucibleLeft->SetAIAnimKitId(0);
+
+                                if (GameObject* l_CrucibleRight = instance->GetGameObject(m_CrucibleRightGuid))
+                                    l_CrucibleRight->SetAIAnimKitId(0);
 
                                 break;
                             }
@@ -947,6 +1077,28 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                         break;
                     }
+                    case eFoundryDatas::DataBlackhand:
+                    {
+                        switch (p_State)
+                        {
+                            case EncounterState::DONE:
+                            {
+                                instance->SetObjectVisibility(150.0f);
+
+                                if (m_CollectedAshes >= eFoundryDatas::MaxAshesToCollect && !instance->IsLFR())
+                                    DoCompleteAchievement(eFoundryAchievements::AshesAshes);
+
+                                break;
+                            }
+                            default:
+                            {
+                                m_CollectedAshes = 0;
+                                break;
+                            }
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1072,6 +1224,14 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                         break;
                     }
+                    case eFoundryDatas::BlackhandAshCollected:
+                    {
+                        if (instance->IsLFR() || GetBossState(eFoundryDatas::DataBlackhand) != EncounterState::IN_PROGRESS)
+                            break;
+
+                        ++m_CollectedAshes;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1161,6 +1321,26 @@ class instance_blackrock_foundry : public InstanceMapScript
                         return m_IronCannonGuid;
                     case eFoundryGameObjects::AmmoLoader:
                         return m_AmmoLoaderGuid;
+                    case eFoundryGameObjects::PreBlackhandsGate:
+                        return m_PreBlackhandsGate;
+                    case eFoundryCreatures::BossBlackhand:
+                        return m_BlackhandGuid;
+                    case eFoundryGameObjects::BlackhandsCrucible01:
+                    case eFoundryGameObjects::BlackhandsCrucible02:
+                    case eFoundryGameObjects::BlackhandsCrucible03:
+                    case eFoundryGameObjects::BlackhandsCrucible04:
+                    case eFoundryGameObjects::BlackhandsCrucible05:
+                        return m_BlackhandsCrucibles[p_Type];
+                    case eFoundryCreatures::BlackrockFoundryTrigger:
+                        return m_BRFTriggerGuid;
+                    case eFoundryCreatures::CeilingStalker:
+                        return m_CeilingStalkerGuid;
+                    case eFoundryGameObjects::BlackhandAPlatform:
+                        return m_BlackhandPlatform;
+                    case eFoundryGameObjects::HangingIronStar:
+                        return m_HangingIronStar;
+                    case eFoundryCreatures::AchievementStalker:
+                        return m_AchievementStalker;
                     default:
                         break;
                 }
@@ -1183,6 +1363,26 @@ class instance_blackrock_foundry : public InstanceMapScript
                             return false;
 
                         return true;
+                    }
+                    case eFoundryDatas::DataFlamebenderKagraz:
+                    case eFoundryDatas::DataKromog:
+                    case eFoundryDatas::DataOperatorThogar:
+                    case eFoundryDatas::DataIronMaidens:
+                    {
+                        if (GetBossState(p_BossID - 1) != EncounterState::DONE)
+                            return false;
+
+                        break;
+                    }
+                    case eFoundryDatas::DataBlackhand:
+                    {
+                        for (uint8 l_I = 0; l_I < eFoundryDatas::DataBlackhand; ++l_I)
+                        {
+                            if (GetBossState(l_I) != EncounterState::DONE)
+                                return false;
+                        }
+
+                        break;
                     }
                     default:
                         break;

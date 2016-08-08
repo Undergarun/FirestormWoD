@@ -21,7 +21,7 @@ enum eSkylordTorvaTalks
 	TalkGeneralEvenet03,  ///< Show them what you're made of! [45882]
 	TalkIntro,            ///< No body stops the iron Horde, No body [45883]
 	TalkKill01,           ///< Hell shockin' [45884]
-	TalkKill02            ///< Haaa [458845]
+	TalkKill02            ///< Haaa [45885]
 };
 
 enum eSkylordTorvaActions

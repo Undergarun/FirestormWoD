@@ -525,6 +525,10 @@ class Map : public GridRefManager<NGridType>
 
         void RemoveCreatureFromMoveList(Creature* p_Creature, bool p_Force = false);
 
+        void AddScriptedCollisionGameObject(uint64 p_Guid) { m_ScriptedCollisionGobs.insert(p_Guid); }
+        void RemoveScriptedCollisionGameObject(uint64 p_Guid) { m_ScriptedCollisionGobs.erase(p_Guid); }
+        bool CollideWithScriptedGameObject(float p_X, float p_Y, float p_Z, float* p_OutZ = nullptr) const;
+
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
@@ -574,8 +578,6 @@ class Map : public GridRefManager<NGridType>
         void setNGrid(NGridType* grid, uint32 x, uint32 y);
         void ScriptsProcess();
 
-        void UpdateActiveCells(const float &x, const float &y, const uint32 t_diff);
-
     protected:
 
         void SetUnloadReferenceLock(const GridCoord &p, bool on)
@@ -611,6 +613,8 @@ class Map : public GridRefManager<NGridType>
         typedef std::set<Transport*> TransportsContainer;
         TransportsContainer _transports;
         TransportsContainer::iterator _transportsUpdateIter;
+
+        std::unordered_set<uint64> m_ScriptedCollisionGobs;
 
     private:
 #ifdef CROSS

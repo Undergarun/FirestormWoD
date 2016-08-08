@@ -1302,7 +1302,7 @@ void GameObject::Use(Unit* p_User)
         return;
     }
 
-    if (GetGoType() != GAMEOBJECT_TYPE_FISHINGNODE)
+    if (GetGoType() != GAMEOBJECT_TYPE_FISHINGNODE && GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE)
         p_User->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_USE);
 
     switch (GetGoType())

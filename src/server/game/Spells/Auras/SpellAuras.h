@@ -53,7 +53,6 @@ class AuraApplication
         void _InitFlags(Unit* caster, uint32 effMask);
         void _HandleEffect(uint8 effIndex, bool apply);
     public:
-
         Unit* GetTarget() const { return _target; }
         Aura* GetBase() const { return(Aura*) _base; }
 
@@ -92,6 +91,8 @@ class Aura
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const { return m_spellInfo->Id; }
+
+        void CopyAura(Unit* p_AuraCaster, Unit* p_Caster);
 
         void FillMechanicAndControlTypes(Mechanics& p_Mechanics, LossOfControlType& p_Type, SpellEffIndex& p_EffIndex);
 

@@ -315,20 +315,39 @@ class spell_pal_glyph_of_divine_storm: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_glyph_of_divine_storm_SpellScript);
 
-            void HandleAfterCast()
+            bool m_FreeDivineStorm = false;
+
+            void HandleOnPrepare()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasAura(PALADIN_SPELL_GLYPH_OF_DIVINE_STORM))
-                        _player->CastSpell(_player, PALADIN_SPELL_GLYPH_OF_DIVINE_STORM_HEAL, true);
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(PALADIN_SPELL_DIVINE_CRUSADER))
+                    m_FreeDivineStorm = true;
             }
 
-            void Register()
+            void HandleAfterCast()
             {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(PALADIN_SPELL_GLYPH_OF_DIVINE_STORM))
+                    l_Caster->CastSpell(l_Caster, PALADIN_SPELL_GLYPH_OF_DIVINE_STORM_HEAL, true);
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_EMPOWERED_DIVINE_STORM);
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                if (!m_FreeDivineStorm && l_Caster->HasAura(PALADIN_SPELL_EMPOWERED_DIVINE_STORM) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                    l_Caster->CastSpell(l_Caster, PALADIN_SPELL_DIVINE_CRUSADER, true);
+            }
+
+            void Register() override
+            {
+                OnPrepare += SpellOnPrepareFn(spell_pal_glyph_of_divine_storm_SpellScript::HandleOnPrepare);
                 AfterCast += SpellCastFn(spell_pal_glyph_of_divine_storm_SpellScript::HandleAfterCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_pal_glyph_of_divine_storm_SpellScript();
         }
@@ -2365,7 +2384,8 @@ public:
 
         enum eSpells
         {
-            GlyphOfFinalWrath = 54935
+            GlyphOfFinalWrath = 54935,
+            GlyphOfFocusWarth = 115738
         };
 
         void FilterTargets(std::list<WorldObject*>& p_Targets)
@@ -2385,7 +2405,7 @@ public:
             if (l_Target == nullptr)
                 return;
 
-            if (m_TargetCount)
+            if (m_TargetCount && !l_Caster->HasAura(eSpells::GlyphOfFocusWarth))
                 SetHitDamage(GetHitDamage() / m_TargetCount);
 
             if (l_Caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION))

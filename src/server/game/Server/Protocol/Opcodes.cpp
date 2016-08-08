@@ -1161,6 +1161,8 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_BANKER_ACTIVATE,                                 STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleBankerActivateOpcode       , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_AUTOBANK_ITEM,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAutoBankItemOpcode         , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_AUTOSTORE_BANK_ITEM,                             STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAutoStoreBankItemOpcode    , PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_AUTOBANK_REAGENT,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAutoBankReagentOpcode      , PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_AUTOSTORE_BANK_REAGENT,                          STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAutoStoreBankReagentOpcode , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_BUY_BANK_SLOT,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleBuyBankSlotOpcode          , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_BUY_REAGENT_BANK,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleBuyReagentBankOpcode       , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_SORT_BANK_BAGS,                                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSortReagentBankBagsOpcode  , PROCESS_DISTANT_IF_NEED);
@@ -1291,6 +1293,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_INSPECT_RATED_BG_STATS,                  STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleInspectRatedBGStatsOpcode          , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_TIME_SYNC_RESP,                                  STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleTimeSyncResp                       , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_UNLEARN_SKILL,                                   STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleUnlearnSkillOpcode                 , PROCESS_DISTANT_IF_NEED);
+    DEFINE_OPCODE_HANDLER(CMSG_UNLEARN_SPECIALIZATION,                          STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleUnlearnSpecialization              , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_EMOTE,                                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleEmoteOpcode                        , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_ALTER_APPEARANCE,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAlterAppearance                    , PROCESS_DISTANT_IF_NEED);
     DEFINE_OPCODE_HANDLER(CMSG_SELF_RES,                                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSelfResOpcode                      , PROCESS_DISTANT_IF_NEED);
@@ -1592,7 +1595,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_CHANGE_NAME_REQUEST,                       STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                                     , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_PERMISSIONS_QUERY,                         STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildPermissionsQueryOpcode               , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_EVENT_LOG_QUERY,                           STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildEventLogQueryOpcode                  , PROCESS_LOCAL);
-    DEFINE_OPCODE_HANDLER(CMSG_GUILD_NEWS_UPDATE_STICKY,                        STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleGuildNewsUpdateStickyOpcode               , PROCESS_LOCAL);
+    DEFINE_OPCODE_HANDLER(CMSG_GUILD_NEWS_UPDATE_STICKY,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGuildNewsUpdateStickyOpcode               , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_GUILD_QUERY_NEWS,                                STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleGuildQueryNewsOpcode                      , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE,                  STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                                     , PROCESS_LOCAL);
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_GUILD_MEMBER_RECIPES,                      STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                                     , PROCESS_LOCAL);

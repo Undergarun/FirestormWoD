@@ -990,7 +990,7 @@ namespace MS { namespace Garrison
         if (m_Owner && !m_Owner->IsInGarrison())
             return l_Plot;
 
-        Position                            l_Position;
+        Position l_Position;
 
         memset(&l_Plot, 0, sizeof(GarrisonPlotInstanceInfoLocation));
 
@@ -998,13 +998,35 @@ namespace MS { namespace Garrison
         l_Position.m_positionY = p_Y;
         l_Position.m_positionZ = p_Z;
 
+        float l_MaxZ = m_Owner->GetTeamId() == TEAM_ALLIANCE ? 67.0f : 135.0f;
+
         for (uint32 l_I = 0; l_I < m_Plots.size(); ++l_I)
         {
             if (l_Position.GetExactDist2d(m_Plots[l_I].X, m_Plots[l_I].Y) < l_Position.GetExactDist2d(l_Plot.X, l_Plot.Y))
             {
-                /// Specific check for mine, plot surface is way bigger than other plots
-                if (GetBuilding(m_Plots[l_I].PlotInstanceID).BuildingID == 61 || l_Position.GetExactDist2d(m_Plots[l_I].X, m_Plots[l_I].Y) < 35.0f)
-                    l_Plot = m_Plots[l_I];
+                GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(GetBuilding(m_Plots[l_I].PlotInstanceID).BuildingID);
+
+                if (l_BuildingEntry == nullptr)
+                    continue;
+
+                switch (l_BuildingEntry->Type)
+                {
+                    case Building::Type::Mine:
+                        if (p_Z <= l_MaxZ || m_Owner->FindNearestCreature(77730, 7.0f) || m_Owner->FindNearestCreature(81688, 7.0f))
+                            l_Plot = m_Plots[l_I];
+                        break;
+                    case Building::Type::Farm:
+                        if (l_Position.GetExactDist2d(m_Plots[l_I].X, m_Plots[l_I].Y) < 45.0f && p_Z >= 70.0f)
+                            l_Plot = m_Plots[l_I];
+                        break;
+                    default:
+                        if (l_Position.GetExactDist2d(m_Plots[l_I].X, m_Plots[l_I].Y) < 30.0f && p_Z >= 70.0f)
+                            l_Plot = m_Plots[l_I];
+                        break;
+                }
+
+                if (l_Plot.PlotInstanceID && (l_BuildingEntry->Type == Building::Type::Mine || l_BuildingEntry->Type == Building::Type::Farm))
+                    break;
             }
         }
 
@@ -1496,7 +1518,7 @@ namespace MS { namespace Garrison
 
                     if (l_RewardEntry->RewardCurrencyID == Globals::CurrencyID)
                     {
-                        std::vector<uint32> l_PartyCurrencyModifiersEffect = GetMissionFollowersAbilitiesEffects(p_MissionRecID, AbilityEffectTypes::ModGarrCurrencyDrop, AbilityEffectTargetMasks::Unk | AbilityEffectTargetMasks::Party);
+                        std::vector<uint32> l_PartyCurrencyModifiersEffect = GetMissionFollowersAbilitiesEffects(p_MissionRecID, AbilityEffectTypes::ModGarrCurrencyDrop, 3); ///< 3 = Ability target masks known
 
                         /// Global currency Bonus modifier
                         float l_Modifier = 1.0f;
@@ -3553,6 +3575,11 @@ namespace MS { namespace Garrison
         m_PlotsCreatures[p_PlotInstanceID].push_back(p_Guid);
     }
 
+    void Manager::InsertNewGameObjectInPlotDatas(uint32 p_PlotInstanceID, uint64 p_Guid)
+    {
+        m_PlotsGameObjects[p_PlotInstanceID].push_back(p_Guid);
+    }
+
     /// Get creature plot instance ID
     uint32 Manager::GetCreaturePlotInstanceID(uint64 p_GUID) const
     {
@@ -3611,7 +3638,7 @@ namespace MS { namespace Garrison
 
     /// Get list of creature in a specific building type
     /// @p_Type : Building type
-    std::vector<uint64> Manager::GetBuildingCreaturesByBuildingType(Building::Type p_Type)
+    std::vector<uint64> Manager::GetBuildingCreaturesByBuildingType(Building::Type p_Type, bool p_DontNeedActive /*= false*/)
     {
         for (uint32 l_I = 0; l_I < m_Buildings.size(); ++l_I)
         {
@@ -3620,7 +3647,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry)
                 continue;
 
-            if (l_BuildingEntry->Type == p_Type && m_Buildings[l_I].Active == true)
+            if (l_BuildingEntry->Type == p_Type && (p_DontNeedActive ? true : m_Buildings[l_I].Active == true))
                 return m_PlotsCreatures[m_Buildings[l_I].PlotInstanceID];
         }
 
@@ -3961,6 +3988,9 @@ namespace MS { namespace Garrison
                             continue;
 
                         l_GobEntry = l_CurrentEntry->GameObjects[GetGarrisonFactionIndex()];
+
+                        if (l_BuildingEntry->Type == Building::Type::Mine)
+                            l_GobEntry = 239085; ///< Garrison Mine Under Construction
 
                         if (time(0) > l_Building.TimeBuiltEnd)
                             l_SpanwActivateGob  = true;
@@ -5001,8 +5031,7 @@ namespace MS { namespace Garrison
         return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
     }
 
-    /// TODO: Only class specific - not fully random
-    uint32 Manager::GenerateRandomAbility(uint32 p_FollowerID)
+    uint32 Manager::GenerateRandomAbility(uint32 p_FollowerID, std::vector<uint32> p_FollowerAbilities)
     {
         std::vector<uint32> l_PossibleEntiers;
 
@@ -5013,10 +5042,15 @@ namespace MS { namespace Garrison
             if (!l_Entry)
                 continue;
 
+            /// Probably shipyard ability
             if (l_Entry->FollowerType != FollowerType::NPC)
                 continue;
 
             if (l_Entry->AbilityType != 0)
+                continue;
+
+            /// Follower has already this ability
+            if (std::find(p_FollowerAbilities.begin(), p_FollowerAbilities.end(), l_ID) != p_FollowerAbilities.end())
                 continue;
 
             /// Not ability but trait
@@ -5052,42 +5086,8 @@ namespace MS { namespace Garrison
         return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
     }
 
-    /*uint32 Manager::GenerateRandomAbility(GarrisonFollower* p_Follower)
-    {
-        std::vector<uint32> l_PossibleEntiers;
-
-        for (uint32 l_ID = 0; l_ID < sGarrFollowerXAbilityStore.GetNumRows(); ++l_ID)
-        {
-            GarrFollowerXAbilityEntry const* l_FollowerXAbilityEntry = sGarrFollowerXAbilityStore.LookupEntry(l_ID);
-
-            if (!l_FollowerXAbilityEntry || l_FollowerXAbilityEntry->FactionIndex != GetGarrisonFactionIndex() ||l_FollowerXAbilityEntry->FollowerID != p_Follower->FollowerID)
-                continue;
-
-            GarrAbilityEntry const* l_AbilityEntry = sGarrAbilityStore.LookupEntry(l_FollowerXAbilityEntry->AbilityID);
-
-            if (!l_AbilityEntry)
-                continue;
-
-            if (l_AbilityEntry->FollowerType != FollowerType::NPC)
-                continue;
-
-            if (l_AbilityEntry->AbilityType != 0)
-                continue;
-
-            if (std::find(p_Follower->Abilities.begin(), p_Follower->Abilities.end(), l_AbilityEntry->ID) != p_Follower->Abilities.end())
-                continue;
-
-            l_PossibleEntiers.push_back(l_AbilityEntry->ID);
-        }
-
-        if (!l_PossibleEntiers.size())
-            return 0;
-
-        return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
-    }*/
-
     uint32 Manager::GenerateRandomTrait(uint32 p_Type, std::vector<uint32> const& p_KnownAbilities)
-{
+    {
         std::vector<uint32> l_PossibleEntiers;
         std::vector<uint32> l_KnownTraits;
 
@@ -5149,7 +5149,7 @@ namespace MS { namespace Garrison
         return l_PossibleEntiers[urand(0, l_PossibleEntiers.size() - 1)];
     }
 
-    void Manager::GenerateFollowerAbilities(GarrisonFollower& p_Follower, bool p_Reset /* = true */, bool /*p_Abilities*/ /* = true */, bool /*p_Traits*/ /* = true */, bool p_Update /* = false */)
+    void Manager::GenerateFollowerAbilities(GarrisonFollower& p_Follower, bool p_Reset /* = true */, bool /*p_Abilities*/ /* = true */, bool /*p_Traits*/ /* = true */, bool p_Update /* = false */, bool p_ResetAbilities /*= false*/, bool p_ResetTraits /*= false*/)
     {
         if (p_Reset)
             p_Follower.Abilities.clear();
@@ -5181,6 +5181,30 @@ namespace MS { namespace Garrison
 
             uint8 l_MaxAbilities = p_Follower.Quality >= ITEM_QUALITY_EPIC ? 2 : 1;
 
+            if (p_ResetAbilities)
+            {
+                p_Follower.Abilities.erase(std::remove_if(p_Follower.Abilities.begin(), p_Follower.Abilities.end(), [this, p_Follower](uint32 p_AbilityID) -> bool
+                {
+                    for (uint32 l_Ability : g_FollowerAbilities)
+                    {
+                        if (p_AbilityID == l_Ability)
+                        {
+                            for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
+                            {
+                                GarrFollowerXAbilityEntry const* l_Entry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
+
+                                if (l_Entry && l_Entry->FollowerID == p_Follower.FollowerID && sGarrAbilityStore.LookupEntry(l_Entry->AbilityID) && l_Entry->AbilityID == p_AbilityID && l_Entry->FactionIndex == GetGarrisonFactionIndex())
+                                    return false;
+                            }
+
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }), p_Follower.Abilities.end());
+            }
+
             uint32 l_AbilitiesCount = std::count_if(g_FollowerAbilities.begin(), g_FollowerAbilities.end(), [p_Follower](uint32 p_AbilityID) -> bool
             {
                 for (auto l_Ability : p_Follower.Abilities)
@@ -5194,7 +5218,7 @@ namespace MS { namespace Garrison
 
             while (l_AbilitiesCount < l_MaxAbilities)
             {
-                uint32 l_NewAbility = GenerateRandomAbility(p_Follower.FollowerID);
+                uint32 l_NewAbility = GenerateRandomAbility(p_Follower.FollowerID, p_Follower.Abilities);
 
                 if (!l_NewAbility)
                 {
@@ -5204,6 +5228,30 @@ namespace MS { namespace Garrison
 
                 p_Follower.Abilities.push_back(l_NewAbility);
                 ++l_AbilitiesCount;
+            }
+
+            if (p_ResetTraits)
+            {
+                p_Follower.Abilities.erase(std::remove_if(p_Follower.Abilities.begin(), p_Follower.Abilities.end(), [this, p_Follower](uint32 p_AbilityID) -> bool
+                {
+                    for (uint32 l_Ability : g_FollowerTraits)
+                    {
+                        if (p_AbilityID == l_Ability)
+                        {
+                            for (uint32 l_I = 0; l_I < sGarrFollowerXAbilityStore.GetNumRows(); ++l_I)
+                            {
+                                GarrFollowerXAbilityEntry const* l_Entry = sGarrFollowerXAbilityStore.LookupEntry(l_I);
+
+                                if (l_Entry && l_Entry->FollowerID == p_Follower.FollowerID && sGarrAbilityStore.LookupEntry(l_Entry->AbilityID) && l_Entry->AbilityID == p_AbilityID && l_Entry->FactionIndex == GetGarrisonFactionIndex())
+                                    return false;
+                            }
+
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }), p_Follower.Abilities.end());
             }
 
             uint32 l_TraitCount = std::count_if(g_FollowerTraits.begin(), g_FollowerTraits.end(), [p_Follower](uint32 p_TraitID) -> bool
@@ -5230,7 +5278,7 @@ namespace MS { namespace Garrison
             p_Follower.SendFollowerUpdate(m_Owner);
     }
 
-    void Manager::GenerateFollowerAbilities(uint32 p_FollowerID, bool p_Reset /* = true */, bool p_Abilities /* = true */, bool p_Traits /* = true */, bool p_Update /* = false */)
+    void Manager::GenerateFollowerAbilities(uint32 p_FollowerID, bool p_Reset /* = true */, bool p_Abilities /* = true */, bool p_Traits /* = true */, bool p_Update /* = false */, bool p_ResetAbilities /*= false*/, bool p_ResetTraits /*= false*/)
     {
         auto l_Itr = std::find_if(m_Followers.begin(), m_Followers.end(), [p_FollowerID](GarrisonFollower p_FollowerEntry) -> bool
         {
@@ -5240,7 +5288,7 @@ namespace MS { namespace Garrison
         if (l_Itr == m_Followers.end())
             return;
 
-        return GenerateFollowerAbilities(*l_Itr, p_Reset, p_Abilities, p_Traits, p_Update);
+        return GenerateFollowerAbilities(*l_Itr, p_Reset, p_Abilities, p_Traits, p_Update, p_ResetAbilities, p_ResetTraits);
     }
 
     std::list<std::string> Manager::GenerateFollowerTextList(uint32 l_Type)

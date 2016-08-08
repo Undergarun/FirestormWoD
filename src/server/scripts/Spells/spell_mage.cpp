@@ -725,6 +725,12 @@ class spell_mage_arcane_missile: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_arcane_missile_SpellScript);
 
+            enum eSpells
+            {
+                WodPvpArcane4pBonusAura = 171351,
+                WodPvpArcane4pBonus = 171375
+            };
+
             void HandleOnCast()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -732,8 +738,15 @@ class spell_mage_arcane_missile: public SpellScriptLoader
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_OVERPOWERED);
 
                     if (l_Caster->HasSpell(SPELL_MAGE_OVERPOWERED) && l_SpellInfo != nullptr)
+                    {
                         if (Aura* l_Aura = l_Caster->GetAura(SPELL_MAGE_ARCANE_POWER, l_Caster->GetGUID()))
+                        {
                             l_Aura->SetDuration(l_Aura->GetDuration() + l_SpellInfo->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+
+                            if (Aura* l_AuraArcaneFocus = l_Caster->GetAura(eSpells::WodPvpArcane4pBonus))
+                                l_AuraArcaneFocus->SetDuration(l_Aura->GetDuration());
+                        }
+                    }
                 }
             }
 
@@ -2804,15 +2817,17 @@ class spell_mage_arcane_power : public SpellScriptLoader
                 WodPvpArcane4pBonus = 171375
             };
 
-            void OnApply(AuraEffect const*, AuraEffectHandleModes)
+            void OnApply(AuraEffect const* p_AuraEffect, AuraEffectHandleModes)
             {
                 Unit* l_Caster = GetCaster();
 
                 if (l_Caster == nullptr)
                     return;
 
-                if (l_Caster->HasAura(eSpells::WodPvpArcane4pBonusAura))
-                    l_Caster->CastSpell(l_Caster, eSpells::WodPvpArcane4pBonus, true);
+                if (!l_Caster->HasAura(eSpells::WodPvpArcane4pBonusAura))
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpells::WodPvpArcane4pBonus, true);
             }
 
             void OnRemove(AuraEffect const*, AuraEffectHandleModes)
@@ -2826,14 +2841,14 @@ class spell_mage_arcane_power : public SpellScriptLoader
                     l_Caster->RemoveAurasDueToSpell(eSpells::WodPvpArcane4pBonus);
             }
 
-            void Register()
+            void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_mage_arcane_power_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_mage_arcane_power_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                 OnEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_power_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_mage_arcane_power_AuraScript();
         }
@@ -3148,6 +3163,44 @@ class spell_mage_glyph_of_illusion : public SpellScriptLoader
 };
 
 /// last update : 6.2.3
+/// Call by Ignite - 12654
+class spell_mage_glyph_ignite : public SpellScriptLoader
+{
+    public:
+        spell_mage_glyph_ignite() : SpellScriptLoader("spell_mage_glyph_ignite") { }
+
+        class spell_mage_glyph_ignite_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_glyph_ignite_AuraScript);
+
+            enum eSpells
+            {
+                GlyphofInigte = 182287
+            };
+
+            void OnRemove(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Unit = GetTarget();
+
+                if (l_Unit == nullptr)
+                    return;
+
+                l_Unit->RemoveAura(eSpells::GlyphofInigte);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_mage_glyph_ignite_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_glyph_ignite_AuraScript();
+        }
+};
+
+/// last update : 6.2.3
 /// Illusion - 131784
 class spell_mage_illusion : public SpellScriptLoader
 {
@@ -3387,6 +3440,7 @@ void AddSC_mage_spell_scripts()
     new spell_areatrigger_mage_wod_frost_2p_bonus();
 
     /// Spells
+    new spell_mage_glyph_ignite();
     new spell_mage_conjure_familiar_glyph();
     new spell_mage_ice_block();
     new spell_mage_finger_of_frost();

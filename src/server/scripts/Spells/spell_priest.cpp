@@ -4669,9 +4669,82 @@ class spell_pri_glyph_of_the_heavens : public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
+/// Spectral Guise (stealth spell) - 119032
+class spell_pri_spectral_guise : public SpellScriptLoader
+{
+    public:
+        spell_pri_spectral_guise() : SpellScriptLoader("spell_pri_spectral_guise") { }
+
+        class spell_pri_spectral_guise_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_spectral_guise_AuraScript);
+
+            enum eSpells
+            {
+                SpectralGuise = 119032
+            };
+
+            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (!eventInfo.GetDamageInfo())
+                    return;
+
+                /// Direct damage spells shouldn't break Spectral Guise
+                if (eventInfo.GetDamageInfo()->GetDamageType() == SPELL_DIRECT_DAMAGE)
+                {
+                    if (eventInfo.GetDamageInfo()->GetSpellInfo())
+                    {
+                        /// Should remove aura from DOT/AOE damage, but shouldn't from direct spells
+                        bool isNeedToRemove = false;
+
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eventInfo.GetDamageInfo()->GetSpellInfo()->Id);
+
+                        if (l_SpellInfo && (l_SpellInfo->IsPeriodic() || l_SpellInfo->IsAffectingArea()))
+                            isNeedToRemove = true;
+
+                        /// Channeled spell shouldn't remove stealth too and it should be interrupted
+                        if (l_SpellInfo && l_SpellInfo->IsChanneled())
+                        {
+                            l_Caster->RemoveAura(l_SpellInfo->Id);
+                            isNeedToRemove = false;
+                        }
+
+                        /// Custom condition for Chaos Bolt and Haunt, they have periodic effects but they're still shouldn't remove stealth
+                        if (l_SpellInfo && (l_SpellInfo->Id == 116858 || l_SpellInfo->Id == 48181))
+                            isNeedToRemove = false;
+
+                        if (!isNeedToRemove)
+                            return;
+                    }
+                }
+
+                if (Aura* spectralGuiseAura = l_Caster->GetAura(eSpells::SpectralGuise))
+                    spectralGuiseAura->DropStack();
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pri_spectral_guise_AuraScript::OnProc, EFFECT_0, SPELL_AURA_MOD_STEALTH);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_spectral_guise_AuraScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_spectral_guise();
     new spell_pri_glyph_of_shadowy_friend();
     new spell_pri_shadowform();
     new spell_pri_penance_aura();

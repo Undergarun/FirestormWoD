@@ -1040,7 +1040,9 @@ class WorldSession
         void HandleSwapItem(WorldPacket& recvPacket);
         void HandleBuybackItem(WorldPacket& recvPacket);
         void HandleAutoBankItemOpcode(WorldPacket& recvPacket);
+        void HandleAutoBankReagentOpcode(WorldPacket& p_RecvPacket);
         void HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket);
+        void HandleAutoStoreBankReagentOpcode(WorldPacket& p_RecvPacket);
         void HandleWrapItemOpcode(WorldPacket& recvPacket);
 
         void HandleAttackSwingOpcode(WorldPacket& recvPacket);
@@ -1057,6 +1059,7 @@ class WorldSession
 
         void HandleTalentWipeConfirmOpcode(WorldPacket& recvPacket);
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
+        void HandleUnlearnSpecialization(WorldPacket& p_RecvPacket);
         void HandleSetSpecialization(WorldPacket& recvPacket);
         void HandleLearnTalents(WorldPacket& recvPacket);
 

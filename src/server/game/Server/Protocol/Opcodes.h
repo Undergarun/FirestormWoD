@@ -1103,6 +1103,8 @@ enum Opcodes
     CMSG_BANKER_ACTIVATE                        = 0x1526, ///< 6.2.3 20726
     CMSG_AUTOBANK_ITEM                          = 0x121E, ///< 6.2.3 20726
     CMSG_AUTOSTORE_BANK_ITEM                    = 0x1312, ///< 6.2.3 20726
+    CMSG_AUTOBANK_REAGENT                       = 0x127E, ///< 6.2.3 20779
+    CMSG_AUTOSTORE_BANK_REAGENT                 = 0x1635, ///< 6.2.3 20779
     CMSG_BUY_BANK_SLOT                          = 0x0016, ///< 6.2.3 20726
     CMSG_BUY_REAGENT_BANK                       = 0x0636, ///< 6.2.3 20726
     CMSG_SORT_BANK_BAGS                         = 0x09F2, ///< 6.2.3 20726
@@ -1228,6 +1230,7 @@ enum Opcodes
     CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x1024, ///< 6.2.3 20726
     CMSG_TIME_SYNC_RESP                         = 0x119D, ///< 6.2.3 20726
     CMSG_UNLEARN_SKILL                          = 0x0816, ///< 6.2.3 20726
+    CMSG_UNLEARN_SPECIALIZATION                 = 0x0880, ///< 6.2.3 20726
     CMSG_EMOTE                                  = 0x077E, ///< 6.2.3 20726
     CMSG_SEND_TEXT_EMOTE                        = 0x0412, ///< 6.2.3 20726
     CMSG_ALTER_APPEARANCE                       = 0x152D, ///< 6.2.3 20726
@@ -1830,7 +1833,6 @@ enum Opcodes
     CMSG_TELEPORT_TO_UNIT                               = 0x0000,
     CMSG_TIME_ADJUSTMENT_RESPONSE                       = 0x0000, ///<
     CMSG_TIME_SYNC_RESP_FAILED                          = 0x0000, ///<
-    CMSG_UNLEARN_SPECIALIZATION                         = 0x0000,
     CMSG_UNREGISTER_ALL_ADDON_PREFIXES                  = 0x0000,
     CMSG_UPDATE_MISSILE_TRAJECTORY                      = 0x0000,
     CMSG_UPGRADE_ITEM                                   = 0x0000,

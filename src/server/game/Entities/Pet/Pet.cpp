@@ -101,37 +101,7 @@ void Pet::AddToWorld()
 
             m_owner->RemoveAura(119904);
 
-            switch (GetEntry())
-            {
-            case ENTRY_IMP:
-            case ENTRY_FEL_IMP:
-                bp = 119905;// Cauterize Master
-                break;
-            case ENTRY_VOIDWALKER:
-            case ENTRY_VOIDLORD:
-                bp = 119907;// Disarm Removed since 6.0.2 please clean me
-                break;
-            case ENTRY_SUCCUBUS:
-                bp = 119909; // Whiplash
-                break;
-            case ENTRY_SHIVARRA:
-                bp = 119913;// Fellash
-                break;
-            case ENTRY_FELHUNTER:
-                bp = 119910;// Spell Lock
-                break;
-            case ENTRY_OBSERVER:
-                bp = 119911;// Optical Blast
-                break;
-            case ENTRY_FELGUARD:
-                bp = 119914;// Felstorm
-                break;
-            case ENTRY_WRATHGUARD:
-                bp = 119915;// Wrathstorm
-                break;
-            default:
-                break;
-            }
+            bp = GetCommandDemonSpellByEntry(GetEntry());
 
             if (bp)
                 m_owner->CastCustomSpell(m_owner, 119904, &bp, NULL, NULL, true);
@@ -1562,8 +1532,9 @@ bool Pet::learnSpell(uint32 p_SpellID)
 void Pet::InitLevelupSpellsForLevel()
 {
     uint8 level = getLevel();
+    CreatureFamily l_Family = GetCreatureTemplate()->family;
 
-    if (PetLevelupSpellSet const* levelupSpells = GetCreatureTemplate()->family ? sSpellMgr->GetPetLevelupSpellList(GetCreatureTemplate()->family) : NULL)
+    if (PetLevelupSpellSet const* levelupSpells = l_Family ? sSpellMgr->GetPetLevelupSpellList(l_Family) : NULL)
     {
         // PetLevelupSpellSet ordered by levels, process in reversed order
         for (PetLevelupSpellSet::const_reverse_iterator itr = levelupSpells->rbegin(); itr != levelupSpells->rend(); ++itr)

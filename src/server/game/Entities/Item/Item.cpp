@@ -618,10 +618,11 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 
     if (uint32 l_TransmogID = fields[8].GetInt32())
     {
-        if (sObjectMgr->GetItemTemplate(l_TransmogID))
+        uint32 l_ItemID = l_TransmogID & 0xFFFFFF;
+        if (sObjectMgr->GetItemTemplate(l_ItemID))
         {
             SetModifier(eItemModifiers::TransmogAppearanceMod, (l_TransmogID >> 24) & 0xFF);
-            SetModifier(eItemModifiers::TransmogItemID, l_TransmogID & 0xFFFFFF);
+            SetModifier(eItemModifiers::TransmogItemID, l_ItemID);
         }
     }
 

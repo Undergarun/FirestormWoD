@@ -22,7 +22,7 @@ enum eYalnuSpells
     SpellDragonBreathVisual      = 101837,
     SpellChannelArcaneYalnu      = 171984,
     SpellPyroBlast               = 170738,
-    SpellPyroBlastFinish         = 170741
+    SpellPyroBlastFinish         = 170741,
 };
 
 enum eYalnuEvents
@@ -265,6 +265,7 @@ public:
                                     {
                                         me->NearTeleportTo(g_PositionYalnuMoveToMiddle);
                                         me->SetHomePosition(g_PositionYalnuMoveToMiddle);
+                                        me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
                                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                                         me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                                     });
@@ -925,11 +926,21 @@ public:
         }
 
         void UpdateAI(const uint32 p_Diff) override
-		{
+        {
+            events.Update(p_Diff);
+
+            if (events.ExecuteEvent() == eFeralLasherEvents::EventFeralLasherActivate)
+            {
+                m_SleepMode = false;
+                me->RemoveAllAuras();
+                me->setFaction(HostileFaction);
+                me->RemoveAura(eFeralLasherSpells::SpellSubmerge);
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                events.ScheduleEvent(eFeralLasherEvents::EventLasherVenom, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+            };
+
             if (!UpdateVictim())
                 return;
-
-            events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -941,16 +952,6 @@ public:
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             me->CastSpell(l_Target, eFeralLasherSpells::SpellLasherVenom);
                         events.ScheduleEvent(eFeralLasherEvents::EventLasherVenom, urand(3 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    }
-                case eFeralLasherEvents::EventFeralLasherActivate:
-                    {
-                        m_SleepMode = false;
-                        me->RemoveAllAuras();
-                        me->setFaction(HostileFaction);              
-                        me->RemoveAura(eFeralLasherSpells::SpellSubmerge);
-                        me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                        events.ScheduleEvent(eFeralLasherEvents::EventLasherVenom, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     default:

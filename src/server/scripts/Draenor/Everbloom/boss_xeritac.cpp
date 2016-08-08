@@ -142,16 +142,14 @@ class boss_xeritac : public CreatureScript
             m_TimeBetween = 6 * TimeConstants::IN_MILLISECONDS;   
             me->setFaction(HostileFaction);     
 			me->SetCanFly(true);
+            me->RemoveAllAreasTrigger();
 			me->SetDisableGravity(true);
+            me->GetMotionMaster()->Clear(true);
+            me->SetSpeed(UnitMoveType::MOVE_RUN, 1.4f, true);
+            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 1.4f, true);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-            if (!m_First)
-            {
-                m_First = true;
-                OpenEncounterDoor();
-            }
-            else
-                OpenEncounterDoor();
+            OpenEncounterDoor();
         }
 
         void OpenEncounterDoor()
@@ -215,6 +213,9 @@ class boss_xeritac : public CreatureScript
             me->SetCanFly(true);
             me->SetDisableGravity(true);
             me->SetReactState(ReactStates::REACT_PASSIVE);
+            events.Reset();
+            me->SetSpeed(UnitMoveType::MOVE_RUN, 1.4f, true);
+            me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 1.4f, true);
             events.ScheduleEvent(eXeritacEvents::EventDescend, 20 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eXeritacEvents::EventToxicSpiderling, 10 * TimeConstants::IN_MILLISECONDS);
             events.ScheduleEvent(eXeritacEvents::EventVenomSprayers, 10 * TimeConstants::IN_MILLISECONDS);
@@ -229,19 +230,12 @@ class boss_xeritac : public CreatureScript
             if (!me->isInCombat())
                 return;
 
-            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                return;
-
             switch (p_Id)
             {          
                 case eXeritacMovementInformed::MovementInformedXeritacReachedTopWaypoint:
-                    DoAction(eXeritacActions::ActionXeritacRandomTopMovements);
-                    break;
-                case eXeritacMovementInformed::MovementInformedXeritacMovementHappenedTopWaypoint:
-                    AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                    {
-                        DoAction(eXeritacActions::ActionXeritacRandomTopMovements);
-                    });
+                case eXeritacMovementInformed::MovementInformedXeritacMovementHappenedTopWaypoint:                
+                    events.CancelEvent(eXeritacEvents::EventMove);
+                    events.ScheduleEvent(eXeritacEvents::EventMove, 2 * TimeConstants::IN_MILLISECONDS);
                     break;
                 default:
                     break;
@@ -279,14 +273,20 @@ class boss_xeritac : public CreatureScript
                         m_Phase = 2;
                         events.Reset();
                         m_Descend = true;
+
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                         me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+
+                        me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(1000, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), false);
 
                         AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             if (Unit* l_Victim = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                             {
+                                if (me->IsMoving())
+                                    me->StopMoving();
+
                                 me->GetMotionMaster()->MoveChase(l_Victim);
                                 me->Attack(l_Victim, true);
                             }
@@ -300,6 +300,7 @@ class boss_xeritac : public CreatureScript
                     }
                     break;
                 }
+                /*
                 case eXeritacActions::ActionConsumeEffect:
                     if (m_ConsumedGuid)
                     {
@@ -312,12 +313,19 @@ class boss_xeritac : public CreatureScript
                         }
                     }
                     break;
+                    */
                 case eXeritacActions::ActionXeritacRandomTopMovements:
                 {
-                    if (m_Descend)
-                        return;
+                    if (me->IsMoving())
+                        me->StopMoving();
+
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 1.4f, true);
+                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 1.4f, true);
 
                     std::list<Position> l_Position;
+
+                    l_Position.clear();
+
                     for (uint8 l_I = 0; l_I < 5; l_I++)
                         l_Position.push_back(g_PositionRandomMovements[l_I]);
 
@@ -326,6 +334,7 @@ class boss_xeritac : public CreatureScript
 
                     std::list<Position>::const_iterator l_It = l_Position.begin();
                     std::advance(l_It, urand(0, l_Position.size() - 1));
+
                     me->GetMotionMaster()->MovePoint(eXeritacMovementInformed::MovementInformedXeritacMovementHappenedTopWaypoint, *l_It);
                     break;
                 }
@@ -345,6 +354,7 @@ class boss_xeritac : public CreatureScript
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
+            /*
             // Consume
             if (m_ConsumedGuid)
             {
@@ -357,20 +367,24 @@ class boss_xeritac : public CreatureScript
                     }
                 }
             }
+            */
         
             switch (events.ExecuteEvent())
             {
+                case eXeritacEvents::EventMove:
+                {
+                      DoAction(eXeritacActions::ActionXeritacRandomTopMovements);
+                    break;
+                }
                 case eXeritacEvents::EventDescend:
                 {
                     if (me->IsMoving())
                     me->StopMoving();
 
-                    m_Descend = true;
+                    events.CancelEvent(eXeritacEvents::EventMove);
 
-                    AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                    {
-                        m_Descend = false;
-                    });
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, 1.4f, true);
+                    me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 1.4f, true);
 
                     me->GetMotionMaster()->MovePoint(eXeritacMovementInformed::MovementInformedXeritacReachedGround, me->GetPositionX(), me->GetPositionY(), 64.0f);
                     if (Creature* l_Creature = me->SummonCreature(eXeritacCreatures::CreatureDescend, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 64.631f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS))
@@ -465,99 +479,6 @@ class boss_xeritac : public CreatureScript
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new boss_xeritacAI(p_Creature);
-    }
-};
-
-/// Venom Sprayer - 86547
-class the_everbloom_xeritac_mob_venom_sprayer : public CreatureScript
-{
-public:
-
-    the_everbloom_xeritac_mob_venom_sprayer() : CreatureScript("the_everbloom_xeritac_mob_venom_sprayer") { }
-
-    struct the_everbloom_xeritac_mob_venom_sprayerAI : public ScriptedAI
-    {
-        the_everbloom_xeritac_mob_venom_sprayerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-        {
-             m_Instance = me->GetInstanceScript();
-        }
-
-        enum eVenomSprayerEvents
-        {
-            EventVenomSprayers    = 1
-        };
-
-        enum eVenomSprayerSpells
-        {
-            SpellDecsendBeam            = 169322,
-            SpellDescendBeamVisual      = 169326,
-            SpellVenomSpray             = 172727
-        };
-
-        InstanceScript* m_Instance;
-
-        void Reset() override
-        {
-            events.Reset();
-            DoZoneInCombat();
-            me->SetDisableGravity(true);
-            me->SetCanFly(true);
-            me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-            me->GetMotionMaster()->MoveTakeoff(eXeritacMovementInformed::MovementInformedSpidersReachGround, me->GetPositionX(), me->GetPositionY(), DescendBeamAlttitude);
-            me->CastSpell(me, eVenomSprayerSpells::SpellDecsendBeam);
-        }
-
-        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
-        {
-            switch (p_Id)
-            {
-                case eXeritacMovementInformed::MovementInformedSpidersReachGround:
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
-                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                    me->RemoveAura(eVenomSprayerSpells::SpellDescendBeamVisual);
-                    DoZoneInCombat();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void JustDied(Unit* /*p_Killer*/) override
-        {
-            me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
-        }
-
-        void EnterCombat(Unit* p_Attacker) override
-        {         
-            events.ScheduleEvent(eVenomSprayerEvents::EventVenomSprayers, urand(7 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
-        }
-
-        void UpdateAI(const uint32 p_Diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(p_Diff);
-
-            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                return;
-
-            switch (events.ExecuteEvent())
-            {
-                case eVenomSprayerEvents::EventVenomSprayers:
-                        me->CastSpell(me, eVenomSprayerSpells::SpellVenomSpray);
-                        events.ScheduleEvent(eVenomSprayerEvents::EventVenomSprayers, urand(7 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
-                        break;
-                    default:
-                        break;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* p_Creature) const override
-    {
-        return new the_everbloom_xeritac_mob_venom_sprayerAI(p_Creature);
     }
 };
 
@@ -661,6 +582,112 @@ public:
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new the_everbloom_xeritac_mob_crazed_pale_oneAI(p_Creature);
+    }
+};
+
+/// Venom Sprayer - 86547
+class the_everbloom_xeritac_mob_venom_sprayer : public CreatureScript
+{
+public:
+
+    the_everbloom_xeritac_mob_venom_sprayer() : CreatureScript("the_everbloom_xeritac_mob_venom_sprayer") { }
+
+    struct the_everbloom_xeritac_mob_venom_sprayerAI : public ScriptedAI
+    {
+        the_everbloom_xeritac_mob_venom_sprayerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+        {
+            m_Instance = me->GetInstanceScript();
+        }
+
+        enum eVenomSprayerEvents
+        {
+            EventVenomSprayers = 1
+        };
+
+        enum eVenomSprayerSpells
+        {
+            SpellDecsendBeam = 169322,
+            SpellDescendBeamVisual = 169326,
+            SpellVenomSpray = 172727,
+            SpellDescendBeamSpell = 169326
+        };
+
+        InstanceScript* m_Instance;
+
+        void Reset() override
+        {
+            events.Reset();
+            me->RemoveAllAuras();
+            me->SetDisableGravity(true);
+            DoZoneInCombat();
+            /*
+            me->SetReactState(ReactStates::REACT_PASSIVE);
+            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+            me->GetMotionMaster()->MoveTakeoff(eXeritacMovementInformed::MovementInformedSpidersReachGround, me->GetPositionX(), me->GetPositionY(), DescendBeamAlttitude);
+            me->CastSpell(me, eVenomSprayerSpells::SpellDecsendBeam);
+            */
+
+        }
+
+        void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
+        {
+            switch (p_Id)
+            {
+            case eXeritacMovementInformed::MovementInformedSpidersReachGround:
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                me->RemoveAura(eVenomSprayerSpells::SpellDescendBeamSpell);
+                
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                {
+                    me->Attack(l_Target, true);
+                    me->GetMotionMaster()->MoveChase(l_Target);
+                }
+                break;
+            default:
+                break;
+            }
+        }
+
+        void JustDied(Unit* /*p_Killer*/) override
+        {
+            me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+        }
+
+        void EnterCombat(Unit* p_Attacker) override
+        {
+            events.ScheduleEvent(eVenomSprayerEvents::EventVenomSprayers, urand(7 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+        }
+
+        void UpdateAI(const uint32 p_Diff) override
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(p_Diff);
+
+            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                return;
+
+            switch (events.ExecuteEvent())
+            {
+            case eVenomSprayerEvents::EventVenomSprayers:
+                if (Unit* l_Victim = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                    me->CastSpell(l_Victim, eVenomSprayerSpells::SpellVenomSpray);
+
+                events.ScheduleEvent(eVenomSprayerEvents::EventVenomSprayers, urand(7 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+                break;
+            default:
+                break;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* p_Creature) const override
+    {
+        return new the_everbloom_xeritac_mob_venom_sprayerAI(p_Creature);
     }
 };
 
@@ -1046,7 +1073,7 @@ public:
 
     bool operator()(WorldObject* p_Object)
     {
-        if (p_Object->GetTypeId() == TypeID::TYPEID_PLAYER)
+        if (p_Object && p_Object->GetTypeId() == TypeID::TYPEID_PLAYER)
             return false;
         else
             return true;
@@ -1068,7 +1095,6 @@ public:
     class the_everbloom_xeritac_spell_descend_SpellScript : public SpellScript
     {
         PrepareSpellScript(the_everbloom_xeritac_spell_descend_SpellScript);
-
         
         void HandlCastSpell()
         {
@@ -1096,7 +1122,7 @@ public:
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(the_everbloom_xeritac_spell_descend_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_SRC_AREA_ENTRY);
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(the_everbloom_xeritac_spell_descend_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_SRC_CASTER);
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(the_everbloom_xeritac_spell_descend_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_SRC_AREA_ENTRY);
-            OnCast += SpellCastFn(the_everbloom_xeritac_spell_descend_SpellScript::HandlCastSpell);
+            AfterCast += SpellCastFn(the_everbloom_xeritac_spell_descend_SpellScript::HandlCastSpell);
         }
     };
 

@@ -2515,48 +2515,6 @@ class spell_dk_dark_succor : public SpellScriptLoader
         }
 };
 
-/// Mark of Sindragosa - 178819
-class spell_dk_mark_of_sindragosa : public SpellScriptLoader
-{
-    public:
-        spell_dk_mark_of_sindragosa() : SpellScriptLoader("spell_dk_mark_of_sindragosa") { }
-
-        class spell_dk_mark_of_sindragosa_AuraScript : public AuraScript
-        {
-
-            enum BloodBathSpells
-            {
-                SPELL_MARK_OF_SINDRAGOSA_HEAL = 155168
-            };
-
-            PrepareAuraScript(spell_dk_mark_of_sindragosa_AuraScript);
-
-            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_EventInfo)
-            {
-                PreventDefaultAction();
-
-                if (!p_EventInfo.GetDamageInfo() || !p_EventInfo.GetDamageInfo()->GetDamage())
-                    return;
-
-                if (Unit* l_Caster = GetCaster())
-                {
-                    int32 l_Damage = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), p_AurEff->GetAmount());
-                    l_Caster->CastCustomSpell(l_Caster, SPELL_MARK_OF_SINDRAGOSA_HEAL, &l_Damage, nullptr, nullptr, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_dk_mark_of_sindragosa_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dk_mark_of_sindragosa_AuraScript();
-        }
-};
-
 enum DeathCoilSpells
 {
     SpellGlyphOfDeathsEmbrace = 58679
@@ -2603,7 +2561,7 @@ class spell_dk_glyph_of_deaths_embrace : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
+/// last update : 6.2.3
 /// Death Coil - 47541
 class spell_dk_death_coil : public SpellScriptLoader
 {
@@ -2620,8 +2578,25 @@ class spell_dk_death_coil : public SpellScriptLoader
                 Lichborne            = 49039,
                 DeathBarrier        = 115635,
                 DeathCoilAlly       = 47633,
-                DeathCoilEnemy      = 47632
+                DeathCoilEnemy      = 47632,
+                SuddenDoom          = 81340,
+                BloodTap            = 45529
             };
+
+            void HandleOnPrepare()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                /// Fix case of Sudden Doom, do not use Runic Power but should generate blood charge
+                if (l_Player->HasSpell(eSpells::BloodTap) && l_Player->HasAura(eSpells::SuddenDoom))
+                {
+                    l_Player->CastSpell(l_Player, DK_SPELL_BLOOD_CHARGE, true);
+                    l_Player->CastSpell(l_Player, DK_SPELL_BLOOD_CHARGE, true);
+                }
+            }
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
@@ -2660,14 +2635,15 @@ class spell_dk_death_coil : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
+                OnPrepare += SpellOnPrepareFn(spell_dk_death_coil_SpellScript::HandleOnPrepare);
                 OnEffectHitTarget += SpellEffectFn(spell_dk_death_coil_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnHit += SpellHitFn(spell_dk_death_coil_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_dk_death_coil_SpellScript();
         }
@@ -3630,9 +3606,82 @@ class spell_dk_improved_death_grip : public PlayerScript
         }
 };
 
+/// Last Update 6.2.3
+/// Mark of Sindragosa - 155166
+class spell_dk_mark_of_sindragosa_damage : public SpellScriptLoader
+{
+    public:
+        spell_dk_mark_of_sindragosa_damage() : SpellScriptLoader("spell_dk_mark_of_sindragosa_damage") { }
+
+        class spell_dk_mark_of_sindragosa_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_mark_of_sindragosa_damage_SpellScript);
+
+            size_t m_NbTarget = 0;
+            bool m_HasMainTarget = false;
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                Unit* l_MainTarget = l_Player->GetSelectedUnit();
+
+                for (WorldObject* l_Object : p_Targets)
+                {
+                    if (l_MainTarget != nullptr && l_Object->GetGUID() == l_MainTarget->GetGUID())
+                        m_HasMainTarget = true;
+                }
+
+                m_NbTarget = p_Targets.size();
+            }
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                Unit* l_MainTarget = l_Player->GetSelectedUnit();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_MainTarget != nullptr && m_HasMainTarget)
+                {
+                    if (l_MainTarget->GetGUID() == l_Target->GetGUID())
+                        return;
+                    
+                    if (m_NbTarget > 1)
+                        SetHitDamage(GetHitDamage() / (m_NbTarget - 1));
+                    return;
+                }
+                if (m_NbTarget > 0)
+                    SetHitDamage(GetHitDamage() / m_NbTarget);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_mark_of_sindragosa_damage_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_mark_of_sindragosa_damage_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_104);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_mark_of_sindragosa_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_dk_mark_of_sindragosa_damage_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_mark_of_sindragosa_damage();
     new spell_dk_shadow_infusion();
     new spell_dk_army_of_the_death_taunt();
     new spell_dk_defile_absorb_effect();
@@ -3680,7 +3729,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_chain_of_ice();
     new spell_dk_chilblains_aura();
     new spell_dk_reaping();
-    new spell_dk_mark_of_sindragosa();
     new spell_dk_dark_succor();
     new spell_dk_glyph_of_the_geist();
     new spell_dk_glyph_of_the_skeleton();

@@ -410,6 +410,45 @@ class spell_rog_death_from_above_return : public SpellScriptLoader
         }
 };
 
+
+/// Last Update 6.2.3
+/// Death from Above - 178236
+class PlayerScript_death_from_above : public PlayerScript
+{
+    public:
+        PlayerScript_death_from_above() : PlayerScript("PlayerScript_death_from_above") {}
+
+        enum eSpells
+        {
+            DeathFromAboveJump = 178153,
+            SpellRogueEnvenom = 32645,
+            SpellRogueEviscerate = 2098
+        };
+
+        void OnFinishMovement(Player * p_Player, uint32 p_SpellID, uint64 const p_TargetGUID)
+        {
+            if (!(p_SpellID == eSpells::DeathFromAboveJump))
+                return;
+
+            Unit* l_Target = p_Player->GetSelectedUnit();
+            if (l_Target && p_Player->getClass() == CLASS_ROGUE)
+            {
+                p_Player->SetPower(Powers::POWER_COMBO_POINT, p_Player->GetDFOComboPoints());
+                p_Player->SetOrientation(p_Player->GetAngle(l_Target));
+                if (p_Player->IsValidAttackTarget(l_Target))
+                {
+                    if (p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SpecIndex::SPEC_ROGUE_ASSASSINATION)
+                        p_Player->CastSpell(l_Target, eSpells::SpellRogueEnvenom, true);
+                    else
+                        p_Player->CastSpell(l_Target, eSpells::SpellRogueEviscerate, true);
+                }
+
+                p_Player->SetDFOComboPoints(0);
+                p_Player->SetPower(Powers::POWER_COMBO_POINT, 0);
+            }
+        }
+};
+
 /// Last Update 6.2.3
 /// Death from Above - 152150
 class spell_rog_death_from_above : public SpellScriptLoader
@@ -517,14 +556,7 @@ class spell_rog_death_from_above : public SpellScriptLoader
                     if (Unit* l_Target = GetTarget())
                     {
                         l_Player->CastSpell(l_Target, eSpells::DeathFromAboveJump, true);
-                        l_Player->SetPower(Powers::POWER_COMBO_POINT, p_AurEff->GetAmount());
-
-                        if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_ROGUE_ASSASSINATION)
-                            l_Player->CastSpell(l_Target, eSpells::SpellRogueEnvenom, true);
-                        else
-                            l_Player->CastSpell(l_Target, eSpells::SpellRogueEviscerate, true);
-
-                        l_Player->SetPower(Powers::POWER_COMBO_POINT, 0);
+                        l_Player->SetDFOComboPoints(p_AurEff->GetAmount());
                     }
                 }
             }
@@ -706,13 +738,16 @@ class spell_rog_enhanced_vendetta : public SpellScriptLoader
 
             void HandleOnHit(SpellEffIndex)
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (!l_Caster->HasAura(eSpells::EnhancedVendetta))
-                        return;
+                Unit* l_Caster = GetCaster();
+                Player* l_Owner = l_Caster->GetSpellModOwner();
 
-                    l_Caster->CastSpell(l_Caster, eSpells::EnhancedVendettaBuff, true);
-                }
+                if (l_Owner == nullptr)
+                    return;
+
+                if (!l_Owner->HasAura(eSpells::EnhancedVendetta))
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpells::EnhancedVendettaBuff, true);
             }
 
             void Register()
@@ -777,7 +812,17 @@ class spell_rog_killing_spree: public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                if (!l_Caster->HasAura(eSpells::GlyphofKillingSpree))
+                Player* l_Owner = l_Caster->GetSpellModOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                if (l_Caster->isFeared() ||
+                    l_Caster->isConfused() ||
+                    l_Caster->IsPolymorphed())
+                    return;
+
+                if (!l_Owner->HasAura(eSpells::GlyphofKillingSpree))
                     return;
 
                 AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
@@ -796,13 +841,24 @@ class spell_rog_killing_spree: public SpellScriptLoader
                     if (l_Caster->isInStun())
                         return;
 
-                    if (!l_Caster->HasAura(ROGUE_SPELL_BLADE_FLURRY_AURA))
+                    Player* l_Owner = l_Caster->GetSpellModOwner();
+
+                    if (l_Owner == nullptr)
+                        return;
+
+                    if (l_Caster->isFeared() ||
+                        l_Caster->isConfused() ||
+                        l_Caster->IsPolymorphed())
+                        return;
+
+                    if (!l_Owner->HasAura(ROGUE_SPELL_BLADE_FLURRY_AURA))
                     {
                         Unit* l_Target = ObjectAccessor::FindUnit(m_TargetGUID);
 
                         if (l_Target != nullptr)
                         {
-                            l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
+                            if (!l_Caster->isInRoots())
+                                l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_TELEPORT, true);
                             l_Caster->CastSpell(l_Target, ROGUE_SPELL_KILLING_SPREE_DAMAGES, true);
                         }
                     }
@@ -920,24 +976,32 @@ class spell_rog_glyph_of_decoy: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_glyph_of_decoy_SpellScript);
 
+            enum eNpc
+            {
+                Decoy = 62261
+            };
+
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (!l_Caster->HasAura(ROGUE_SPELL_GLYPH_OF_DECOY))
-                        return;
+                Unit* l_Caster = GetCaster();
+                Player* l_Owner = l_Caster->GetSpellModOwner();
 
-                    l_Caster->SummonCreature(62261, *l_Caster);
-                }
+                if (l_Owner == nullptr)
+                    return;
+
+                if (!l_Owner->HasAura(ROGUE_SPELL_GLYPH_OF_DECOY))
+                    return;
+
+                l_Caster->SummonCreature(eNpc::Decoy, *l_Caster);
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_rog_glyph_of_decoy_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_rog_glyph_of_decoy_SpellScript();
         }
@@ -1068,17 +1132,18 @@ class spell_rog_cloak_and_dagger: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Caster = GetCaster();
+                Player* l_Player = l_Caster->GetSpellModOwner();
                 Unit* l_Target = GetHitUnit();
 
                 if (l_Target == nullptr || l_Player == nullptr)
                     return;
 
-                if (!l_Player->HasUnitState(UNIT_STATE_ROOT) && m_CloakAndDagger)
-                    l_Player->CastSpell(l_Target, eSpells::TeleportBack, true);
+                if (!l_Caster->HasUnitState(UNIT_STATE_ROOT) && m_CloakAndDagger)
+                    l_Caster->CastSpell(l_Target, eSpells::TeleportBack, true);
 
                 if (l_Player->HasAura(eSpells::FindWeekness))
-                    l_Player->AddAura(eSpells::FindWeeknessProc, l_Target);
+                    l_Caster->AddAura(eSpells::FindWeeknessProc, l_Target);
             }
 
             void Register()
@@ -1459,18 +1524,26 @@ class spell_rog_hemorrhage: public SpellScriptLoader
             void HandleOnHit()
             {
                 Unit* l_Caster = GetCaster();
+                Player* l_Owner = l_Caster->GetSpellModOwner();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Caster->HasAura(eSpells::GlyphOfHemorrhagingVeins))
+                if (l_Owner == nullptr)
+                    return;
+
+                if (l_Owner->HasAura(eSpells::GlyphOfHemorrhagingVeins))
                     l_Caster->CastSpell(l_Target, eSpells::GlyphOfHemorrhagingVeins, true);
             }
 
             void HandleApplyBleed(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
+                Player* l_Owner = l_Caster->GetSpellModOwner();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Caster->HasAura(eSpells::GlyphOfHemorrhage) && !l_Target->HasAuraState(AURA_STATE_BLEEDING))
+                if (l_Owner == nullptr)
+                    return;
+
+                if (l_Owner->HasAura(eSpells::GlyphOfHemorrhage) && !l_Target->HasAuraState(AURA_STATE_BLEEDING))
                     PreventHitAura();
             }
 
@@ -1498,10 +1571,15 @@ class spell_rog_hemorrhage: public SpellScriptLoader
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
 
-                if (!l_Caster->HasAura(eSpells::SanguinaryVein))
+                Player* l_Owner = l_Caster->GetSpellModOwner();
+
+                if (l_Owner == nullptr)
                     return;
 
-                if (!l_Caster->HasAura(eSpells::GlyphOfHemorrhagingVeins))
+                if (!l_Owner->HasAura(eSpells::SanguinaryVein))
+                    return;
+
+                if (!l_Owner->HasAura(eSpells::GlyphOfHemorrhagingVeins))
                     return;
 
                 l_Caster->CastSpell(l_Target, eSpells::SanguinaryVeinDebuff, true);
@@ -2689,13 +2767,13 @@ class spell_rog_evicerate : public SpellScriptLoader
                 if (l_ComboPoint)
                 {
                     float l_Mult = 1.0f; ///< Mastery is apply in MeleeDamageBonusDone, so we let this to 1
-                    if (!l_Caster->HasAura(eSpells::MasteryExecutioner))
+                    if (!l_Owner->HasAura(eSpells::MasteryExecutioner))
                         l_Mult = 0.88f;
 
-                    l_Damage += int32((l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.559f) * l_Mult * l_ComboPoint);
+                    l_Damage += int32((l_Owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.559f) * l_Mult * l_ComboPoint);
 
                     /// Tier 5 Bonus 2 pieces
-                    if (AuraEffect* l_Tier5Bonus2P = l_Caster->GetAuraEffect(eSpells::Tier5Bonus2P, EFFECT_0))
+                    if (AuraEffect* l_Tier5Bonus2P = l_Owner->GetAuraEffect(eSpells::Tier5Bonus2P, EFFECT_0))
                         l_Damage += l_ComboPoint * l_Tier5Bonus2P->GetAmount();
                 }
 
@@ -2870,13 +2948,14 @@ public:
 
         void HandleOnHit()
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
-            {
-                if (l_Player->GetSpecializationId() == SPEC_ROGUE_SUBTLETY && l_Player->HasAura(ROGUE_SPELL_WOD_PVP_SUBTLETY_4P))
-                {
-                    l_Player->CastSpell(l_Player, ROGUE_SPELL_WOD_PVP_SUBTLETY_4P_EFFECT, true);
-                }
-            }
+            Unit* l_Caster = GetCaster();
+            Player* l_Player = l_Caster->GetSpellModOwner();
+            
+            if (l_Player == nullptr)
+                return;
+
+            if (l_Player->GetSpecializationId() == SPEC_ROGUE_SUBTLETY && l_Player->HasAura(ROGUE_SPELL_WOD_PVP_SUBTLETY_4P))
+                l_Caster->CastSpell(l_Caster, ROGUE_SPELL_WOD_PVP_SUBTLETY_4P_EFFECT, true);
         }
 
         void Register()
@@ -3712,5 +3791,6 @@ void AddSC_rogue_spell_scripts()
     /// Player Scripts
     new PlayerScript_ruthlessness();
     new PlayerScript_stealth();
+    new PlayerScript_death_from_above();
 }
 #endif

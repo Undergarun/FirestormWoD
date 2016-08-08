@@ -13,6 +13,7 @@
 #include "ScriptedGossip.h"
 #include "GameObjectAI.h"
 #include "Spell.h"
+#include "GarrisonNPCAI.hpp"
 #include "../GarrisonScriptData.hpp"
 
 namespace MS { namespace Garrison { namespace Sites
@@ -269,6 +270,23 @@ namespace MS { namespace Garrison { namespace Sites
 
                         if (l_Entry != nullptr)
                             p_Owner->GetReputationMgr().SetReputation(l_Entry, 0);
+
+                        break;
+                    }
+                    case Building::ID::LunarfallExcavation_FrostwallMines_Level1:
+                    case Building::ID::LunarfallExcavation_FrostwallMines_Level2:
+                    case Building::ID::LunarfallExcavation_FrostwallMines_Level3:
+                    {
+                        std::vector<uint64> l_CreatureGuids = l_GarrisonMgr->GetBuildingCreaturesByBuildingType(Building::Type::Inn);
+
+                        for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
+                        {
+                            if (Creature* l_Creature = sObjectAccessor->GetCreature(*p_Owner, *l_Itr))
+                            {
+                                if (GarrisonNPCAI* l_AI = l_Creature->ToGarrisonNPCAI())
+                                    l_AI->OnDailyDataReset();
+                            }
+                        }
 
                         break;
                     }

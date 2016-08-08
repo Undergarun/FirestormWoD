@@ -846,12 +846,12 @@ class spell_warr_rallying_cry: public SpellScriptLoader
                     {
                         if (l_Itr->IsWithinDistInMap(l_Player, GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusFriend))
                         {
-                            l_Bp0 = CalculatePct(l_Itr->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                            l_Bp0 = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
                             l_Player->CastCustomSpell(l_Itr, WARRIOR_SPELL_RALLYING_CRY, &l_Bp0, NULL, NULL, true);
                         }
                     }
 
-                    l_Bp0 = CalculatePct(l_Player->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                    l_Bp0 = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
                     l_Player->CastCustomSpell(l_Player, WARRIOR_SPELL_RALLYING_CRY, &l_Bp0, NULL, NULL, true);
 
                     /// Glyph of Rallying Cry
@@ -860,13 +860,13 @@ class spell_warr_rallying_cry: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_warr_rallying_cry_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_warr_rallying_cry_SpellScript();
         }
@@ -905,6 +905,17 @@ class spell_warr_heroic_leap: public SpellScriptLoader
                             return SPELL_FAILED_NOT_READY;
                     }
                 }
+
+                Map* l_Map = l_Player->GetMap();
+                if (l_Map == nullptr)
+                    return SPELL_FAILED_SUCCESS;
+
+                PathGenerator l_Path(l_Player);
+                l_Path.SetPathLengthLimit(40.0f);
+                bool l_Result = l_Path.CalculatePath(l_SpellDest->GetPositionX(), l_SpellDest->GetPositionY(), l_SpellDest->GetPositionZ());
+
+                if (!l_Result || (l_Path.GetPathType() != PATHFIND_NORMAL))
+                    return SPELL_FAILED_NOPATH;
 
                 return SPELL_CAST_OK;
             }
@@ -1015,7 +1026,7 @@ class spell_warr_shockwave: public SpellScriptLoader
                 if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (int32(GetSpell()->GetUnitTargetCount()) >= GetSpellInfo()->Effects[EFFECT_0].BasePoints)
+                if (int32(GetSpell()->GetUnitTargetCount()) > GetSpellInfo()->Effects[EFFECT_0].BasePoints)
                     GetCaster()->ToPlayer()->ReduceSpellCooldown((uint32)ShockwaveValues::SpellId, GetSpellInfo()->Effects[EFFECT_3].BasePoints * IN_MILLISECONDS);
             }
 
@@ -2956,8 +2967,9 @@ class spell_warr_glyph_of_crow_feast : public SpellScriptLoader
 
             enum eSpells
             {
-                Execute = 5308,
-                GlyphOfCrowFeast = 115944
+                ExecuteFuryProt     = 5308,
+                ExecuteArms         = 163201,
+                GlyphOfCrowFeast    = 115944
             };
 
             void OnProc(AuraEffect const* /*p_AurEff*/, ProcEventInfo& p_ProcEventInfo)
@@ -2974,7 +2986,7 @@ class spell_warr_glyph_of_crow_feast : public SpellScriptLoader
                 if (l_Caster == nullptr || l_Target == nullptr || l_SpellInfoTriggerSpell == nullptr)
                     return;
 
-                if (l_SpellInfoTriggerSpell->Id != eSpells::Execute)
+                if (l_SpellInfoTriggerSpell->Id != eSpells::ExecuteFuryProt && l_SpellInfoTriggerSpell->Id != eSpells::ExecuteArms)
                     return;
 
                 if (!(p_ProcEventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))

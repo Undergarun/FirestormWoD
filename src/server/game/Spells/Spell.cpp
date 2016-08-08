@@ -1444,7 +1444,9 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
                             if (l_Player == nullptr)
                                 break;
 
-                            if (Unit* l_Target = l_Player->GetSelectedUnit())
+                            Unit* l_Target = l_Player->GetSelectedUnit();
+
+                            if (l_Target != nullptr && l_Player->IsValidAttackTarget(l_Target))
                             {
                                 if (p_EffIndex == 0)
                                 {
@@ -5776,10 +5778,15 @@ void Spell::TakePower()
             }
         }
 
-        if (hit)
-            m_caster->ModifyPower(powerType, -m_powerCost[POWER_TO_INDEX(powerType)]);
+        if (m_caster->ToCreature() && m_caster->GetEntry() == 4277 && m_caster->ToCreature()->GetOwner() && m_caster->GetOwner()->IsPlayer())
+            m_caster->GetOwner()->ToPlayer()->ModifyPower(powerType, -m_powerCost[POWER_TO_INDEX(powerType)]);
         else
-            m_caster->ModifyPower(powerType, -CalculatePct(m_powerCost[POWER_TO_INDEX(powerType)], pct)); // Refund 80% of power on fail 4.x
+        {
+            if (hit)
+                m_caster->ModifyPower(powerType, -m_powerCost[POWER_TO_INDEX(powerType)]);
+            else
+                m_caster->ModifyPower(powerType, -CalculatePct(m_powerCost[POWER_TO_INDEX(powerType)], pct)); // Refund 80% of power on fail 4.x
+        }
     }
 }
 
@@ -7659,7 +7666,8 @@ SpellCastResult Spell::CheckRange(bool strict)
             return !(_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_TOO_CLOSE : SPELL_FAILED_DONT_REPORT;
 
         /// Allow spells in any direction if the target is own vehicle
-        if (m_caster->IsPlayer() && (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(static_cast<float>(M_PI), target))
+        if (m_caster->IsPlayer() && (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) &&
+            !m_caster->HasInArc(static_cast<float>(M_PI), target) && !m_caster->IsWithinBoundaryRadius(target))
         {
             Vehicle* l_Vehicle = m_caster->GetVehicle();
             if (l_Vehicle == nullptr || (!m_caster->IsOnVehicle(target) && !(l_Vehicle->GetBase() && l_Vehicle->GetBase()->IsOnVehicle(target))))
@@ -7741,7 +7749,20 @@ SpellCastResult Spell::CheckPower()
 
         Powers powerType = Powers(itr->PowerType);
         if (int32(m_caster->GetPower(powerType)) < m_powerCost[POWER_TO_INDEX(powerType)])
-            return SPELL_FAILED_NO_POWER;
+        {
+            if (m_spellInfo->Id == 48018 && m_caster->ToCreature() && m_caster->GetEntry() == 4277)
+            {
+                Unit* l_Owner = m_caster->ToCreature()->GetOwner();
+                if (l_Owner && l_Owner->IsPlayer())
+                {
+                    Player* l_Player = l_Owner->ToPlayer();
+                    if (int32(l_Player->GetPower(powerType)) < m_powerCost[POWER_TO_INDEX(powerType)])
+                        return SPELL_FAILED_NO_POWER;
+                }
+            }
+            else
+                return SPELL_FAILED_NO_POWER;
+        }
     }
 
     return SPELL_CAST_OK;
@@ -8191,7 +8212,18 @@ SpellCastResult Spell::CheckItems()
                         for (auto l_Itr : l_ItemStageUpgradeRules)
                         {
                             if (!sSpellMgr->HaveSameItemSourceSkill(m_CastItem, l_ItemTarget))
-                                continue;
+                            {
+                                bool l_ItemFound = false;
+                                std::vector<uint32> const* l_SourceSkills = sSpellMgr->GetItemSourceSkills(m_CastItem->GetEntry());
+                               
+                                if (std::find(l_SourceSkills->begin(), l_SourceSkills->end(), SKILL_INSCRIPTION) != l_SourceSkills->end())
+                                {
+                                    const std::array<uint32, 4> l_InscriptionItemIDs = { 112319, 112318, 112317, 112320 };
+                                    l_ItemFound = std::find(l_InscriptionItemIDs.begin(), l_InscriptionItemIDs.end(), l_ItemTarget->GetTemplate()->ItemId) != l_InscriptionItemIDs.end();
+                                }
+                                if (!l_ItemFound)
+                                    continue;
+                            }
 
                             if (l_Itr.ItemClass != l_ItemTarget->GetTemplate()->Class)
                                 continue;
@@ -9504,6 +9536,9 @@ bool Spell::IsCommandDemonSpell() const
         case 119913:
         case 119914:
         case 119915:
+        case 171140:
+        case 171152:
+        case 171154:
             return true;
         default:
             return false;
@@ -9738,10 +9773,13 @@ bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target)
     }
     else
     {
-        if (!_caster->isInFront(target, _coneAngle))
+        if (!_caster->IsWithinBoundaryRadius(target->ToUnit()))
         {
-            if (_caster->GetTypeId() != TYPEID_PLAYER || _caster->GetDistance2d(target) > 3.0f || !_caster->isInFront(target, M_PI))
-                return false;
+            if (!_caster->isInFront(target, _coneAngle))
+            {
+                if (!_caster->IsPlayer() || _caster->GetDistance2d(target) > 3.0f || !_caster->isInFront(target, M_PI))
+                    return false;
+            }
         }
     }
     return WorldObjectSpellAreaTargetCheck::operator ()(target);

@@ -562,9 +562,8 @@ namespace MS { namespace Garrison
                     if (l_Owner == nullptr)
                         return;
 
-                    /// Awaits for hardcpp's PR validation...
-///                    if (!l_Owner->IsFalling())
-///                        Remove();
+                    if (!l_Owner->IsFalling())
+                        Remove();
                 }
 
                 void Register() override
@@ -678,6 +677,46 @@ namespace MS { namespace Garrison
             }
     };
 
+    /// Preserved mining pick/176061 - Miners coffee/176049
+    class spell_aura_garrison_mine_area_check : public SpellScriptLoader
+    {
+        public:
+            spell_aura_garrison_mine_area_check() : SpellScriptLoader("spell_aura_garrison_mine_area_check") { }
+
+            class spell_aura_garrison_mine_area_check_AuraScript : public AuraScript
+            {
+                PrepareAuraScript(spell_aura_garrison_mine_area_check_AuraScript)
+
+                void OnUpdate(uint32 /*p_Diff*/)
+                {
+                    Unit* l_Owner = GetUnitOwner();
+
+                    if (l_Owner == nullptr || l_Owner->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    Player* l_Player = l_Owner->ToPlayer();
+
+                    if (MS::Garrison::Manager* l_GarrisonMgr = l_Player->GetGarrison())
+                    {
+                        MS::Garrison::GarrisonPlotInstanceInfoLocation l_Plot = l_GarrisonMgr->GetPlot(l_Player->m_positionX, l_Player->m_positionY, l_Player->m_positionZ);
+
+                        if (l_Plot.PlotInstanceID != 59) ///< Mine plot instance ID
+                            Remove();
+                    }
+                }
+
+                void Register() override
+                {
+                    OnAuraUpdate += AuraUpdateFn(spell_aura_garrison_mine_area_check_AuraScript::OnUpdate);
+                }
+            };
+
+            AuraScript* GetAuraScript() const override
+            {
+                return new spell_aura_garrison_mine_area_check_AuraScript();
+            }
+    };
+
 }   ///< namespace Garrison
 }   ///< namespace MS
 
@@ -696,6 +735,7 @@ void AddSC_Garrison()
     new MS::Garrison::spell_GarrisonRouseTrader();
     new MS::Garrison::spell_garrison_well_rested();
     new MS::Garrison::spell_garrison_tent_spawn();
+    new MS::Garrison::spell_aura_garrison_mine_area_check();
 }
 #endif
 #endif

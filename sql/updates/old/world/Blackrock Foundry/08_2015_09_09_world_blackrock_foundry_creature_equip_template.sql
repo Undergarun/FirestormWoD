@@ -46,3 +46,5 @@ REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEnt
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (87841, 1, 108772, 107801, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (81197, 1, 107703, 107703, 0);
 REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (81315, 1, 0, 0, 108426);
+REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (77325, 1, 113126, 0, 0);
+REPLACE INTO creature_equip_template (entry, id, itemEntry1, itemEntry2, itemEntry3) VALUE (77665, 1, 0, 0, 49762);

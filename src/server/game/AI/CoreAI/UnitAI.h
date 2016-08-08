@@ -300,6 +300,7 @@ class UnitAI
 
             TypeMaskAllMelee    = eTargetTypeMask::TypeMaskMelee | eTargetTypeMask::TypeMaskTank,
             TypeMaskAllRanged   = eTargetTypeMask::TypeMaskRanged | eTargetTypeMask::TypeMaskHealer,
+            TypeMaskAll         = eTargetTypeMask::TypeMaskAllRanged | eTargetTypeMask::TypeMaskAllMelee,
             TypeMaskNonTank     = eTargetTypeMask::TypeMaskAllRanged | eTargetTypeMask::TypeMaskMelee
         };
 

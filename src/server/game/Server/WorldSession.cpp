@@ -2103,6 +2103,7 @@ void WorldSession::LoadLoyaltyData()
             l_Statement->setUInt32(1, m_LastClaim);
             l_Statement->setUInt32(2, m_LastEventReset);
             LoginDatabase.Execute(l_Statement);
+
         }
         /// Load event history of the day
         else

@@ -3071,6 +3071,13 @@ class go_foundry_crucible : public GameObjectScript
 
             void UpdateAI(uint32 p_Diff) override
             {
+                /// Stop animation after Blast Furnace completion
+                if (InstanceScript* l_InstanceScript = go->GetInstanceScript())
+                {
+                    if (l_InstanceScript->GetBossState(eFoundryDatas::DataBlastFurnace) == EncounterState::DONE)
+                        return;
+                }
+
                 UpdateOperations(p_Diff);
 
                 m_Events.Update(p_Diff);

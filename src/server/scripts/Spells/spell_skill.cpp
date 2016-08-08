@@ -66,6 +66,30 @@ namespace MS { namespace Skill
             SteamedScorpion             = 118316,
             SturgeonStew                = 118318,
 
+            /// Cooking
+            SaberfishBrothItem          = 111455,
+            BlackrockHamItem            = 111433,
+            BraisedRiverbeastItem       = 111436,
+            ClefthoofSausagesItem       = 111438,
+            FatSleeperCakesItem         = 111444,
+            FieryCalamariItem           = 111445,
+            GrilledGulperItem           = 111441,
+            HeartyElekkSteakItem        = 111431,
+            PanSearedTalbukItem         = 111434,
+            RylakCrepesItem             = 111437,
+            SkulkerChowderItem          = 111446,
+            SteamedScorpionItem         = 111439,
+            SturgeonStewItem            = 111442,
+            BlackrockBarbecueItem       = 111449,
+            CalamariCrepesItem          = 111453,
+            FrostyStewItem              = 111450,
+            GorgrondChowderItem         = 111454,
+            SleeperSurpriseItem         = 111452,
+            TaladorSurfAndTurfItem      = 111447,
+            FeastOfBloodItem            = 111457,
+            FeastOfTheWatersItem        = 111458,
+            GrilledSaberfishItem        = 111456,
+
             /// Blacksmithing
             TruesteelIngot              = 108257,
 
@@ -266,14 +290,13 @@ namespace MS { namespace Skill
                                 162856, 162808, 162815, 162855, 162857, 162859,
                                 162831, 162884, 162832, 162833, 162846, 162837,
                                 162860, 162861, 162848, 162844, 162879, 162806,
-                                162814, 162851, 162834, 162862, 162843,  57190,
+                                162814, 162851, 162834, 162862, 162843, 162839,
                                 162871, 162820, 162872, 162850, 162880, 162822,
                                 162819, 162817, 162824, 162826, 162881, 162810,
                                 162882, 162863, 162830, 162835, 162849, 162811,
                                 162812, 162821, 162854, 162873, 162864, 162883,
                                 162865, 162852, 162827, 162838, 162874, 162853,
-                                162867, 162866, 162876, 175186, 178448, 162823,
-                                162839, 57160,  57152
+                                162867, 162866, 162876, 175186, 178448, 162823
                             }
                         },
                         { SpellIDs::ResearchInkOfDreams,
@@ -283,7 +306,7 @@ namespace MS { namespace Skill
                                 57226,  57227,  57269,  58288,  58301,  58306,
                                 59326,  64258,  64261,  64312, 112266, 112458,
                                 112460, 124461, 126696, 148274, 148285, 182155,
-                                182158,  57189,  56998,  58375
+                                182158,  57189,  56998,  58375, 57160, 57152
                             }
                         },
                         { SpellIDs::ResearchBlackfallowInk,
@@ -292,7 +315,8 @@ namespace MS { namespace Skill
                                 57031,  57154,  57196,  57217,  57228,  57249,
                                 57257,  58287,  58296,  58324,  58337,  58339,
                                 64260,  64262,  68166, 112430, 112461, 112462,
-                                122030, 124466, 126800, 148286,  56986,  55691
+                                122030, 124466, 126800, 148286,  56986,  55691,
+                                57190
                             }
                         },
                         { SpellIDs::ResearchInkOfTheSea,
@@ -400,23 +424,45 @@ namespace MS { namespace Skill
 
                     if (!l_Candidates.size())
                     {
-                        std::vector<std::vector<uint32>> l_AllRewardSpell;
-                        bool l_FillVector = false;
-                        for (auto l_Itr = l_AllSpells.begin(); l_Itr != l_AllSpells.end(); l_Itr++)
+                        if (l_SpellID == SpellIDs::ResearchWarbinderInkItem)
                         {
-                            if (l_FillVector)
-                                l_AllRewardSpell.push_back(l_Itr->second);
-                            if (l_Itr->first == l_SpellID)
-                                l_FillVector = true;
-                        }
-
-                        for (std::vector<uint32> l_SpellVector : l_AllRewardSpell)
-                        {
-                            for (uint32 l_SpellID : l_SpellVector)
+                            std::vector<std::vector<uint32>> l_AllRewardSpell;
+                            bool l_FillVector = false;
+                            for (auto l_Itr = l_AllSpells.begin(); l_Itr != l_AllSpells.end(); l_Itr++)
                             {
-                                if (!l_Player->HasSpell(l_SpellID))
-                                    l_Candidates.push_back(l_SpellID);
+                                if (l_FillVector)
+                                    l_AllRewardSpell.push_back(l_Itr->second);
+                                if (l_Itr->first == l_SpellID)
+                                    l_FillVector = true;
                             }
+
+                            for (std::vector<uint32> l_SpellVector : l_AllRewardSpell)
+                            {
+                                for (uint32 l_SpellID : l_SpellVector)
+                                {
+                                    if (!l_Player->HasSpell(l_SpellID))
+                                        l_Candidates.push_back(l_SpellID);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
+                            std::shuffle(l_RewardSpells.begin(), l_RewardSpells.end(), std::default_random_engine(l_Seed));
+
+                            uint32 l_SpellID = l_RewardSpells.at(0);
+                            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
+
+                            if (!l_SpellInfo || l_SpellInfo->Effects[EFFECT_0].Effect != SPELL_EFFECT_CREATE_ITEM)
+                                return;
+
+                            uint32 l_ItemID = l_SpellInfo->Effects[EFFECT_0].ItemType;
+
+                            if (!sObjectMgr->GetItemTemplate(l_ItemID))
+                                return;
+
+                            l_Player->AddItem(l_ItemID, 1);
+                            return;
                         }
                     }
                     if (!l_Candidates.size())
@@ -443,7 +489,94 @@ namespace MS { namespace Skill
     };
 
     //////////////////////////////////////////////////////////////////////////
+    /// Tailoring research Spell -- 125557
     //////////////////////////////////////////////////////////////////////////
+    class spell_Tailoring_Research : public SpellScriptLoader
+    {
+    public:
+        /// Constructor
+        spell_Tailoring_Research()
+            : SpellScriptLoader("spell_Tailoring_Research")
+        {
+
+        }
+
+        class spell_Tailoring_Research_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_Tailoring_Research_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Player* l_Player = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                if (!l_Player)
+                    return;
+
+                uint32 l_SpellID = GetSpellInfo()->Id;
+                uint32 l_CurrentSkillValue = l_Player->GetSkillValue(SKILL_TAILORING);
+
+                for (uint32 l_I = 0; l_I < sSkillLineAbilityStore.GetNumRows(); ++l_I)
+                {
+                    SkillLineAbilityEntry const* l_Entry = sSkillLineAbilityStore.LookupEntry(l_I);
+
+                    if (!l_Entry || l_Entry->skillId != SKILL_TAILORING || l_Entry->spellId != l_SpellID)
+                        continue;
+
+                    if (l_CurrentSkillValue < l_Entry->req_skill_value || l_CurrentSkillValue > l_Entry->max_value)
+                        continue;
+
+                    uint32 l_NumSkillUp = l_Entry->skill_gain;
+
+                    if (l_CurrentSkillValue >= l_Entry->min_value)
+                        l_NumSkillUp = 1;
+
+                    l_Player->UpdateSkill(SKILL_TAILORING, l_NumSkillUp);
+                    break;
+                }
+
+                std::vector<uint32> l_RewardSpells =
+                {
+                    138598, 138600, 138599, 138597,         ///< Epic Crafts
+                    137907, 137908, 137936, 137937,         ///< Back 1
+                    137918, 137920, 137919,                 ///< Back 2
+                    137910, 137909, 137911,                 ///< Waist
+                    137915, 137917, 137916,                 ///< Wrists
+                    137913, 137912, 137914,                 ///< Feet
+                    137942, 137939, 137938, 137941, 137940, ///< Dreadful Gladiator's Felweave set
+                    137926, 137927, 137928, 137930, 137929, ///< Dreadful Gladiator's Mooncloth set
+                    137931, 137932, 137933, 137935, 137934, ///< Dreadful Gladiator's Satin set
+                    137925, 137922, 137921, 137924, 137923  ///< Dreadful Gladiator's Silk set
+                };
+
+                std::vector<uint32> l_Candidates;
+                for (uint32 l_SpellID : l_RewardSpells)
+                {
+                    if (!l_Player->HasSpell(l_SpellID))
+                        l_Candidates.push_back(l_SpellID);
+                }
+
+                if (!l_Candidates.size())
+                    return;
+
+                auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
+                std::shuffle(l_Candidates.begin(), l_Candidates.end(), std::default_random_engine(l_Seed));
+
+                l_Player->learnSpell(l_Candidates.at(0), false);
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_Tailoring_Research_SpellScript::HandleAfterCast);
+            }
+        };
+
+        /// Should return a fully valid SpellScript pointer.
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_Tailoring_Research_SpellScript();
+        }
+    };
+
 
     //////////////////////////////////////////////////////////////////////////
     /// Reset secondary properties spells
@@ -542,7 +675,7 @@ namespace MS { namespace Skill
                         auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
                         std::shuffle(l_BonusList.begin(), l_BonusList.end(), std::default_random_engine(l_Seed));
 
-                        l_ItemTarget->AddItemBonus(l_BonusList.at(0));
+                        l_ItemTarget->AddItemBonus(l_BonusList[0]);
                     }
 
                     l_ItemTarget->SetState(ITEM_CHANGED, GetCaster()->ToPlayer());
@@ -708,6 +841,76 @@ namespace MS { namespace Skill
                     return new spell_Skill_GrowFromSkillLevel_SpellScript();
                 }
         };
+        //////////////////////////////////////////////////////////////////////////
+        /// Cooking
+        //////////////////////////////////////////////////////////////////////////
+        
+        /// 161001 - Saberfish Broth
+        char  spell_Skill_Cooking_SaberfishBroth_Name[] = "spell_Skill_Cooking_SaberfishBroth";
+        using spell_Skill_Cooking_SaberfishBroth = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_SaberfishBroth_Name, SKILL_COOKING, ItemIDs::SaberfishBrothItem, 4>;
+        /// 160962 - BlackrockHam
+        char  spell_Skill_Cooking_BlackrockHam_Name[] = "spell_Skill_Cooking_BlackrockHam";
+        using spell_Skill_Cooking_BlackrockHam = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_BlackrockHam_Name, SKILL_COOKING, ItemIDs::BlackrockHamItem, 4>;
+        /// 160968 - Braised Riverbeast
+        char  spell_Skill_Cooking_BraisedRiverBeast_Name[] = "spell_Skill_Cooking_BraisedRiverBeast";
+        using spell_Skill_Cooking_BraisedRiverBeast = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_BraisedRiverBeast_Name, SKILL_COOKING, ItemIDs::BraisedRiverbeastItem, 4>;
+        /// 160971 - Clefhoof Sausages
+        char  spell_Skill_Cooking_ClefhoofSausages_Name[] = "spell_Skill_Cooking_ClefhoofSausages";
+        using spell_Skill_Cooking_ClefhoofSausages = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_ClefhoofSausages_Name, SKILL_COOKING, ItemIDs::ClefthoofSausagesItem, 4>;
+        /// 160981 - Fat Sleeper Cakes
+        char  spell_Skill_Cooking_FatSleeperCakes_Name[] = "spell_Skill_Cooking_FatSleeperCakes";
+        using spell_Skill_Cooking_FatSleeperCakes = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_FatSleeperCakes_Name, SKILL_COOKING, ItemIDs::FatSleeperCakesItem, 4>;
+        /// 160982 - Fiery Calamari
+        char  spell_Skill_Cooking_FieryCalamari_Name[] = "spell_Skill_Cooking_FieryCalamari";
+        using spell_Skill_Cooking_FieryCalamari = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_FieryCalamari_Name, SKILL_COOKING, ItemIDs::FieryCalamariItem, 4>;
+        /// 160978 - Grilled Gulper
+        char  spell_Skill_Cooking_GrilledGulper_Name[] = "spell_Skill_Cooking_GrilledGulper";
+        using spell_Skill_Cooking_GrilledGulper = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_GrilledGulper_Name, SKILL_COOKING, ItemIDs::GrilledGulperItem, 4>;
+        /// 160958 - Hearty Elekk Steak
+        char  spell_Skill_Cooking_HeartyElekkSteak_Name[] = "spell_Skill_Cooking_HeartyElekkSteak";
+        using spell_Skill_Cooking_HeartyElekkSteak = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_HeartyElekkSteak_Name, SKILL_COOKING, ItemIDs::HeartyElekkSteakItem, 4>;
+        /// 160966 - Pan-Seared Talbuk
+        char  spell_Skill_Cooking_PanSearedTalbuk_Name[] = "spell_Skill_Cooking_PanSearedTalbuk";
+        using spell_Skill_Cooking_PanSearedTalbuk = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_PanSearedTalbuk_Name, SKILL_COOKING, ItemIDs::PanSearedTalbukItem, 4>;
+        /// 160969 - Rylak Crepes
+        char  spell_Skill_Cooking_RylakCrepes_Name[] = "spell_Skill_Cooking_RylakCrepes";
+        using spell_Skill_Cooking_RylakCrepes = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_RylakCrepes_Name, SKILL_COOKING, ItemIDs::RylakCrepesItem, 4>;
+        /// 160983 - Skulker Chowder
+        char  spell_Skill_Cooking_SkulkerChowder_Name[] = "spell_Skill_Cooking_SkulkerChowder";
+        using spell_Skill_Cooking_SkulkerChowder = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_SkulkerChowder_Name, SKILL_COOKING, ItemIDs::SkulkerChowderItem, 4>;
+        /// 160973 - Steamed Scorpion
+        char  spell_Skill_Cooking_SteamedScorpion_Name[] = "spell_Skill_Cooking_SteamedScorpion";
+        using spell_Skill_Cooking_SteamedScorpion = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_SteamedScorpion_Name, SKILL_COOKING, ItemIDs::SteamedScorpionItem, 4>;
+        /// 160979 - Sturgeon Stew
+        char  spell_Skill_Cooking_SturgeonStew_Name[] = "spell_Skill_Cooking_SturgeonStew";
+        using spell_Skill_Cooking_SturgeonStew = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_SturgeonStew_Name, SKILL_COOKING, ItemIDs::SturgeonStewItem, 4>;
+        /// 160986 - Blackrock Barbecue
+        char  spell_Skill_Cooking_BlackrockBarbecue_Name[] = "spell_Skill_Cooking_BlackrockBarbecue";
+        using spell_Skill_Cooking_BlackrockBarbecue = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_BlackrockBarbecue_Name, SKILL_COOKING, ItemIDs::BlackrockBarbecueItem, 4>;
+        /// 160999 - Calamari Crepes
+        char  spell_Skill_Cooking_CalamariCrepes_Name[] = "spell_Skill_Cooking_CalamariCrepes";
+        using spell_Skill_Cooking_CalamariCrepes = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_CalamariCrepes_Name, SKILL_COOKING, ItemIDs::CalamariCrepesItem, 4>;
+        /// 160987 - Frosty Stew
+        char  spell_Skill_Cooking_FrostyStew_Name[] = "spell_Skill_Cooking_FrostyStew";
+        using spell_Skill_Cooking_FrostyStew = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_FrostyStew_Name, SKILL_COOKING, ItemIDs::FrostyStewItem, 4>;
+        /// 161000 - Gorgrond Chowder
+        char  spell_Skill_Cooking_GrogrondChowder_Name[] = "spell_Skill_Cooking_GrogrondChowder";
+        using spell_Skill_Cooking_GrogrondChowder = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_GrogrondChowder_Name, SKILL_COOKING, ItemIDs::GorgrondChowderItem, 4>;
+        /// 160989 - Sleeper Surprise
+        char  spell_Skill_Cooking_SleeperSurprise_Name[] = "spell_Skill_Cooking_SleeperSurprise";
+        using spell_Skill_Cooking_SleeperSurprise = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_SleeperSurprise_Name, SKILL_COOKING, ItemIDs::SleeperSurpriseItem, 4>;
+        /// 160984 - Talador Surf And Turf
+        char  spell_Skill_Cooking_TaladorSurfAndTurf_Name[] = "spell_Skill_Cooking_TaladorSurfAndTurf";
+        using spell_Skill_Cooking_TaladorSurfAndTurf = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_TaladorSurfAndTurf_Name, SKILL_COOKING, ItemIDs::TaladorSurfAndTurfItem, 4>;
+        /// 173978 - Feast Of Blood
+        char  spell_Skill_Cooking_FeastOfBlood_Name[] = "spell_Skill_Cooking_FeastOfBlood";
+        using spell_Skill_Cooking_FeastOfBlood = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_FeastOfBlood_Name, SKILL_COOKING, ItemIDs::FeastOfBloodItem, 4>;
+        /// 173979 - Feast Of The Waters
+        char  spell_Skill_Cooking_FeastOfTheWaters_Name[] = "spell_Skill_Cooking_FeastOfTheWaters";
+        using spell_Skill_Cooking_FeastOfTheWaters = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_FeastOfTheWaters_Name, SKILL_COOKING, ItemIDs::FeastOfTheWatersItem, 4>;
+        /// 161002 - Grilled Saberfish
+        char  spell_Skill_Cooking_GrilledSaberfish_Name[] = "spell_Skill_Cooking_GrilledSaberfish";
+        using spell_Skill_Cooking_GrilledSaberfish = spell_Skill_GrowFromSkillLevel<spell_Skill_Cooking_GrilledSaberfish_Name, SKILL_COOKING, ItemIDs::GrilledSaberfishItem, 4>;
 
         //////////////////////////////////////////////////////////////////////////
         /// 171690 - Truesteel Ingot
@@ -1106,10 +1309,34 @@ void AddSC_spell_skill()
 {
     new MS::Skill::spell_Cooking_DraenorRecipesRewards();
     new MS::Skill::spell_Inscription_Research();
+    new MS::Skill::spell_Tailoring_Research();
     new MS::Skill::spell_Skill_ResetSecondaryProperties();
     new MS::Skill::spell_Skill_Darkmoon_Card_Of_Draenor();
 
     /// Daily major skills
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_GrilledSaberfish();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_SaberfishBroth();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_BlackrockHam();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_BraisedRiverBeast();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_ClefhoofSausages();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_FatSleeperCakes();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_FieryCalamari();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_GrilledGulper();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_HeartyElekkSteak();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_PanSearedTalbuk();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_RylakCrepes();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_SkulkerChowder();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_SteamedScorpion();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_SturgeonStew();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_BlackrockBarbecue();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_CalamariCrepes();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_FrostyStew();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_GrogrondChowder();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_SleeperSurprise();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_TaladorSurfAndTurf();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_FeastOfBlood();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Cooking_FeastOfTheWaters();
+
     new MS::Skill::DailyMajorSkills::spell_Skill_BlackSmithing_TruesteelIngot();
     new MS::Skill::DailyMajorSkills::spell_Skill_Inscription_WarPaints();
     new MS::Skill::DailyMajorSkills::spell_Skill_Tailoring_HexweaveCloth();

@@ -194,7 +194,9 @@ enum CharacterWorldStates
     GarrisonTradingPostDailyRandomTrader          = 5,
     GarrisonTradingPostDailyRandomShipment        = 6,
     GarrisonArmoryWeeklyCurrencyGain              = 7,
-    GarrisonTavernBoolCanRecruitFollower          = 8
+    GarrisonTavernBoolCanRecruitFollower          = 8,
+    GarrisonHerbGardenFruitType                   = 9,
+    GarrisonHerbGardenFruitGatheringTimestamp     = 10
 };
 
 // Spell modifier (used for modify other spells)
@@ -672,20 +674,21 @@ enum PlayerExtraFlags
 // 2^n values
 enum AtLoginFlags
 {
-    AT_LOGIN_NONE                   = 0x0000,
-    AT_LOGIN_RENAME                 = 0x0001,
-    AT_LOGIN_RESET_SPELLS           = 0x0002,
-    AT_LOGIN_RESET_TALENTS          = 0x0004,
-    AT_LOGIN_CUSTOMIZE              = 0x0008,
-    AT_LOGIN_RESET_PET_TALENTS      = 0x0010,
-    AT_LOGIN_FIRST                  = 0x0020,
-    AT_LOGIN_CHANGE_FACTION         = 0x0040,
-    AT_LOGIN_CHANGE_RACE            = 0x0080,
-    AT_LOGIN_UNLOCK                 = 0x0100,
-    AT_LOGIN_LOCKED_FOR_TRANSFER    = 0x0200,
-    AT_LOGIN_RESET_SPECS            = 0x0400,
-    AT_LOGIN_DELETE_INVALID_SPELL   = 0x0800,     ///< Used at expension switch
-    AT_LOGIN_CHANGE_ITEM_FACTION    = 0x1000,
+    AT_LOGIN_NONE                      = 0x0000,
+    AT_LOGIN_RENAME                    = 0x0001,
+    AT_LOGIN_RESET_SPELLS              = 0x0002,
+    AT_LOGIN_RESET_TALENTS             = 0x0004,
+    AT_LOGIN_CUSTOMIZE                 = 0x0008,
+    AT_LOGIN_RESET_PET_TALENTS         = 0x0010,
+    AT_LOGIN_FIRST                     = 0x0020,
+    AT_LOGIN_CHANGE_FACTION            = 0x0040,
+    AT_LOGIN_CHANGE_RACE               = 0x0080,
+    AT_LOGIN_UNLOCK                    = 0x0100,
+    AT_LOGIN_LOCKED_FOR_TRANSFER       = 0x0200,
+    AT_LOGIN_RESET_SPECS               = 0x0400,
+    AT_LOGIN_DELETE_INVALID_SPELL      = 0x0800,     ///< Used at expension switch
+    AT_LOGIN_CHANGE_ITEM_FACTION       = 0x1000,
+    AT_LOGIN_CHANGE_RESET_FACTION_DATA = 0x8000
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
@@ -1849,7 +1852,6 @@ class Player : public Unit, public GridObject<Player>
         {
             return StoreItem(dest, pItem, update);
         }
-        Item* BankItem(uint16 pos, Item* pItem, bool update);
         void RemoveItem(uint8 bag, uint8 slot, bool update);
         void MoveItemFromInventory(uint8 bag, uint8 slot, bool update);
                                                             // in trade, auction, guild bank, mail....
@@ -2802,6 +2804,7 @@ class Player : public Unit, public GridObject<Player>
         ReputationMgr const& GetReputationMgr() const { return m_reputationMgr; }
         ReputationRank GetReputationRank(uint32 faction_id) const;
         void RewardReputation(Unit* victim, float rate);
+        void RewardSkill(Quest const* p_Quest);
         void RewardReputation(Quest const* quest);
         void RewardGuildReputation(Quest const* quest);
 
@@ -2900,7 +2903,7 @@ class Player : public Unit, public GridObject<Player>
         PlayerMenu* PlayerTalkClass;
         std::vector<ItemSetEffect*> ItemSetEff;
 
-        void SendLoot(uint64 guid, LootType loot_type, bool fetchLoot = false);
+        void SendLoot(uint64 guid, LootType loot_type, bool fetchLoot = false, float p_Radius = 25.0f);
         void SendLootRelease(uint64 p_LootGuid);
         void SendNotifyLootItemRemoved(uint8 lootSlot);
         void SendNotifyLootMoneyRemoved();
@@ -3220,6 +3223,8 @@ class Player : public Unit, public GridObject<Player>
         bool HasAtLoginFlag(AtLoginFlags f) const { return m_atLoginFlags & f; }
         void SetAtLoginFlag(AtLoginFlags f) { m_atLoginFlags |= f; }
         void RemoveAtLoginFlag(AtLoginFlags flags, bool persist = false);
+
+        static void RemoveAtLoginFlagFromDB(uint32 p_Guid, AtLoginFlags p_Flags);
 
         bool isUsingLfg();
 
@@ -3659,6 +3664,8 @@ class Player : public Unit, public GridObject<Player>
             m_CriticalOperation.push(std::function<bool()>(p_Function));
             m_CriticalOperationLock.release();
         }
+
+        static void HandleFactionChangeActions(char const* p_KnownTitle, uint64 p_PlayerGUID, uint8 p_Race);
 
         void SetQuestBit(uint32 p_BitIndex, bool p_Completed);
         bool IsQuestBitFlaged(uint32 p_BitIndex) const;

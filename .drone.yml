@@ -1,6 +1,6 @@
 branches:
-  - wod
-  - wod_ptr
+  - master
+  - ptr
   - dev
 
 clone:
@@ -12,12 +12,14 @@ clone:
 build:
   before_build:
     image: milleniumstudio/drone-clang-mariadb-ace
+    pull: true
     commands:
       - mkdir build
       - mkdir dist/bin dist/etc dist/sql dist/sql/characters dist/sql/world dist/sql/hotfix
+      - cp -p contrib/deploy/run-worldserver dist/bin
+      - cp -p contrib/deploy/commands.gdb dist/etc
   release_asan:
     image: milleniumstudio/drone-clang-mariadb-ace
-    pull: true
     commands:
       - cd build
       - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DCMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
@@ -26,9 +28,11 @@ build:
       - make clean
       - cd -
       - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfoAsan
+      - sed -i "s~@MODE@~testing~g" dist/bin/run-worldserver;
+    when:
+      branch: [ptr, dev]
   release:
     image: milleniumstudio/drone-clang-mariadb-ace
-    pull: true
     commands:
       - cd build
       - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="" -DCMAKE_C_FLAGS="" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
@@ -37,13 +41,25 @@ build:
       - make clean
       - cd -
       - mv /usr/local/bin/worldserver dist/bin/worldserver_RelWithDebInfo
+      - sed -i "s~@MODE@~normal~g" dist/bin/run-worldserver;
     when:
-      branch: wod
+      branch: master
+  release_cross:
+    image: milleniumstudio/drone-clang-mariadb-ace
+    commands:
+      - cd build
+      - cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_FLAGS="" -DCMAKE_C_FLAGS="" -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0 -DCROSS=1
+      - make -j 32
+      - make install
+      - make clean
+      - cd -
+      - mv /usr/local/bin/worldserver dist/bin/worldserver_cross_RelWithDebInfo
+      - sed -i "s~@MODE@~cross~g" dist/bin/run-worldserver;
+    when:
+      branch: master
   after_build:
     image: milleniumstudio/drone-clang-mariadb-ace
     commands:
-      - cp -p contrib/deploy/run-worldserver dist/bin
-      - cp -p contrib/deploy/commands.gdb dist/etc
       - sed -i "s~@REPO@~$DRONE_REPO~g; s~@COMMIT@~$DRONE_COMMIT~g" dist/bin/run-worldserver;
       - cp -rp sql/updates/characters dist/sql
       - cp -rp sql/updates/world dist/sql
@@ -56,22 +72,11 @@ publish:
     password: $$FATREGISTRY_PASSWD
     email: contact@fat.sh
     repo: firestorm/wod
-    tag: latest-ptr
+    tag: latest-$$BRANCH
     file: dist/Dockerfile
     context: dist/
     when:
-      branch: wod_ptr
-  docker:
-    registry: registry.fat.sh
-    username: $$FATREGISTRY_USER
-    password: $$FATREGISTRY_PASSWD
-    email: contact@fat.sh
-    repo: firestorm/wod
-    tag: latest
-    file: dist/Dockerfile
-    context: dist/
-    when:
-      branch: wod
+      branch: [master, ptr]
 
 notify:
   slack:
@@ -79,4 +84,4 @@ notify:
     channel: wow-notification
     username: Drone
     template: >
-      Build <https://drone-1.fat.sh/{{ repo.full_name }}/{{ build.number }}|{{ repo.name }}#{{ truncate build.commit 7 }}> ({{ build.branch }}) by {{ build.author }} finished with a *{{ build.status }}* status in {{ duration build.started_at build.finished_at }}
+      Build <{{ system.link_url }}/{{ repo.full_name }}/{{ build.number }}|{{ repo.name }}#{{ truncate build.commit 7 }}> ({{ build.branch }}) by {{ build.author }} finished with a *{{ build.status }}* status in {{ duration build.started_at build.finished_at }}

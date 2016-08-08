@@ -295,6 +295,8 @@ class boss_flamebender_kagraz : public CreatureScript
                         l_Aknor->CombatStop();
                         l_Aknor->RemoveAllAuras();
                         l_Aknor->SetUInt32Value(EUnitFields::UNIT_FIELD_STATE_ANIM_ID, Anim::ANIM_KNEEL_LOOP);
+
+                        m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, l_Aknor);
                     }
                 }
             }
@@ -2316,7 +2318,7 @@ class areatrigger_foundry_molten_torrent_ball : public AreaTriggerEntityScript
         }
 };
 
-            #ifndef __clang_analyzer__
+#ifndef __clang_analyzer__
 void AddSC_boss_flamebender_kagraz()
 {
     /// Boss

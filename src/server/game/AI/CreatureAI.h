@@ -264,9 +264,10 @@ class CreatureAI : public UnitAI
         }
 
         /// Called when taunted
-        virtual void OnTaunt(Unit* p_Taunter)
+        virtual bool OnTaunt(Unit* p_Taunter)
         {
             UNUSED(p_Taunter);
+            return true;
         }
 
         /// Called when a casting time is calculated

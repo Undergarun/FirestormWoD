@@ -151,6 +151,15 @@ void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
     GetPlayer()->SetSkill(skillId, 0, 0, 0);
 }
 
+const std::array<uint32, 5> g_SpecialisationsIndex = {20219, 20222, 28677, 28675, 28672};
+void WorldSession::HandleUnlearnSpecialization(WorldPacket& p_RecvData)
+{
+    uint8 l_SpecializationIndex = p_RecvData.read<uint8>();
+
+    if (l_SpecializationIndex < 5)
+        GetPlayer()->removeSpell(g_SpecialisationsIndex[l_SpecializationIndex]);
+}
+
 void WorldSession::HandleArcheologyRequestHistory(WorldPacket& /*p_RecvData*/)
 {
     WorldPacket l_Data(SMSG_SETUP_RESEARCH_HISTORY, 2048);

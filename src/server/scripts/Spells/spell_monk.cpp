@@ -702,18 +702,23 @@ class spell_monk_chi_wave_healing_bolt: public SpellScriptLoader
                 if (!GetOriginalCaster())
                     return;
 
-                if (Player* _player = GetOriginalCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        _player->CastSpell(target, SPELL_MONK_CHI_WAVE_HEAL, true);
+                if (Player* l_Player = GetOriginalCaster()->ToPlayer())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (!l_Target->IsValidAttackTarget(l_Player))
+                            l_Player->CastSpell(l_Target, SPELL_MONK_CHI_WAVE_HEAL, true);
+                    }
+                }
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_monk_chi_wave_healing_bolt_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_chi_wave_healing_bolt_SpellScript();
         }
@@ -739,6 +744,12 @@ class spell_monk_chi_wave_bolt: public SpellScriptLoader
             {
                 Unit* l_OriginalCaster = GetOriginalCaster();
                 Unit* l_Target = GetHitUnit();
+
+                if (GetSpellInfo()->Id == 132463 && l_Target->IsValidAttackTarget(l_OriginalCaster))
+                {
+                    PreventHitHeal();
+                    return;
+                }
 
                 if (l_OriginalCaster == nullptr || l_Target == nullptr)
                     return;
@@ -798,7 +809,10 @@ class spell_monk_chi_wave_bolt: public SpellScriptLoader
                 if (Unit* l_NewTarget = sObjectAccessor->FindUnit(l_ValidTargets.front()))
                 {
                     if (l_OriginalCaster->IsValidAttackTarget(l_NewTarget))
+                    {
+                        l_Target->CastSpell(l_NewTarget, eSpells::ChiWaveTriggerHeal, true, NULL, nullptr, l_OriginalCaster->GetGUID());
                         l_Target->CastSpell(l_NewTarget, SPELL_MONK_CHI_WAVE_DAMAGE, true, NULL, nullptr, l_OriginalCaster->GetGUID());
+                    }
                     else
                     {
                         std::list<Unit*> l_AlliesList;
@@ -825,19 +839,19 @@ class spell_monk_chi_wave_bolt: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_monk_chi_wave_bolt_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_chi_wave_bolt_SpellScript();
         }
 };
 
-// Chi Wave (talent) - 115098
+/// Chi Wave (talent) - 115098
 class spell_monk_chi_wave: public SpellScriptLoader
 {
     public:
@@ -873,30 +887,32 @@ class spell_monk_chi_wave: public SpellScriptLoader
                 if (!targetGUID || done)
                     return;
 
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = sObjectAccessor->FindUnit(targetGUID))
+                    if (Unit* l_Target = sObjectAccessor->FindUnit(targetGUID))
                     {
-                        _player->CastSpell(target, _player->IsValidAttackTarget(target) ? SPELL_MONK_CHI_WAVE_DAMAGE : eSpells::ChiWaveHealingBolt, true);
+                        if (l_Player->IsValidAttackTarget(l_Target))
+                            l_Player->CastSpell(l_Target, SPELL_MONK_CHI_WAVE_DAMAGE, true);
+                        l_Player->CastSpell(l_Target, eSpells::ChiWaveHealingBolt, true);
                         done = true;
                     }
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_monk_chi_wave_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 AfterHit += SpellHitFn(spell_monk_chi_wave_SpellScript::HandleApplyAura);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_chi_wave_SpellScript();
         }
 };
 
-// Transcendence : Transfer - 119996
+/// Transcendence : Transfer - 119996
 class spell_monk_transcendence_transfer: public SpellScriptLoader
 {
     public:
@@ -3231,7 +3247,7 @@ class spell_monk_soothing_mist: public SpellScriptLoader
                 if (l_PartyListValid.size() > 1)
                     l_PartyListValid.sort(JadeCore::HealthPctOrderPred());
 
-                l_JadeStatue->CastSpell(l_PartyListValid.front(), GetSpellInfo()->Id, true);
+                l_JadeStatue->CastSpell(l_PartyListValid.front(), GetSpellInfo()->Id, false);
             }
 
             void OnTick(AuraEffect const* /*p_AurEff*/)
@@ -3667,6 +3683,7 @@ class spell_monk_fortifying_brew: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.2.3
 /// Call by Flying Serpent Kick - 101545, Roll - 109132, and Chi Torpedo - 115008
 class spell_monk_roll: public SpellScriptLoader
 {
@@ -3682,7 +3699,8 @@ class spell_monk_roll: public SpellScriptLoader
                 MonkWoDPvPBrewmaster2PBonus     = 165691,
                 MonkWoDPvPBrewmasterAura        = 165692,
                 GlyphOfFreedomRoll              = 159534,
-                Roll                            = 109132
+                Roll                            = 109132,
+                GlyphofSpiritRoll               = 125154
             };
 
             bool Validate(SpellInfo const* /*spell*/)
@@ -3692,11 +3710,21 @@ class spell_monk_roll: public SpellScriptLoader
                 return true;
             }
 
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->isAlive() && !l_Caster->HasAura(eSpells::GlyphofSpiritRoll))
+                    return SPELL_FAILED_CASTER_DEAD;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleAfterCast()
             {
                 Unit* l_Caster = GetCaster();
 
-                l_Caster->CastSpell(l_Caster, SPELL_MONK_ROLL_TRIGGER);
+                l_Caster->CastSpell(l_Caster, SPELL_MONK_ROLL_TRIGGER, true);
                 Aura* aur = l_Caster->GetAura(SPELL_MONK_ROLL_TRIGGER);
                 if (!aur)
                     return;
@@ -3725,6 +3753,7 @@ class spell_monk_roll: public SpellScriptLoader
 
             void Register() override
             {
+                OnCheckCast += SpellCheckCastFn(spell_monk_roll_SpellScript::CheckCast);
                 if (this->m_scriptSpellId == eSpells::Roll)
                 {
                     AfterCast += SpellCastFn(spell_monk_roll_SpellScript::HandleAfterCast);
@@ -3733,7 +3762,7 @@ class spell_monk_roll: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_roll_SpellScript();
         }
@@ -3810,6 +3839,11 @@ class spell_monk_spinning_crane_kick: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_spinning_crane_kick_AuraScript);
 
+            enum eSpells
+            {
+                SpinningCraneKickEnergy = 129881
+            };
+
             void OnTick(AuraEffect const* /*p_AurEff*/)
             {
                 if (!GetCaster())
@@ -3837,15 +3871,85 @@ class spell_monk_spinning_crane_kick: public SpellScriptLoader
                 else
                     l_Player->CastCustomSpell(l_Player, SPELL_MONK_SPINNING_CRANE_KICK_HEAL, &l_Bp0, NULL, NULL, true);
             }
-            void Register()
+
+            void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit *l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                /// Generates 1 Chi if it hits at least 3 targets.
+                if (l_Caster->GetHelperCountNbNbTargets(GetSpellInfo()->Id) >= 3)
+                    l_Caster->CastSpell(l_Caster, eSpells::SpinningCraneKickEnergy, true);
+
+                l_Caster->CleanHelperCountNbTargets(GetSpellInfo()->Id);
+            }
+
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_spinning_crane_kick_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_monk_spinning_crane_kick_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_monk_spinning_crane_kick_AuraScript();
+        }
+};
+
+/// last update : 6.2.3
+/// Spinning Crane Kick (damage) - 107270, Spinning Crane Kick (heal) - 117640
+class spell_monk_spinning_crane_kick_targets : public SpellScriptLoader
+{
+    public:
+        spell_monk_spinning_crane_kick_targets() : SpellScriptLoader("spell_monk_spinning_crane_kick_targets") { }
+
+        class spell_monk_spinning_crane_kick_targets_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_spinning_crane_kick_targets_SpellScript);
+
+            enum eSpells
+            {
+                SpinningDamage      = 107270,
+                SpinningHeal        = 117640,
+                SpinningCraneKick   = 101546
+            };
+
+            void CountTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                for (WorldObject* l_Target : p_Targets)
+                {
+                    if (!l_Caster->GetHelperTargets(eSpells::SpinningCraneKick, l_Target->GetGUID()))
+                        l_Caster->AddHelperCountNbTargets(eSpells::SpinningCraneKick, l_Target->GetGUID());
+                }
+            }
+
+            void Register() override
+            {
+                switch (m_scriptSpellId)
+                {
+                    case eSpells::SpinningDamage:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_spinning_crane_kick_targets_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                        break;
+                    case eSpells::SpinningHeal:
+                        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_spinning_crane_kick_targets_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_monk_spinning_crane_kick_targets_SpellScript();
         }
 };
 
@@ -3869,6 +3973,73 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
     public:
         spell_monk_rushing_jade_wind() : SpellScriptLoader("spell_monk_rushing_jade_wind") { }
 
+        class spell_monk_rushing_jade_wind_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_rushing_jade_wind_SpellScript);
+
+            enum eNPC
+            {
+                Image1 = 69680,
+                Image2 = 69792,
+                Image3 = 69791
+            };
+
+            void HandleAfterCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_FirstSpirit = NULL;
+                Unit* l_SecondSpirit = NULL;
+
+                if (l_Player == nullptr)
+                    return;
+
+                for (Unit* l_Controlled : l_Player->m_Controlled) // Find spirits
+                {
+                    if (l_Controlled->GetEntry() == eNPC::Image1 || l_Controlled->GetEntry() == eNPC::Image2 || l_Controlled->GetEntry() == eNPC::Image3)
+                    {
+                        if (!l_FirstSpirit)
+                        {
+                            l_FirstSpirit = l_Controlled;
+                            continue;
+                        }
+                        if (!l_SecondSpirit)
+                        {
+                            l_SecondSpirit = l_Controlled;
+                            continue;
+                        }
+                    }
+                }
+
+                if (l_FirstSpirit && (l_FirstSpirit->getVictim()))
+                {
+                    if (!l_FirstSpirit->ToCreature()->HasSpellCooldown(GetSpellInfo()->Id))
+                    {
+                        l_FirstSpirit->CastSpell(l_FirstSpirit, GetSpellInfo()->Id, true);
+                        l_FirstSpirit->ToCreature()->_AddCreatureSpellCooldown(GetSpellInfo()->Id, time(nullptr) + 1);
+                    }
+                }
+
+                if (l_SecondSpirit && (l_SecondSpirit->getVictim()))
+                {
+                    if (!l_SecondSpirit->ToCreature()->HasSpellCooldown(GetSpellInfo()->Id))
+                    {
+                        l_SecondSpirit->CastSpell(l_SecondSpirit, GetSpellInfo()->Id, true);
+                        l_SecondSpirit->ToCreature()->_AddCreatureSpellCooldown(GetSpellInfo()->Id, time(nullptr) + 1);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_monk_rushing_jade_wind_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_monk_rushing_jade_wind_SpellScript();
+        }
+
         class spell_monk_rushing_jade_wind_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_monk_rushing_jade_wind_AuraScript);
@@ -3880,19 +4051,19 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
 
             void OnTick(AuraEffect const* /*aurEff*/)
             {
-                if (!GetCaster())
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
                     return;
 
-                Player* l_Player = GetCaster()->ToPlayer();
+                Player* l_Player = GetCaster()->GetSpellModOwner();
 
                 if (l_Player == nullptr || GetSpellInfo()->GetDuration() <= 0)
                     return;
 
-
                 if (!(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER && l_Player->HasAura(eSpells::StanceOfTheWiseSerpents)))
-                    l_Player->CastSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE, true);
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_RUSHING_JADE_WIND_DAMAGE, true);
                 else
-                    l_Player->CastSpell(l_Player, SPELL_MONK_RUSHING_JADE_WIND_HEAL, true);
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_RUSHING_JADE_WIND_HEAL, true);
             }
 
             void OnApply(AuraEffect const* /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3902,7 +4073,7 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                l_Caster->CleanRushingJadeWindTargets();
+                l_Caster->CleanHelperCountNbTargets(GetSpellInfo()->Id);
             }
 
             void OnRemove(AuraEffect const* p_AurEff, AuraEffectHandleModes /*mode*/)
@@ -3914,10 +4085,10 @@ class spell_monk_rushing_jade_wind: public SpellScriptLoader
                     return;
 
                 // Generates 1 Chi if it hits at least 3 targets.
-                if (l_Caster->GetRushingJadeWindNbTargets() >= 3)
+                if (l_Caster->GetHelperCountNbNbTargets(GetSpellInfo()->Id) >= 3)
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_SPINNING_CRANE_KICK, true);
 
-                l_Caster->CleanRushingJadeWindTargets();
+                l_Caster->CleanHelperCountNbTargets(GetSpellInfo()->Id);
             }
 
             void Register() override
@@ -3946,7 +4117,8 @@ class spell_monk_rushing_jade_wind_damage : public SpellScriptLoader
 
             enum eSpells
             {
-                RushingJadeWindAura = 116847
+                RushingJadeWindAura = 116847,
+                RushingJadeWind = 116847
             };
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
@@ -3958,14 +4130,14 @@ class spell_monk_rushing_jade_wind_damage : public SpellScriptLoader
 
                 for (WorldObject* l_Target: p_Targets)
                 {
-                    if (!l_Caster->GetRushingJadeWindTargets(l_Target->GetGUID()))
-                        l_Caster->AddRushingJadeWindTargets(l_Target->GetGUID());
+                    if (!l_Caster->GetHelperTargets(eSpells::RushingJadeWind, l_Target->GetGUID()))
+                        l_Caster->AddHelperCountNbTargets(eSpells::RushingJadeWind, l_Target->GetGUID());
                 }
             }
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
-                Player* l_Player = GetCaster()->ToPlayer();
+                Player* l_Player = GetCaster()->GetSpellModOwner();
                 Unit* l_Target = GetHitUnit();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(116847);
 
@@ -4013,7 +4185,8 @@ class spell_monk_rushing_jade_wind_heal : public SpellScriptLoader
 
             enum eSpells
             {
-                RushingJadeWindAura = 116847
+                RushingJadeWindAura = 116847,
+                RushingJadeWind = 116847
             };
 
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
@@ -4031,25 +4204,24 @@ class spell_monk_rushing_jade_wind_heal : public SpellScriptLoader
 
                 for (WorldObject* l_Target : p_Targets)
                 {
-                    if (!l_Caster->GetRushingJadeWindTargets(l_Target->GetGUID()))
-                        l_Caster->AddRushingJadeWindTargets(l_Target->GetGUID());
+                    if (!l_Caster->GetHelperTargets(eSpells::RushingJadeWind, l_Target->GetGUID()))
+                        l_Caster->AddHelperCountNbTargets(eSpells::RushingJadeWind, l_Target->GetGUID());
                 }
             }
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                if (Unit *l_Caster = GetCaster())
-                {
-                    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_RUSHING_JADE_WIND);
+                Unit* l_Caster = GetCaster();
+                Player* l_Player = l_Caster->GetSpellModOwner();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_MONK_RUSHING_JADE_WIND);
 
-                    if (l_SpellInfo == nullptr || l_SpellInfo->GetDuration() <= 0)
-                        return;
+                if (l_SpellInfo == nullptr || l_Player == nullptr || l_SpellInfo->GetDuration() <= 0)
+                    return;
 
-                    int l_Bp0 = (l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier) * 9;
-                    l_Bp0 /= ((l_SpellInfo->GetDuration() / IN_MILLISECONDS) / 0.8f);
+                int l_Bp0 = (l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier) * 9;
+                l_Bp0 /= ((l_SpellInfo->GetDuration() / IN_MILLISECONDS) / 0.8f);
 
-                    SetHitHeal(l_Bp0);
-                }
+                SetHitHeal(l_Bp0);
             }
 
             void Register() override
@@ -4107,7 +4279,7 @@ class spell_monk_fists_of_fury_damage : public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                int32 l_Damage = int32(8.84f * l_Low + 8.84f * l_High) / 2;
+                int32 l_Damage = int32(frand(8.84f * l_Low, 8.84f * l_High));
                 l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
@@ -4282,7 +4454,7 @@ class spell_monk_jab: public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                int32 l_Damage = int32(frand(1.15f * l_Low, 1.15f * l_High));
+                int32 l_Damage = int32(frand(1.38f * l_Low, 1.38f * l_High));
                 l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
@@ -4582,19 +4754,72 @@ class spell_monk_hurricane_strike : public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_hurricane_strike_SpellScript);
 
+            enum eNPC
+            {
+                Image1 = 69680,
+                Image2 = 69792,
+                Image3 = 69791
+            };
+
+            void HandleAfterCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_FirstSpirit = NULL;
+                Unit* l_SecondSpirit = NULL;
+
+                if (l_Player == nullptr)
+                    return;
+
+                for (Unit* l_Controlled : l_Player->m_Controlled) // Find spirits
+                {
+                    if (l_Controlled->GetEntry() == eNPC::Image1 || l_Controlled->GetEntry() == eNPC::Image2 || l_Controlled->GetEntry() == eNPC::Image3)
+                    {
+                        if (!l_FirstSpirit)
+                        {
+                            l_FirstSpirit = l_Controlled;
+                            continue;
+                        }
+                        if (!l_SecondSpirit)
+                        {
+                            l_SecondSpirit = l_Controlled;
+                            continue;
+                        }
+                    }
+                }
+
+                if (l_FirstSpirit && (l_FirstSpirit->getVictim()))
+                {
+                    if (!l_FirstSpirit->ToCreature()->HasSpellCooldown(GetSpellInfo()->Id))
+                    {
+                        l_FirstSpirit->CastSpell(l_FirstSpirit, GetSpellInfo()->Id, true);
+                        l_FirstSpirit->ToCreature()->_AddCreatureSpellCooldown(GetSpellInfo()->Id, time(nullptr) + 1);
+                    }
+                }
+
+                if (l_SecondSpirit && (l_SecondSpirit->getVictim()))
+                {
+                    if (!l_SecondSpirit->ToCreature()->HasSpellCooldown(GetSpellInfo()->Id))
+                    {
+                        l_SecondSpirit->CastSpell(l_SecondSpirit, GetSpellInfo()->Id, true);
+                        l_SecondSpirit->ToCreature()->_AddCreatureSpellCooldown(GetSpellInfo()->Id, time(nullptr) + 1);
+                    }
+                }
+            }
+
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
                     l_Caster->CastSpell(l_Caster, SPELL_MONK_HURRICANE_STRIKE_DAMAGE, true);
             }
 
-            void Register()
+            void Register() override
             {
+                AfterCast += SpellCastFn(spell_monk_hurricane_strike_SpellScript::HandleAfterCast);
                 OnHit += SpellHitFn(spell_monk_hurricane_strike_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_hurricane_strike_SpellScript();
         }
@@ -4658,7 +4883,7 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 AfterHit += SpellHitFn(spell_monk_hurricane_strike_damage_SpellScript::HandleAfterHit);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_hurricane_strike_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
@@ -4666,7 +4891,7 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_hurricane_strike_damage_SpellScript();
         }
@@ -4889,12 +5114,10 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
-                if (!GetCaster())
-                    return;
-
                 float l_Low = 0;
                 float l_High = 0;
 
+                Unit* l_Caster = GetCaster();
                 Player* l_Player = GetCaster()->GetSpellModOwner();
                 Unit* l_Target = GetHitUnit();
 
@@ -4904,7 +5127,7 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER)
-                    l_Player->CastSpell(l_Target, SPELL_MONK_MORTEL_WOUNDS, true);
+                    l_Caster->CastSpell(l_Target, SPELL_MONK_MORTEL_WOUNDS, true);
 
                 int32 l_Bp = int32(frand(11.0f * l_Low, 11.0f * l_High));
 
@@ -4914,18 +5137,18 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 SetHitDamage(l_Bp);
 
                 /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
-                l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
+                l_Caster->CastSpell(l_Caster, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
 
             }
 
-            void Register()
+            void Register() override
             {
                 AfterCast += SpellCastFn(spell_monk_rising_sun_kick_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_rising_sun_kick_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_monk_rising_sun_kick_SpellScript();
         }
@@ -6053,9 +6276,87 @@ class spell_monk_gift_of_the_serpent : public SpellScriptLoader
         }
 };
 
+
+/// Last Update 6.2.3
+/// Hurricane Strike - 123986
+class spell_monk_chi_burst_cast : public SpellScriptLoader
+{
+    public:
+        spell_monk_chi_burst_cast() : SpellScriptLoader("spell_monk_chi_burst_cast") { }
+
+        class spell_monk_chi_burst_cast_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_chi_burst_cast_SpellScript);
+
+            enum eNPC
+            {
+                Image1 = 69680,
+                Image2 = 69792,
+                Image3 = 69791
+            };
+
+            void HandleAfterCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_FirstSpirit = NULL;
+                Unit* l_SecondSpirit = NULL;
+
+                if (l_Player == nullptr)
+                    return;
+
+                for (Unit* l_Controlled : l_Player->m_Controlled) /// Find spirits
+                {
+                    if (l_Controlled->GetEntry() == eNPC::Image1 || l_Controlled->GetEntry() == eNPC::Image2 || l_Controlled->GetEntry() == eNPC::Image3)
+                    {
+                        if (!l_FirstSpirit)
+                        {
+                            l_FirstSpirit = l_Controlled;
+                            continue;
+                        }
+                        if (!l_SecondSpirit)
+                        {
+                            l_SecondSpirit = l_Controlled;
+                            continue;
+                        }
+                    }
+                }
+
+                if (l_FirstSpirit && (l_FirstSpirit->getVictim()))
+                {
+                    if (!l_FirstSpirit->ToCreature()->HasSpellCooldown(GetSpellInfo()->Id))
+                    {
+                        l_FirstSpirit->CastSpell(l_FirstSpirit, GetSpellInfo()->Id, true);
+                        l_FirstSpirit->ToCreature()->_AddCreatureSpellCooldown(GetSpellInfo()->Id, time(nullptr) + 1);
+                    }
+                }
+
+                if (l_SecondSpirit && (l_SecondSpirit->getVictim()))
+                {
+                    if (!l_SecondSpirit->ToCreature()->HasSpellCooldown(GetSpellInfo()->Id))
+                    {
+                        l_SecondSpirit->CastSpell(l_SecondSpirit, GetSpellInfo()->Id, true);
+                        l_SecondSpirit->ToCreature()->_AddCreatureSpellCooldown(GetSpellInfo()->Id, time(nullptr) + 1);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_monk_chi_burst_cast_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_monk_chi_burst_cast_SpellScript();
+        }
+};
+
 #ifndef __clang_analyzer__
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_spinning_crane_kick_targets();
+    new spell_monk_chi_burst_cast();
     new spell_monk_gift_of_the_serpent();
     new spell_monk_serenity();
     new spell_monk_breath_of_the_serpent_tick();

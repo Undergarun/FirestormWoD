@@ -48,8 +48,9 @@ namespace MS { namespace Garrison
     /// Herbs game object entries
     extern std::vector<uint32> g_AllyHerbsGobsEntry;
 
-    /// FarmSimulator/GoatSimulator positions
+    /// Farm positions
     extern std::vector<GatheringPlotInfos> g_AllyHerbGardenFlowerPlot;
+    extern std::vector<SequencePosition> g_AllianceTreeFruitsPosition;
 
     //////////////////////////////////////////////////////////////////////////
     /// 85514 - Olly Nimkip                                                ///
@@ -71,7 +72,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     /// 85344 - Naron Bloomthistle                                         ///
     //////////////////////////////////////////////////////////////////////////
-    class npc_NaronBloomthistleAI : public GatheringBuildingMaster<&g_AllyHerbGardenFlowerPlot>
+    class npc_NaronBloomthistleAI : public GatheringBuildingMaster<&g_AllyHerbGardenFlowerPlot, &g_AllianceTreeFruitsPosition>
     {
         public:
             /// Constructor
@@ -113,13 +114,6 @@ namespace MS { namespace Garrison
             /// @p_Player     : Source player instance
             /// @p_Creature   : Target GameObject instance
             virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
-
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
     };
 

@@ -599,7 +599,7 @@ struct Position
     float GetRelativeAngle(const Position* pos) const
         { return GetAngle(pos) - m_orientation; }
     float GetRelativeAngle(float x, float y) const { return GetAngle(x, y) - m_orientation; }
-    void GetSinCos(float x, float y, float &vsin, float &vcos) const;
+    void GetSinCos(float x, float y, float &vsin, float &vcos, Unit* p_Caster = nullptr) const;
 
     bool IsInDist2d(float x, float y, float dist) const
         { return GetExactDist2dSq(x, y) < dist * dist; }
@@ -866,6 +866,7 @@ class WorldObject : public Object, public WorldLocation
 
         void GetNearPoint2D(float &x, float &y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* p_Searcher, float &p_InOutX, float &p_InOutY, float &p_InOutZ, float p_SearcherSize, float p_Distance2D, float p_AbsAngle) const;
+        void GetNearPoint(Position& p_Pos, float p_SearcherSize, float p_Distance2D, float p_AbsAngle) const;
         void GetClosePoint(float &x, float &y, float &z, float size, float distance2d = 0, float angle = 0) const
         {
             // angle calculated from current orientation
@@ -948,6 +949,12 @@ class WorldObject : public Object, public WorldLocation
             float d = GetExactDist(x, y, z) - GetObjectSize();
             return d > 0.0f ? d : 0.0f;
         }
+        float GetDistance(WorldLocation const* p_Loc) const
+        {
+            Position const l_Pos = { p_Loc->m_positionX, p_Loc->m_positionY, p_Loc->m_positionZ, p_Loc->m_orientation };
+
+            return GetDistance(l_Pos);
+        }
         float GetDistance2d(const WorldObject* obj) const
         {
             float d = GetExactDist2d(obj) - GetObjectSize() - obj->GetObjectSize();
@@ -971,6 +978,10 @@ class WorldObject : public Object, public WorldLocation
             if (obj)
                 return IsInWorld() && obj->IsInWorld() && (GetMap() == obj->GetMap());
             return false;
+        }
+        bool IsInPhase(WorldObject const* p_Object) const
+        {
+            return InSamePhase(p_Object->GetPhaseMask());
         }
         bool IsWithinDist3d(float x, float y, float z, float dist) const
             { return IsInDist(x, y, z, dist + GetObjectSize()); }

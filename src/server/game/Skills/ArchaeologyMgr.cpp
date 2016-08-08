@@ -265,7 +265,7 @@ namespace MS { namespace Skill { namespace Archaeology
             return;
 
         ProjectsSetMap l_CandidatesProjectListPerBranch;
-        uint32 l_ProjectBaseChance = l_CurrentSkillValue / 10;
+        uint32 l_ProjectBaseChance = l_CurrentSkillValue / 28;
 
         for (std::set<ResearchProjectEntry const*>::const_iterator l_It = sResearchProjectSet.begin(); l_It != sResearchProjectSet.end(); ++l_It)
         {
@@ -561,9 +561,9 @@ namespace MS { namespace Skill { namespace Archaeology
 
             PropagateResearchSites();
         }
-        else
+        if (l_DigSite.SiteLootCount >= l_DigSite.SiteMaxLootCount)
         {
-            SendArchaeologySurveryCast(true, (l_DigSite.SiteLootCount + 1), l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
+            SendArchaeologySurveryCast(false, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
             l_DigSite.Reset();
             UseResearchSite(l_ResearchSiteID);
         }
@@ -682,24 +682,8 @@ namespace MS { namespace Skill { namespace Archaeology
         m_Player->UpdateSkill(SKILL_ARCHAEOLOGY, l_ResearchProjectEntry->rare ? 15 : 5);
 
         // Add new project
-        ProjectSet l_CandidateProjectsListPerBranch;
-        uint32 l_Chance = l_SkillValue / 10;
+        GenerateResearchProjects();
 
-        for (std::set<ResearchProjectEntry const*>::const_iterator l_It = sResearchProjectSet.begin(); l_It != sResearchProjectSet.end(); ++l_It)
-        {
-            if ((*l_It)->branchId == l_ResearchProjectEntry->branchId)
-            {
-                if (((*l_It)->rare && !roll_chance_i(l_Chance)))
-                    continue;
-
-                l_CandidateProjectsListPerBranch.insert((*l_It)->ID);
-            }
-        }
-
-        m_ResearchProjects.insert(JadeCore::Containers::SelectRandomContainerElement(l_CandidateProjectsListPerBranch));
-        _archaeologyChanged = true;
-
-        PropagateResearchProjects();
         return true;
     }
 
@@ -1003,7 +987,7 @@ namespace MS { namespace Skill { namespace Archaeology
         p_Site.LootGameObjectX = l_It->x;
         p_Site.LootGameObjectY = l_It->y;
         p_Site.LootGameObjectZ = l_It->z;
-        p_Site.SiteMaxLootCount = l_LootList.size();
+        p_Site.SiteMaxLootCount = 3; ///< http://wow.gamepedia.com/Archaeology#Archaeological_dig_sites
 
         return true;
     }

@@ -13,6 +13,7 @@
 #include "ScriptedGossip.h"
 #include "GameObjectAI.h"
 #include "Spell.h"
+#include "GarrisonNPCAI.hpp"
 #include "../GarrisonScriptData.hpp"
 
 namespace MS { namespace Garrison { namespace Sites
@@ -293,6 +294,23 @@ namespace MS { namespace Garrison { namespace Sites
                         if (Item* l_Item = p_Owner->GetItemByEntry(Items::ItemImprovedIronTrap))
                             p_Owner->RemoveItem(l_Item->GetBagSlot(), l_Item->GetSlot(), true);
                         break;
+                    case Building::ID::LunarfallExcavation_FrostwallMines_Level1:
+                    case Building::ID::LunarfallExcavation_FrostwallMines_Level2:
+                    case Building::ID::LunarfallExcavation_FrostwallMines_Level3:
+                    {
+                        std::vector<uint64> l_CreatureGuids = l_GarrisonMgr->GetBuildingCreaturesByBuildingType(Building::Type::Inn);
+
+                        for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
+                        {
+                            if (Creature* l_Creature = sObjectAccessor->GetCreature(*p_Owner, *l_Itr))
+                            {
+                                if (GarrisonNPCAI* l_AI = l_Creature->ToGarrisonNPCAI())
+                                    l_AI->OnDailyDataReset();
+                            }
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }

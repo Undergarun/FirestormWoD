@@ -5229,6 +5229,92 @@ class spell_item_Plans_Balanced_Trillium_Ingot_and_Its_Uses : public SpellScript
         }
 };
 
+/// Loot-A-Rang - 84342  
+class spell_item_loot_a_rang : public SpellScriptLoader
+{
+    public:
+        spell_item_loot_a_rang() : SpellScriptLoader("spell_item_loot_a_rang") { }
+
+        class spell_item_loot_a_rang_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_loot_a_rang_SpellScript);
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster || !l_Caster->IsPlayer())
+                    return;
+
+                SpellInfo const* l_SpellInfo = GetSpellInfo();
+                if (!l_SpellInfo)
+                    return;
+
+                float l_Radius = l_SpellInfo->Effects[EFFECT_0].RadiusEntry->radiusHostile;
+
+                std::list<Creature*> l_CreatureList;
+                CellCoord l_CellCoord(JadeCore::ComputeCellCoord(l_Caster->GetPositionX(), l_Caster->GetPositionY()));
+                Cell l_Cell(l_CellCoord);
+                l_Cell.SetNoCreate();
+
+                JadeCore::AllDeadCreaturesInRange l_Check(l_Caster, l_Radius, 0);
+                JadeCore::CreatureListSearcher<JadeCore::AllDeadCreaturesInRange> l_Searcher(l_Caster, l_CreatureList, l_Check);
+                TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllDeadCreaturesInRange>, GridTypeMapContainer> l_CellSearcher(l_Searcher);
+                l_Cell.Visit(l_CellCoord, l_CellSearcher, *(l_Caster->GetMap()), *l_Caster, l_Radius);
+
+                if (l_CreatureList.empty())
+                    return;
+
+                l_Caster->ToPlayer()->SendLoot((*l_CreatureList.begin())->GetGUID(), LootType::LOOT_CORPSE, true, l_Radius);
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_item_loot_a_rang_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_loot_a_rang_SpellScript();
+        }
+};
+
+/// Last Update 6.2.3
+/// Throw Pigskin - 132480, Kick Foot Ball - 132563
+class spell_item_throw_pigskin : public SpellScriptLoader
+{
+    public:
+        spell_item_throw_pigskin() : SpellScriptLoader("spell_item_throw_pigskin") { }
+
+        class spell_item_throw_pigskin_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_throw_pigskin_SpellScript);
+
+            void HandleDummy()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_OriginCaster = GetOriginalCaster();
+                Unit* l_Target = GetHitUnit();
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->GetGUID() == l_OriginCaster->GetGUID())
+                    l_Target->CastCustomSpell(l_Caster, GetSpellInfo()->Id, NULL, NULL, NULL, true, NULL, nullptr, l_Caster->GetGUID());
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_item_throw_pigskin_SpellScript::HandleDummy);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_throw_pigskin_SpellScript();
+        }
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_item_spell_scripts()
 {
@@ -5246,6 +5332,7 @@ void AddSC_item_spell_scripts()
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
     new spell_item_deviate_fish();
     new spell_item_Swapblaster();
+    new spell_item_throw_pigskin();
     new spell_item_super_simian_sphere();
     new spell_item_the_perfect_blossom();
     new spell_item_mystic_image();
@@ -5337,5 +5424,6 @@ void AddSC_item_spell_scripts()
     new spell_item_hypnotize_critter();
     new spell_item_enduring_elixir_of_wisdom();
     new spell_item_Plans_Balanced_Trillium_Ingot_and_Its_Uses();
+    new spell_item_loot_a_rang();
 }
 #endif

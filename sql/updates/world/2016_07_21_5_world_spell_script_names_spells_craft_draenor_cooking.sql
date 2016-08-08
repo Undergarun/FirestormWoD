@@ -1,0 +1,25 @@
+DELETE FROM spell_script_names WHERE spell_id IN (161001, 160962, 160968, 160971, 160981, 160982, 160978, 160958, 160966, 160969, 160983, 160973, 160979, 160986, 160999, 160987, 161000, 160989, 160984, 173978, 173979, 161002) AND ScriptName != "spell_Cooking_DraenorRecipesRewards";
+
+INSERT INTO spell_script_names VALUES
+(161002,"spell_Skill_Cooking_GrilledSaberfish"),
+(161001,"spell_Skill_Cooking_SaberfishBroth"),
+(160962,"spell_Skill_Cooking_BlackrockHam"),
+(160968,"spell_Skill_Cooking_BraisedRiverBeast"),
+(160971,"spell_Skill_Cooking_ClefhoofSausages"),
+(160981,"spell_Skill_Cooking_FatSleeperCakes"),
+(160982,"spell_Skill_Cooking_FieryCalamari"),
+(160978,"spell_Skill_Cooking_GrilledGulper"),
+(160958,"spell_Skill_Cooking_HeartyElekkSteak"),
+(160966,"spell_Skill_Cooking_PanSearedTalbuk"),
+(160969,"spell_Skill_Cooking_RylakCrepes"),
+(160983,"spell_Skill_Cooking_SkulkerChowder"),
+(160973,"spell_Skill_Cooking_SteamedScorpion"),
+(160979,"spell_Skill_Cooking_SturgeonStew"),
+(160986,"spell_Skill_Cooking_BlackrockBarbecue"),
+(160999,"spell_Skill_Cooking_CalamariCrepes"),
+(160987,"spell_Skill_Cooking_FrostyStew"),
+(161000,"spell_Skill_Cooking_GrogrondChowder"),
+(160989,"spell_Skill_Cooking_SleeperSurprise"),
+(160984,"spell_Skill_Cooking_TaladorSurfAndTurf"),
+(173978,"spell_Skill_Cooking_FeastOfBlood"),
+(173979,"spell_Skill_Cooking_FeastOfTheWaters");

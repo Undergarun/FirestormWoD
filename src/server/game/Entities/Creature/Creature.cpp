@@ -240,7 +240,7 @@ void Creature::SearchFormation()
         sFormationMgr->AddCreatureToGroup(frmdata->second->leaderGUID, this);
 }
 
-void Creature::RemoveCorpse(bool setSpawnTime)
+void Creature::RemoveCorpse(bool setSpawnTime, bool p_HomePosAsRespawn /*= false*/)
 {
     if (getDeathState() != CORPSE)
         return;
@@ -259,7 +259,12 @@ void Creature::RemoveCorpse(bool setSpawnTime)
         m_respawnTime = time(NULL) + respawnDelay;
 
     float x, y, z, o;
-    GetRespawnPosition(x, y, z, &o);
+
+    if (p_HomePosAsRespawn)
+        GetHomePosition(x, y, z, o);
+    else
+        GetRespawnPosition(x, y, z, &o);
+
     SetHomePosition(x, y, z, o);
     GetMap()->CreatureRelocation(this, x, y, z, o);
 }
@@ -1944,7 +1949,7 @@ void Creature::setDeathState(DeathState s)
     }
 }
 
-void Creature::Respawn(bool force)
+void Creature::Respawn(bool force, bool p_HomePosAsRespawn /*= false*/, uint32 p_RespawnTime /*= 2 * TimeConstants::IN_MILLISECONDS*/)
 {
     if (m_NeedRespawn)
         return;
@@ -1959,16 +1964,17 @@ void Creature::Respawn(bool force)
             setDeathState(CORPSE);
     }
 
-    RemoveCorpse(false);
+    RemoveCorpse(false, p_HomePosAsRespawn);
 
     UpdateObjectVisibility();
 
     if (!m_NeedRespawn)
     {
         m_NeedRespawn = true;
-        m_RespawnFrameDelay = 2000;
+        m_RespawnFrameDelay = p_RespawnTime;
     }
 }
+
 void Creature::DoRespawn()
 {
     if (getDeathState() == DEAD)
@@ -2072,6 +2078,17 @@ void Creature::DespawnCreaturesInArea(std::vector<uint32> p_Entry, float p_Range
 
     for (std::list<Creature*>::iterator l_Itr = l_CreatureList.begin(); l_Itr != l_CreatureList.end(); ++l_Itr)
         (*l_Itr)->DespawnOrUnsummon();
+}
+
+void Creature::DespawnGameObjectsInArea(std::vector<uint32> p_Entries, float p_Range /*= 100.0f*/)
+{
+    std::list<GameObject*> l_GoList;
+
+    for (uint32 l_Entry : p_Entries)
+        GetGameObjectListWithEntryInGrid(l_GoList, l_Entry, p_Range);
+
+    for (GameObject* l_Go : l_GoList)
+        l_Go->Delete();
 }
 
 void Creature::DespawnAreaTriggersInArea(std::vector<uint32> p_SpellIDs, float p_Range)

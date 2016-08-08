@@ -166,8 +166,9 @@ namespace MS { namespace Garrison
 
     /// FarmSimulator/GoatSimulator positions
     extern std::vector<GatheringPlotInfos> g_MineDeposits;
+    extern std::vector<SequencePosition> g_PlaceholderHordeVector;
 
-    class npc_GorsolAI : public GatheringBuildingMaster<&g_MineDeposits>
+    class npc_GorsolAI : public GatheringBuildingMaster<&g_MineDeposits, &g_PlaceholderHordeVector>
     {
         public:
             /// Constructor
@@ -195,7 +196,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI* GetAI(Creature * p_Creature) const override;
+            CreatureAI* GetAI(Creature* p_Creature) const override;
 
             /// Called when a player opens a gossip dialog with the GameObject.
             /// @p_Player     : Source player instance

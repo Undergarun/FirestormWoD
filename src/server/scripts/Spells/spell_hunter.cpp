@@ -1402,6 +1402,10 @@ class spell_hun_glaive_toss_damage: public SpellScriptLoader
             PrepareSpellScript(spell_hun_glaive_toss_damage_SpellScript);
 
             uint64 mainTargetGUID = 0;
+            enum eSpells
+            {
+                GlaiveLeft = 120761
+            };
 
             void CorrectRange(std::list<WorldObject*>& p_Targets)
             {
@@ -1440,11 +1444,15 @@ class spell_hun_glaive_toss_damage: public SpellScriptLoader
                     if (p_Object->ToUnit() && !l_Caster->IsValidAttackTarget(p_Object->ToUnit()))
                         return true;
 
+                    if (l_MainTarget->GetGUID() == p_Object->GetGUID() && GetSpellInfo()->Id != eSpells::GlaiveLeft)
+                        return true;
+
                     if (p_Object->GetGUID() == l_MainTarget->GetGUID())
                         return false;
 
                     if (p_Object->IsInElipse(l_Caster, l_MainTarget, 7.0f, 4.0f))
                         return false;
+
                     return true;
                 });
             }
@@ -1452,14 +1460,18 @@ class spell_hun_glaive_toss_damage: public SpellScriptLoader
             void OnDamage()
             {
                 Unit* l_Target = GetHitUnit();
+                Unit* l_Caster = GetCaster();
 
                 if (!mainTargetGUID || l_Target == nullptr)
                     return;
 
                 Unit* l_MainTarget = ObjectAccessor::FindUnit(mainTargetGUID);
 
-                if (l_MainTarget != nullptr && l_MainTarget->GetGUID() == l_Target->GetGUID())
-                    SetHitDamage(GetHitDamage() * 4);
+                if (l_MainTarget != nullptr)
+                {
+                    if (l_MainTarget->GetGUID() == l_Target->GetGUID() && GetSpellInfo()->Id == eSpells::GlaiveLeft)
+                        SetHitDamage(GetHitDamage() * 4);
+                }
             }
 
             void Register()
@@ -1670,7 +1682,7 @@ class spell_hun_dire_beast: public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2
+/// last update : 6.2.3
 /// A Murder of Crows - 131894
 class spell_hun_a_murder_of_crows: public SpellScriptLoader
 {
@@ -1683,9 +1695,10 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
 
             enum eSpells
             {
-                FreezingTrap = 3355,
-                MurderOfCrowsVisualFirst = 131951,
-                MurderOfCrowsVisualSecond = 131952
+                FreezingTrap                = 3355,
+                MurderOfCrowsVisualFirst    = 131951,
+                MurderOfCrowsVisualSecond   = 131952,
+                SpellGlyphOfSolace          = 119407
             };
 
             void OnTick(AuraEffect const* p_AurEff)
@@ -1694,6 +1707,9 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
                 Unit* l_Target = GetTarget();
 
                 if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::SpellGlyphOfSolace))
                     return;
 
                 /// Visual effect
@@ -1709,7 +1725,7 @@ class spell_hun_a_murder_of_crows: public SpellScriptLoader
                 else
                     p_AurEff->GetBase()->Remove();
 
-                if (l_Target->HasAura(eSpells::FreezingTrap))
+                if (l_Target->HasAura(eSpells::FreezingTrap) && !l_Caster->HasAura(eSpells::SpellGlyphOfSolace))
                     l_Target->RemoveAura(eSpells::FreezingTrap);
             }
 
@@ -4328,21 +4344,130 @@ class spell_hun_focusing_shot : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_hun_focusing_shot_SpellScript::HandleOnHit);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_hun_focusing_shot_SpellScript();
         }
 };
 
+/// last update : 6.2.3
+/// Invigoration - 53253
+class spell_hun_invigoration : public SpellScriptLoader
+{
+    public:
+        spell_hun_invigoration() : SpellScriptLoader("spell_hun_invigoration") { }
+
+        class spell_hun_invigoration_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_invigoration_AuraScript);
+
+            enum eSpells
+            {
+                InvigorationAura = 53397
+            };
+
+            void OnApply(AuraEffect const*, AuraEffectHandleModes)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpells::InvigorationAura, true);
+            }
+
+            void OnRemove(AuraEffect const*, AuraEffectHandleModes)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveAura(eSpells::InvigorationAura);
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_hun_invigoration_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_hun_invigoration_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_invigoration_AuraScript();
+        }
+};
+
+/// last update : 6.2.3
+/// Invigoration (proc) - 53397
+class spell_hun_invigoration_proc : public SpellScriptLoader
+{
+    public:
+        spell_hun_invigoration_proc() : SpellScriptLoader("spell_hun_invigoration_proc") { }
+
+        class spell_hun_invigoration_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_invigoration_proc_AuraScript);
+
+            enum eSpells
+            {
+                InvigorationEnergize = 34953
+            };
+
+            void OnProc(AuraEffect const* p_AurEff, ProcEventInfo& p_ProcEventInfo)
+            {
+                PreventDefaultAction();
+
+                if (p_ProcEventInfo.GetDamageInfo() == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfoTriggerSpell = p_ProcEventInfo.GetDamageInfo()->GetSpellInfo();
+
+                if (l_Caster == nullptr  || l_SpellInfoTriggerSpell == nullptr)
+                    return;
+
+                if (!(p_ProcEventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                Pet* l_Pet = l_Player->GetPet();
+
+                if (l_Pet == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Pet, eSpells::InvigorationEnergize, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_invigoration_proc_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_invigoration_proc_AuraScript();
+        }
+};
+
+
 #ifndef __clang_analyzer__
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_invigoration_proc();
+    new spell_hun_invigoration();
     new spell_hun_focusing_shot();
     new spell_hun_camouflage_visual();
     new spell_hun_camouflage();

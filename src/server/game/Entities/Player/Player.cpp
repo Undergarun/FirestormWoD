@@ -1723,8 +1723,8 @@ void Player::Update(uint32 p_time)
                         m_swingErrorMsg = 1;
                     }
                 }
-                //120 degrees of radiant range
-                else if (l_MustCheckO && !HasInArc(2 * M_PI / 3, victim))
+                //120 degrees of radiant range, if player is not in boundary radius
+                else if (!IsWithinBoundaryRadius(victim) && l_MustCheckO && !HasInArc(2 * M_PI / 3, victim))
                 {
                     setAttackTimer(WeaponAttackType::BaseAttack, 100);
                     if (m_swingErrorMsg != 2)               // send single time (client auto repeat)
@@ -1786,7 +1786,7 @@ void Player::Update(uint32 p_time)
             {
                 if (!IsWithinMeleeRange(victim) && !HasAuraType(SPELL_AURA_OVERRIDE_AUTO_ATTACKS_BY_SPELL))
                     setAttackTimer(WeaponAttackType::OffAttack, 100);
-                else if (l_MustCheckO && !HasInArc(2 * M_PI / 3, victim))
+                else if (!IsWithinBoundaryRadius(victim) && l_MustCheckO && !HasInArc(2 * M_PI / 3, victim))
                     setAttackTimer(WeaponAttackType::OffAttack, 100);
                 else
                 {
@@ -2224,6 +2224,31 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
             l_CharacterPetDisplayId = l_Fields[17].GetUInt32();
             l_CharacterPetLevel     = l_Fields[18].GetUInt16();
             l_CharacterPetFamily    = l_CreatureTemplate->family;
+        }
+    }
+
+    if (l_CharacterLoginFlags & AT_LOGIN_CHANGE_RESET_FACTION_DATA)
+    {
+        PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_TITLES_FACTION_CHANGE);
+        l_Stmt->setUInt32(0, l_Fields[0].GetUInt32());
+        PreparedQueryResult l_Result = CharacterDatabase.Query(l_Stmt);
+
+        if (l_Result)
+        {
+            uint32 l_TitleID = l_Result->Fetch()[0].GetUInt32();
+
+            if (CharTitlesEntry const* l_TitleEntry = sCharTitlesStore.LookupEntry(l_TitleID))
+            {
+                char const* l_TitleName = l_TitleEntry->NameLang;
+
+                Player::HandleFactionChangeActions(l_TitleName, l_CharacterGuid, l_CharacterRace);
+                Player::RemoveAtLoginFlagFromDB(l_Fields[0].GetUInt32(), AtLoginFlags(l_CharacterLoginFlags));
+            }
+            else
+            {
+                Player::HandleFactionChangeActions(nullptr, l_CharacterGuid, l_CharacterRace);
+                Player::RemoveAtLoginFlagFromDB(l_Fields[0].GetUInt32(), AtLoginFlags(l_CharacterLoginFlags));
+            }
         }
     }
 
@@ -4200,6 +4225,13 @@ void Player::GiveLevel(uint8 level)
     uint8 oldLevel = getLevel();
     if (level == oldLevel)
         return;
+
+    /// Reset MMR values
+    for (uint8 l_I = 0; l_I < ArenaSlots::MAX_PVP_SLOT; ++l_I)
+    {
+        SetArenaPersonalRating(l_I, sWorld->getIntConfig(WorldIntConfigs::CONFIG_ARENA_START_PERSONAL_RATING));
+        SetArenaMatchMakerRating(l_I, sWorld->getIntConfig(WorldIntConfigs::CONFIG_ARENA_START_MATCHMAKER_RATING));
+    }
 
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(getRace(), getClass(), level, &info);
@@ -9193,6 +9225,16 @@ void Player::RewardReputation(Unit* p_Victim, float p_Rate)
     }
 }
 
+void Player::RewardSkill(Quest const* p_Quest)
+{
+    uint32 l_SkillID = p_Quest->GetRewardSkillId();
+    uint32 l_RewardSkillPoints = p_Quest->GetRewardSkillPoints();
+    if (!l_SkillID || !l_RewardSkillPoints)
+        return;
+
+    UpdateSkillPro(l_SkillID, 1000, l_RewardSkillPoints);
+}
+
 //Calculate how many reputation points player gain with the quest
 void Player::RewardReputation(Quest const* p_Quest)
 {
@@ -11783,7 +11825,7 @@ void Player::SendLootRelease(uint64 p_LootGuid)
     SendDirectMessage(&data);
 }
 
-void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
+void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot, float p_Radius)
 {
     if (uint64 l_Guid = GetLootGUID())
         m_session->DoLootRelease(l_Guid);
@@ -12032,10 +12074,10 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
                 Cell l_Cell(l_CellCoord);
                 l_Cell.SetNoCreate();
 
-                JadeCore::AllDeadCreaturesInRange l_Check(this, 25.0f, l_Creature->GetGUID());
+                JadeCore::AllDeadCreaturesInRange l_Check(this, p_Radius, l_Creature->GetGUID());
                 JadeCore::CreatureListSearcher<JadeCore::AllDeadCreaturesInRange> l_Searcher(this, l_LinkedCreatures, l_Check);
                 TypeContainerVisitor<JadeCore::CreatureListSearcher<JadeCore::AllDeadCreaturesInRange>, GridTypeMapContainer> l_CellSearcher(l_Searcher);
-                l_Cell.Visit(l_CellCoord, l_CellSearcher, *(GetMap()), *this, 25.0f);
+                l_Cell.Visit(l_CellCoord, l_CellSearcher, *(GetMap()), *this, p_Radius);
             }
 
             uint32 l_MaxSlots = l_Loot->Items.size() + l_Loot->QuestItems.size();
@@ -15853,7 +15895,7 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
     if (pItem)
     {
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 0, pItem->GetVisibleEntry());
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 0, pItem->GetAppearanceModID());
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 0, pItem->GetVisibleAppearanceModID());
         SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 2) + 1, 1, pItem->GetVisibleItemVisual());
     }
     else
@@ -19108,6 +19150,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
 
     RewardReputation(p_Quest);
     RewardGuildReputation(p_Quest);
+    RewardSkill(p_Quest);
 
     uint16 log_slot = FindQuestSlot(l_QuestId);
     if (log_slot < MAX_QUEST_LOG_SIZE)
@@ -20594,8 +20637,8 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
     data << uint32(questId);
     data << uint32(xp);
     data << uint32(quest->GetRewardSkillId());             ///< Bonus skill id
-    data << uint32(quest->GetRewardSkillPoints());         ///< Bonus skill points
     data << uint32(quest->GetBonusTalents());              ///< Bonus talents
+    data << uint32(quest->GetRewardSkillPoints());         ///< Bonus skill points
     data << uint32(moneyReward);
 
     data << uint32(0);
@@ -22065,8 +22108,8 @@ void Player::_LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEf
             uint64 caster_guid = fields[0].GetUInt64();
             uint8 slot = fields[1].GetUInt8();
             uint32 spellid = fields[2].GetUInt32();
-            uint32 effmask = fields[3].GetUInt8();
-            uint32 recalculatemask = fields[4].GetUInt8();
+            uint32 effmask = fields[3].GetUInt32();
+            uint32 recalculatemask = fields[4].GetUInt32();
             uint8 stackcount = fields[5].GetUInt8();
             int32 maxduration = fields[6].GetInt32();
             int32 remaintime = fields[7].GetInt32();
@@ -24091,8 +24134,8 @@ void Player::_SaveAuras(SQLTransaction& trans)
         stmt->setUInt64(index++, itr->second->GetCasterGUID());
         stmt->setUInt64(index++, itr->second->GetCastItemGUID());
         stmt->setUInt32(index++, itr->second->GetId());
-        stmt->setUInt8(index++, effMask);
-        stmt->setUInt8(index++, recalculateMask);
+        stmt->setUInt32(index++, effMask);
+        stmt->setUInt32(index++, recalculateMask);
         stmt->setUInt8(index++, itr->second->GetStackAmount());
         stmt->setInt32(index++, itr->second->GetMaxDuration());
         stmt->setInt32(index++, itr->second->GetDuration());
@@ -28715,6 +28758,34 @@ void Player::ResetDailyGarrisonDatas()
             }
         }
 
+        if (l_Garrison->HasBuildingType(Building::Type::Mine))
+        {
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(Building::Type::Mine);
+
+            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
+            {
+                if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
+                {
+                    if (l_Creature->AI())
+                        l_Creature->AI()->SetData(CreatureAIDataIDs::DailyReset, 0);
+                }
+            }
+        }
+
+        if (l_Garrison->HasBuildingType(Building::Type::Farm, true))
+        {
+            std::vector<uint64> l_CreatureGuids = l_Garrison->GetBuildingCreaturesByBuildingType(Building::Type::Farm, true);
+
+            for (std::vector<uint64>::iterator l_Itr = l_CreatureGuids.begin(); l_Itr != l_CreatureGuids.end(); l_Itr++)
+            {
+                if (Creature* l_Creature = sObjectAccessor->GetCreature(*this, *l_Itr))
+                {
+                    if (l_Creature->AI())
+                        l_Creature->AI()->SetData(CreatureAIDataIDs::DailyReset, 0);
+                }
+            }
+        }
+
         l_Garrison->UpdatePlot(GetPlotInstanceID());
     }
 
@@ -31588,17 +31659,22 @@ void Player::DeleteEquipmentSet(uint64 setGuid)
     }
 }
 
-void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
+void Player::RemoveAtLoginFlag(AtLoginFlags p_Flags, bool p_Persist /*= false*/)
 {
-    m_atLoginFlags &= ~flags;
+    m_atLoginFlags &= ~p_Flags;
 
-    if (persist)
-    {
-        PreparedStatement* stmt = RealmDatabase.GetPreparedStatement(CHAR_UPD_REM_AT_LOGIN_FLAG);
-        stmt->setUInt16(0, uint16(flags));
-        stmt->setUInt32(1, GetRealGUIDLow());
-        CharacterDatabase.Execute(stmt);
-    }
+    if (p_Persist)
+        Player::RemoveAtLoginFlagFromDB(GetGUIDLow(), p_Flags);
+}
+
+void Player::RemoveAtLoginFlagFromDB(uint32 p_Guid, AtLoginFlags p_Flags)
+{
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_REM_AT_LOGIN_FLAG);
+
+    l_Stmt->setUInt16(0, uint16(p_Flags));
+    l_Stmt->setUInt32(1, p_Guid);
+
+    CharacterDatabase.Execute(l_Stmt);
 }
 
 void Player::SendClearCooldown(uint32 p_SpellID, Unit* p_Target, bool p_ClearOnHold)
@@ -33868,18 +33944,18 @@ void Player::CalculateMonkMeleeAttacks(float &p_Low, float &p_High)
 
     if (l_MainItem && l_MainItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && !HasAuraType(SPELL_AURA_MOD_DISARM))
     {
-        l_MainWeaponMinDamage = l_MainItem->GetTemplate()->DamageMin;
-        l_MainWeaponMaxDamage = l_MainItem->GetTemplate()->DamageMax;
-        l_MainWeaponSpeed = float(l_MainItem->GetTemplate()->Delay) / 1000.0f;
+        l_MainWeaponMinDamage = GetWeaponDamageRange(BaseAttack, MINDAMAGE);
+        l_MainWeaponMaxDamage = GetWeaponDamageRange(BaseAttack, MAXDAMAGE);
+        l_MainWeaponSpeed = float(GetAttackTime(BaseAttack) / 1000.0f) * m_modAttackSpeedPct[BaseAttack];
     }
     if (l_OffItem && l_OffItem->GetTemplate()->Class == ITEM_CLASS_WEAPON && !HasAuraType(SPELL_AURA_MOD_DISARM))
     {
-        l_OffhandWeaponMinDamage = l_OffItem->GetTemplate()->DamageMin;
-        l_OffhandWeaponMaxDamage = l_OffItem->GetTemplate()->DamageMax;
-        l_OffhandWeaponSpeed = float(l_OffItem->GetTemplate()->Delay) / 1000.0f;
+        l_OffhandWeaponMinDamage = GetWeaponDamageRange(OffAttack, MINDAMAGE);
+        l_OffhandWeaponMaxDamage = GetWeaponDamageRange(OffAttack, MAXDAMAGE);
+        l_OffhandWeaponSpeed = float(GetAttackTime(OffAttack) / 1000.0f) * m_modAttackSpeedPct[OffAttack];
     }
 
-    float l_Dwm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.898882275f;
+    float l_Dwm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 1.0f : 0.857143f;
     float l_Offm = (HasAura(SPELL_MONK_2H_STAFF_OVERRIDE) || HasAura(SPELL_MONK_2H_POLEARM_OVERRIDE)) ? 0.0f : 1.0f;
 
     float l_Offlow = (HasSpell(SPELL_MONK_MANA_MEDITATION)) ? l_MainWeaponMinDamage / 2 / l_MainWeaponSpeed : l_OffhandWeaponMinDamage / 2 / l_OffhandWeaponSpeed;
@@ -35749,4 +35825,165 @@ void Player::GetZoneAndAreaId(uint32& p_ZoneId, uint32& p_AreaId, bool p_ForceRe
 
     p_ZoneId = m_LastZoneId;
     p_AreaId = m_LastAreaId;
+}
+
+void Player::HandleFactionChangeActions(char const* p_KnownTitle, uint64 p_GUID, uint8 p_Race)
+{
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+
+    uint32 l_GUIDLow = GUID_LOPART(p_GUID);
+    uint32 l_Team    = TeamForRace(p_Race);
+    uint32 l_TeamID = l_Team == ALLIANCE ? TEAM_ALLIANCE : l_Team == HORDE ? TEAM_HORDE : TEAM_NEUTRAL;
+
+    /// Quest conversion
+    for (std::map<uint32, uint32>::const_iterator l_Itr = sObjectMgr->FactionChange_Quests.begin(); l_Itr != sObjectMgr->FactionChange_Quests.end(); ++l_Itr)
+    {
+        uint32 l_Quest_alliance = l_Itr->first;
+        uint32 l_Quest_horde    = l_Itr->second;
+
+        uint32 l_OldQuest = l_TeamID == TEAM_ALLIANCE ? l_Quest_horde    : l_Quest_alliance;
+        uint32 l_NewQuest = l_TeamID == TEAM_ALLIANCE ? l_Quest_alliance : l_Quest_horde;
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_BY_QUEST);
+        stmt->setUInt32(0, l_NewQuest);
+        stmt->setUInt32(1, l_OldQuest);
+        stmt->setUInt32(2, l_GUIDLow);
+        l_Transaction->Append(stmt);
+    }
+
+    // Achievement conversion
+    for (std::map<uint32, uint32>::const_iterator l_Iterator = sObjectMgr->FactionChange_Achievements.begin(); l_Iterator != sObjectMgr->FactionChange_Achievements.end(); ++l_Iterator)
+    {
+        uint32 l_AchievementAlliance = l_Iterator->first;
+        uint32 l_AchievementHorde = l_Iterator->second;
+
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
+        l_Statement->setUInt16(0, uint16(l_TeamID == BG_TEAM_ALLIANCE ? l_AchievementAlliance : l_AchievementHorde));
+        l_Statement->setUInt32(1, l_GUIDLow);
+        l_Transaction->Append(l_Statement);
+
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ACHIEVEMENT);
+        l_Statement->setUInt16(0, uint16(l_TeamID == BG_TEAM_ALLIANCE ? l_AchievementAlliance : l_AchievementHorde));
+        l_Statement->setUInt16(1, uint16(l_TeamID == BG_TEAM_ALLIANCE ? l_AchievementHorde : l_AchievementAlliance));
+        l_Statement->setUInt32(2, l_GUIDLow);
+        l_Transaction->Append(l_Statement);
+    }
+
+    // Item conversion
+    for (std::map<uint32, uint32>::const_iterator l_Iterator = sObjectMgr->FactionChange_Items.begin(); l_Iterator != sObjectMgr->FactionChange_Items.end(); ++l_Iterator)
+    {
+        uint32 l_ItemAlliance = l_Iterator->first;
+        uint32 l_ItemHorde = l_Iterator->second;
+
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INVENTORY_FACTION_CHANGE);
+        l_Statement->setUInt32(0, (l_TeamID == BG_TEAM_ALLIANCE ? l_ItemAlliance : l_ItemHorde));
+        l_Statement->setUInt32(1, (l_TeamID == BG_TEAM_ALLIANCE ? l_ItemHorde : l_ItemAlliance));
+        l_Statement->setUInt32(2, l_GUIDLow);
+        l_Transaction->Append(l_Statement);
+    }
+
+    // Spell conversion
+    for (std::map<uint32, uint32>::const_iterator l_Iterator = sObjectMgr->FactionChange_Spells.begin(); l_Iterator != sObjectMgr->FactionChange_Spells.end(); ++l_Iterator)
+    {
+        uint32 l_SpellAlliance = l_Iterator->first;
+        uint32 l_SpellHorde = l_Iterator->second;
+
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
+        l_Statement->setUInt32(0, (l_TeamID == BG_TEAM_ALLIANCE ? l_SpellAlliance : l_SpellHorde));
+        l_Statement->setUInt32(1, l_GUIDLow);
+        l_Transaction->Append(l_Statement);
+
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_SPELL_FACTION_CHANGE);
+        l_Statement->setUInt32(0, (l_TeamID == BG_TEAM_ALLIANCE ? l_SpellAlliance : l_SpellHorde));
+        l_Statement->setUInt32(1, (l_TeamID == BG_TEAM_ALLIANCE ? l_SpellHorde : l_SpellAlliance));
+        l_Statement->setUInt32(2, l_GUIDLow);
+        l_Transaction->Append(l_Statement);
+    }
+
+    // Reputation conversion
+    for (std::map<uint32, uint32>::const_iterator l_Iterator = sObjectMgr->FactionChange_Reputation.begin(); l_Iterator != sObjectMgr->FactionChange_Reputation.end(); ++l_Iterator)
+    {
+        uint32 reputation_alliance = l_Iterator->first;
+        uint32 reputation_horde = l_Iterator->second;
+
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REP_BY_FACTION);
+        l_Statement->setUInt32(0, uint16(l_TeamID == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
+        l_Statement->setUInt32(1, l_GUIDLow);
+        l_Transaction->Append(l_Statement);
+
+        l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_REP_FACTION_CHANGE);
+        l_Statement->setUInt16(0, uint16(l_TeamID == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
+        l_Statement->setUInt16(1, uint16(l_TeamID == BG_TEAM_ALLIANCE ? reputation_horde : reputation_alliance));
+        l_Statement->setUInt32(2, l_GUIDLow);
+        l_Transaction->Append(l_Statement);
+    }
+
+    // Title conversion
+    if (p_KnownTitle)
+    {
+        const uint32 l_KnowTitleCount = KNOWN_TITLES_SIZE;
+        uint32 l_KnownTitles[l_KnowTitleCount];
+        Tokenizer l_Tokens(p_KnownTitle, ' ', l_KnowTitleCount);
+
+        if (l_Tokens.size() != l_KnowTitleCount)
+            return;
+
+        for (uint32 l_Index = 0; l_Index < l_KnowTitleCount; ++l_Index)
+            l_KnownTitles[l_Index] = atol(l_Tokens[l_Index]);
+
+        for (std::map<uint32, uint32>::const_iterator l_Iterator = sObjectMgr->FactionChange_Titles.begin(); l_Iterator != sObjectMgr->FactionChange_Titles.end(); ++l_Iterator)
+        {
+            uint32 l_TitleAlliance = l_Iterator->first;
+            uint32 l_TitleHorde    = l_Iterator->second;
+
+            CharTitlesEntry const* l_AllianceTitle = sCharTitlesStore.LookupEntry(l_TitleAlliance);
+            CharTitlesEntry const* l_HordeTitle    = sCharTitlesStore.LookupEntry(l_TitleHorde);
+
+            // new team
+            if (l_Team == BG_TEAM_ALLIANCE)
+            {
+                uint32 l_BitIndex = l_HordeTitle->MaskID;
+                uint32 l_Index = l_BitIndex / 32;
+                uint32 l_OldFlag = 1 << (l_BitIndex % 32);
+                uint32 l_NewFlag = 1 << (l_AllianceTitle->MaskID % 32);
+
+                if (l_KnownTitles[l_Index] & l_OldFlag)
+                {
+                    l_KnownTitles[l_Index] &= ~l_OldFlag;
+                    // use index of the new title
+                    l_KnownTitles[l_AllianceTitle->MaskID / 32] |= l_NewFlag;
+                }
+            }
+            else
+            {
+                uint32 l_BitIndex = l_AllianceTitle->MaskID;
+                uint32 l_Index = l_BitIndex / 32;
+                uint32 l_OldFlag = 1 << (l_BitIndex % 32);
+                uint32 l_NewFlag = 1 << (l_HordeTitle->MaskID % 32);
+
+                if (l_KnownTitles[l_Index] & l_OldFlag)
+                {
+                    l_KnownTitles[l_Index] &= ~l_OldFlag;
+                    // use index of the new title
+                    l_KnownTitles[l_HordeTitle->MaskID / 32] |= l_NewFlag;
+                }
+            }
+
+            std::ostringstream l_OstreamString;
+            for (uint32 l_Index = 0; l_Index < l_KnowTitleCount; ++l_Index)
+                l_OstreamString << l_KnownTitles[l_Index] << ' ';
+
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
+            l_Statement->setString(0, l_OstreamString.str().c_str());
+            l_Statement->setUInt32(1, l_GUIDLow);
+            l_Transaction->Append(l_Statement);
+
+            // unset any currently chosen title
+            l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_RES_CHAR_TITLES_FACTION_CHANGE);
+            l_Statement->setUInt32(0, l_GUIDLow);
+            l_Transaction->Append(l_Statement);
+        }
+    }
+
+    CharacterDatabase.CommitTransaction(l_Transaction);
 }

@@ -2625,6 +2625,9 @@ void SpellMgr::LoadPetLevelupSpellMap()
             }
         }
     }
+    /// Hackfix for void Shield
+    mPetLevelupSpellMap[CREATURE_FAMILY_VOIDLORD].insert({ 28, 115236 });
+    ++count;
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u pet levelup and default spells for %u families in %u ms", count, family_count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -3434,6 +3437,16 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 108977: //< Way of the Monk
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
+                break;
+            ///////////////////////////////////////////////////////////////////////////////////
+            /// Mine Spells
+            ///////////////////////////////////////////////////////////////////////////////////
+            case 176061: ///< Preserved Mining Pick
+            case 176049: ///< Miner's Coffee
+                spellInfo->AreaGroupId = 0; ///< handle zone restriction manually in SpellInfo::CheckLocation
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             /// Rush Orders
             ///////////////////////////////////////////////////////////////////////////////////
@@ -3656,7 +3669,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 159632: ///< Insatiable Hunger
             case 156631: ///< Rapid Fire (Admiral Gar'an - Iron Maidens)
+            case 156053: ///< Slag Bomb (Slag Bomb - Blackhand)
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
+            case 156653: ///< Fixate (Siegemaker - Blackhand)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 160665: ///< Rolling Box (Oregorger)
             case 160833: ///< Bust Loose (Heart of the Mountain)
@@ -3708,8 +3726,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159115: ///< Erupt (Firecaller)
                 spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
                 break;
-            case 108977: //< Way of the Monk
-                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
+            case 156743: ///< Impaled (Blackhand)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
                 break;
             case 178209: ///< Chest of Iron (T17)
             case 178210: ///< Legs of Iron (T17)
@@ -3790,7 +3809,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 50;
                 spellInfo->Effects[EFFECT_0].MiscValueB = 300;
                 break;
-            case 155074: ///< Charring Breath (Cinder Wolf)
+            case 155074: ///< Charring Breath (Cinder Wolf - Flamebender Ka'graz)
             case 173790: ///< Spirit Bond (Stubborn Ironhoof)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
@@ -3804,6 +3823,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 154938: ///< Molten Torrent (AoE Damage - 154938)
+            case 155992: ///< Shattering Smash (Blackhand)
+            case 158054: ///< Massive Shattering Smash (Blackhand)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
             case 162349: ///< Fists of Stone (Kromog)
@@ -3824,6 +3845,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
             case 161049: ///< Rippling Smash (Kromog)
+            case 160177: ///< Cautorizing Bolt (Grom'kar Firemender)
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 157060: ///< Rune of Grasping Earth - Cast (Kromog)
@@ -3844,6 +3866,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 154951: ///< Pin Down (Beastlord Darmac)
             case 163045: ///< Flame Vent Cosmetics (Flame Vent)
             case 158599: ///< Deploy Turret (Admiral Gar'an - Iron Maidens)
+            case 161347: ///< Jump To Second Floor (Blackhand)
+            case 161348: ///< Jump To Third Floor (Blackhand)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
@@ -3863,9 +3887,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156294: ///< Throw Grenade (Iron Raider)
                 spellInfo->Effects[EFFECT_1].TargetA = TARGET_DEST_TARGET_ENEMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
-                break;
-            case 160177: ///< Cautorizing Bolt (Grom'kar Firemender)
-                spellInfo->MaxAffectedTargets = 1;
                 break;
             case 159480: ///< Delayed Siege Bomb - Searcher (Iron Gunnery Sergeant)
                 spellInfo->Effects[EFFECT_1].Effect = 0;
@@ -3891,9 +3912,22 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_ENEMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
-            case 157056: ///< Rune of Grasping Earth
-            	spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_UNTARGETABLE;
-            	break;
+            case 175576: ///< Flame Jet - AoE select (Forgemistress Flamehand)
+            case 177554: ///< Flame Jet - AoE deselect (Forgemistress Flamehand)
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_UNTARGETABLE;
+                break;
+            case 156496: ///< Demolition - Small AoE (Blackrock Foundry - Blackhand)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_CASTER;
+                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+                break;
+            case 156503: ///< Massive Demolition - Big AoE (Blackrock Foundry - Blackhand)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_CASTER;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_DEST_CASTER;
+                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+                break;
+            case 156096: ///< Marked for Death (Blackhand)
+                spellInfo->MaxAffectedTargets = 2;
+                break;
             ///////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////
             /// Skills
@@ -4209,7 +4243,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 157505: ///< Arcane Bolt
                 spellInfo->Effects[0].Amplitude = 1500;
                 break;
-            case 154340: ///< Sanctified Ground
+            case 153430: ///< Sanctified Ground
+                spellInfo->Effects[0].Amplitude = 2000;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); // 1s
                 break;
             case 156862: ///< Drain Soul Cosmetic
@@ -4227,8 +4262,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(10); ///< from 15.0f (RangeEntry.ID 11) to 40.0f
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
-            case 153430: ///< Areatrigger Damage
-                spellInfo->Effects[0].Amplitude = 2000;
             case 119975: ///< Conversion
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
                 break;
@@ -4588,6 +4621,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 121818: ///< Stampede
                 spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->Effects[EFFECT_1].TargetB = 0;
+                spellInfo->Effects[EFFECT_1].BasePoints = 5;
                 break;
             case 45470: ///< Death Strike (no heal bonus in SPELL_DAMAGE_CLASS_NONE)
                 spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MELEE;
@@ -5416,6 +5450,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ChannelInterruptFlags = 0x0;
                 spellInfo->AuraInterruptFlags = 0x0;
                 break;
+            case 89496: ///< Gravity Well
+                spellInfo->AttributesEx4 &= ~SPELL_ATTR4_CAST_ONLY_IN_OUTLAND;
+                break;
             case 118443: ///< Instantly Death
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[0].TargetB = 0;
@@ -5498,8 +5535,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(112927); ///< Summon Terrorguard
                 break;
             case 105174: ///< Hand of Gul'dan
-                spellInfo->OverrideSpellList.push_back(123194);
+                spellInfo->OverrideSpellList.push_back(123194); ///< Hand of Gul'dan (Glyphed)
                 break;
+            case 56248: ///< Glyph of Hand of Gul'dan
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
             case 120517: ///< Halo (Holy)
             case 120644: ///< Halo (shadow)
                 spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_NEGATIVE;
@@ -5620,8 +5660,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 114635:///< Ember Tap
                 spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_PERIODIC_HEAL;
-            case 31803: ///< Censure
             case 77489: ///< Echo of Light
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
+                break;
+            case 31803: ///< Censure
             case 99002: ///< Fiery Claws, Item - Druid T12 Feral 2P Bonus
             case 99132: ///< Divine Fire, Item - Priest T12 Healer 2P Bonus
             case 99173: ///< Burning Wounds, Item - Rogue T12 2P Bonus
@@ -5832,6 +5875,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 spellInfo->Effects[0].BasePoints = 25;
                 break;
+            case 97463: ///< Rallying Cry
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
+                spellInfo->Effects[0].BasePoints = 15;
+                break;
             case 53479: ///< Last Stand (Tenacity)
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 break;
@@ -6020,6 +6067,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 119913: ///< Fellash (Command Demon)
             case 119914: ///< Felstorm (Command Demon)
             case 119915: ///< Wrathstorm (Command Demon)
+            case 171140: ///< Shadow Lock (Command Demon)
+            case 171152: ///< Meteor Strike (Infernal) (Command Demon)
+            case 171154: ///< Meteor Strike (Abyssal) (Command Demon)
                 spellInfo->AttributesEx6 &= ~SPELL_ATTR6_DONT_DISPLAY_COOLDOWN;
                 break;
             case 119904: ///< Supplant Command Demon
@@ -6142,6 +6192,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 173545: /// Chi Wave (healing bolt)
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
+                break;
+            case 53397: /// Invigoration
+                spellInfo->ProcFlags = PROC_FLAG_DONE_RANGED_AUTO_ATTACK;
                 break;
             case 115611: ///< Temporal Ripples
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
@@ -6471,9 +6524,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
                 break;
-            case 53:    ///< Backstap
-                spellInfo->Effects[0].BonusMultiplier = 0;
-                break;
             case 86121: ///< Soul Swap
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
                 break;
@@ -6564,6 +6614,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165201:///< Mind Blast (cooldown reduce)
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_COOLDOWN_BY_HASTE;
                 spellInfo->Effects[1].MiscValue = 11;
+                break;
+            case 119032:///< Spectral Guise
+                spellInfo->ProcCharges = 0;
                 break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
@@ -6879,6 +6932,14 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].RadiusEntry = sSpellRadiusStore.LookupEntry(13);
                 break;
             case 96172:  ///< Hand of Light
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_AURAS;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
+                break;
             case 101085: ///< Wrath of Tarecgosa
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
@@ -7295,9 +7356,14 @@ void SpellMgr::LoadSpellCustomAttr()
             case 89250: ///< Summon Cauldron
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
+            case 160744: ///< Feast of Blood
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[EFFECT_0].TriggerSpell = 160745;
+                break;
             case 175216: ///< Savage Feast
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
                 break;
+            case 160745: ///< Feast of Blood
             case 175217: ///< Savage Feast
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_TRIGGER_SPELL;
                 spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_CASTER;
@@ -7659,6 +7725,20 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158684: ///< Corrupted Blood - DoT (Uk'urogg - Iron Maidens)
             case 160733: ///< Bomb Impact - AoE (Iron Cannon - Iron Maidens)
             case 157884: ///< Detonation Sequence - AoE (Cluster Bomb Alpha - Iron Maidens)
+            case 175585: ///< Living Blaze - AoE (Forgemistress Flamehand)
+            case 156044: ///< Slag Bomb - AoE (Slag Bomb - Blackhand)
+            case 156497: ///< Demolition - Small AoE (Blackrock Foundry - Blackhand)
+            case 156479: ///< Massive Demolition - AoE (Blackrock Foundry - Blackhand)
+            case 155992: ///< Shattering Smash (Blackhand)
+            case 177438: ///< Exploding Iron Star (Blackrock Foundry - Blackhand)
+            case 156646: ///< Battering Ram - AoE (Siegemaker - Blackhand)
+            case 156531: ///< Mortar Blast - AoE (Siegemaker - Blackhand)
+            case 177487: ///< Shattered Floor (Blackrock Foundry - Blackhand)
+            case 156731: ///< Explosive Round (Iron Soldier - Blackhand)
+            case 157015: ///< Slag Bomb (Attached Slag Bombs - Blackhand)
+            case 156930: ///< Slag Eruption (Slag Hole - Blackhand)
+            case 156948: ///< Huge Slag Eruption (Slag Crater - Blackhand)
+            case 158054: ///< Massive Shattering Smash (Blackhand)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_CUSTOM_AOE_SPELL;
                 break;
             default:
@@ -7800,6 +7880,8 @@ int64 SpellMgr::GetSpellVisualOverride(uint32 p_SpellID) const
             return 42341;
         case 62383: ///< Shatter (Ignis)
             return 12639;
+        case 123194: ///< Hand of Gul'Dan (Glyphed)
+            return 43885;
         default:
             break;
     }
@@ -7889,4 +7971,36 @@ bool SpellMgr::HaveSameItemSourceSkill(Item* p_Item1, Item* p_Item2) const
     }
 
     return false;
+}
+
+void SpellMgr::LoadSpellAurasNotSave()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    m_SpellAurasNotSave.clear();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT SpellID FROM spell_aura_not_saved");
+    if (!l_Result)
+    {
+        sLog->outInfo(LogFilterType::LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spell auras not save records. DB table `spell_aura_not_save` is empty.");
+        return;
+    }
+
+    do
+    {
+        Field* l_Fields     = l_Result->Fetch();
+        uint32 l_SpellID    = l_Fields[0].GetUInt32();
+
+        SpellInfo const* l_SpellInfo = GetSpellInfo(l_SpellID);
+        if (!l_SpellInfo)
+        {
+            sLog->outError(LogFilterType::LOG_FILTER_SQL, "spellId %u in `spell_aura_not_save` table is not found in dbc, skipped", l_SpellID);
+            continue;
+        }
+
+        m_SpellAurasNotSave.insert(l_SpellID);
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LogFilterType::LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell auras not save records in %u ms", m_SpellAurasNotSave.size(), GetMSTimeDiffToNow(l_OldMSTime));
 }

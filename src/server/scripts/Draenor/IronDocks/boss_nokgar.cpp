@@ -242,14 +242,18 @@ public:
 
         void JustReachedHome() override
         {
-            if (Creature* l_Wolf = me->FindNearestCreature(eCreatures::CreatureWolf, 200.0f, true))
-            {
-                l_Wolf->Respawn(true);
-            }
-
             if (m_Instance != nullptr)
+            {
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
-    
+
+                if (Creature* l_Wolf = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataMountWolf)))
+                {
+                    l_Wolf->AI()->Reset();
+                    l_Wolf->Respawn(true);
+                    l_Wolf->SetHealth(l_Wolf->GetMaxHealth());
+                }
+            }
+   
             StopArchers();
             _JustReachedHome();
             me->DespawnOrUnsummon();
@@ -416,7 +420,7 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                 me->RemoveUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                 me->RemoveFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN | eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);        
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                 std::list<Creature*> l_ListFlameSlingers;
                 me->GetCreatureListWithEntryInGrid(l_ListFlameSlingers, eIronDocksCreatures::CreatureGromkarFlameslinger, 200.0f);
                 if (!l_ListFlameSlingers.empty())
@@ -433,12 +437,14 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                 {
                     if (l_Nokgar->IsAIEnabled)
                         l_Nokgar->GetAI()->Reset();
-                }            
+                }       
+
+                events.ScheduleEvent(eDreadfangEvents::EventInstallAccessories, 3 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustReachedHome() override
             {
-                events.ScheduleEvent(eDreadfangEvents::EventInstallAccessories, 3 * TimeConstants::IN_MILLISECONDS);
+
             }
 
             void EnterCombat(Unit* p_Who) override
@@ -459,6 +465,7 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
+                /*
                 if (p_Damage && p_Damage > 0)
                 {
                     if (!m_Dead)
@@ -469,9 +476,10 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                             events.Reset();
                             me->RemoveAllAuras();
                             me->SetFullHealth();
+                            me->AttackStop();
                             me->CastSpell(me, eSpells::SpellFeignDeath);
                             me->CastSpell(me, eSpells::SpellCosmeticFeignDeath);
-                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
                             me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                             me->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
                             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
@@ -487,7 +495,7 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                             }
                         }
                     }
-
+                    */
                     if (!m_Dismounted)
                     {
                         if (me->GetHealthPct() <= 50) ///< Heroic
@@ -502,7 +510,6 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                             }
                         }
                     }
-                }
             }
 
             void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
@@ -539,7 +546,7 @@ class iron_docks_nokgar_mob_dreadfang : public CreatureScript
                     m_Vehicle->InstallAllAccessories(false);
                 }
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() || m_Dead)
                     return;
 
                 if (m_ShreddingStrikes)

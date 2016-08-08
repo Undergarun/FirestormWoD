@@ -133,8 +133,7 @@ static void WipeMaidens(InstanceScript* p_Instance)
     {
         if (Creature* l_Maiden = p_Instance->instance->GetCreature(p_Instance->GetData64(g_IronMaidensEntries[l_I])))
         {
-            if (l_Maiden->IsAIEnabled)
-                l_Maiden->AI()->EnterEvadeMode();
+            l_Maiden->Respawn(true, true, 30 * TimeConstants::IN_MILLISECONDS);
 
             p_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, l_Maiden);
         }

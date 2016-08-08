@@ -1,0 +1,177 @@
+Changelog: May - July: Dungeon Development
+
+Everbloom:
+Bosses:
+* Witherbark:
+a) Witherbark now is attackable once the Naturalist guardian dies.
+b) Witherbark Unchecked Growth ability now works as intended
+c) Witherbark now spawns an Unchecked Growth as intended.
+d) Agitated water - casts only when boss is incombat now.
+e) Aqueous Globules now grant more Energy to Witherbark then before
+f) Witherbark immune bug is fixed.
+* Ancient Protectors:
+a) Rapid Tides now works as intended
+b) Rending charge now works as intended
+c) Grasping vine now works as intended
+* Archmage Sol:
+1. Frost phase spells now are being casted more often
+2. Fire phase spells now are being casted more often
+3. Archmage Sol visuals changed to always show when out of combat instead of an introduction.
+4. Archmage Sol will no longer be attacked by invisible triggers.
+5. Firebloom abillity is now coded.
+* Xeri'tac:
+1. Descend no longer crash servers
+2. Descend and random cieling movement does not interfere with each other anymore
+3. Areatriggers are now being deleted upon Reset.
+4. Xeritac now goes down after the 1st phase is complete
+5. Xeritac animation bugs are hackily resolved.
+6. Xeritac now has a functioning gate
+* Yalnu:
+1. Yalnu is now moving inside the portal once the green gate is removed by event
+2. The portal now takes you to the other platform where you fight Yalnu
+3. Yalnu Genesis plants now are being removed when a player moves ontop of them
+4. Entaglement abillity is now working as intended
+
+Iron Docks:
+General:
+a. A lot of creature position spawning has changed to be more blizzlike.
+b. Some events overlapping has been fixed.
+c. All of the trash mobs abilities has been fixed like intended.
+
+Bosses:
+
+*Nokgar:
+1. Nokgar archers now stay ontop of that platform instead of falling down
+2. Nokgar archer mechanism has been revamped completely.
+3. Nokgar mount 'Dreadfang' now function as intended
+4. Burning Arrow is now being casted like retail, same frequency
+5. Barbed Arrow Barrage areatrigger is now working like intended
+6. Reckless Provocation is changed to be triggered from Melee hit once more.
+7. Bloodletting howl is now being casted by Dreadfang upon combat.
+8. Savage Maulling now is being casted by Dreadfang upon combat.
+*Grimrail Enforcers
+1. Sanguine Sphere is now working as intended and will no longer explode without damage.
+2. Makogg Emberblade Lava Sweep and lava waves are now correct
+3. Flaming Slash does not make Makogg stuck any longer
+4. Big Boom is now being casted and works as intended
+5. The train sequence has changed.
+*Oshir:
+1. Pre boss visuals has been improved***
+---- More information will be released later.
+*Skulloc:
+1. Skulloc Iron Stars now works as intended
+2. Skulloc Bridge sequence now works as intended
+3. Koramar now casts all of his abillities including: Bladestorm, Shattering Blade, Berserker Leap
+4. Koramar will start bladestorming whenever Skulloc begins his cannon barrage
+5. Skulloc Cannon barrage has changed completely to seem more retail
+6. Skulloc will now chase the target upon combat, and will only go backwards before lauching a cannon barrage
+7. Zoggosh Rapid fire abillity has been changed to seem more retail.
+8. Zoggosh, Koramar reset bugs has been fixed.
+
+Shadowmoon Burial Grounds
+General Information:
+1. Cinematic added
+
+Bosses:
+* Sadana Bloodfury:
+1. Dark Communion has been changed: the spirit will now go on the floor before arriving at Sadana, and movement has been decreased siginificantly
+2. Daggerfall over ticking issue is resolved.
+3. Dark Eclipse: 
+* Dark Eclipse visuals now appear whenever the ritual begins
+* Sadana is no longer immune to combat for extra 30 seconds after the abillity wear off.
+4. Shadow runes now deals damage when are close to players
+5. Defiled Spirits circular movement has been improved.
+6. Sadana exit door now opens when the fight ends
+
+* Nhallish:
+1. Planar shift is no longer responsible for the even scheduling of void vortex and void devestation, instead it changed to how it supposed to work on retail which is in the following rotation:
+1. Planar Shift - > Void Blast - > Void Vortex - > Void Devestation - > Planar Shift -> Void Blast -> Soul steal.
+2. Void Blast now affect additional targets that are nerby the spray
+3. Void devestation now deals damage on contact.
+4. Void devestation is now working as intended.
+5. Soul steal: abillity has been fixed and now after the spirit death you can return the normal realm to defeat Nhallish.
+
+* Bonemaw:
+1. Water Sprays now launchs you back to the platform (based on orientation, it's not the retail method).
+2. Fetid Spit is now AOE if is out of range.
+3. Inhale now works as intended.
+4. Necrotic Pitch is somwhat working, but still needs a bit of fixes. (Missing AT)
+5. Carrion worms now stay up instead of drowning (HC).
+
+* Nerzhul:
+1. Malevolence cone is now working as intended
+2. Omen of death is now working as intended: 2 may be spawned at the same time, and will delete other omen of deaths if nerzhul keeps casting it
+3. Ritual of Bones:
+* Skeletons now move in formation
+* When a Skeleton dies his flames disappears in a row
+*Flames mechanism is now more blizzlike
+4. pre nerzul animations are now more blizzlike
+5. Omen of death doesn't crash the server anymore
+
+Auchindoun:
+General information: a lot of messy and useless code has been deleted, complete code revamp including fixes such as:
+1. Tuulani getting stuck at the beginning of the dungeon.
+2. Tuulani dies randomally over the dungeon
+3. Text overlap
+4. Delays
+5. Cinematic added.
+6. Soul Transporter mechanique fixed.
+
+Bosses:
+Vigilant Kaathar -
+1) Holy Shield orientation is now like intended
+2) Sanctified Ground dot involved issues has been resolved
+
+Soul Binder Nyami: 
+1) Soul Vessel visuals are now added.
+2) All Adds AI has been refixed including:
+Magus, warden, arbitrer, Gulkosh, Durag, Abyssal, Felguard.
+3) Nyami speed while ghost traveling is now faster
+
+Azzakel:
+1) Bugs involving where boss freeze, or get immoblized are now fixed.
+2) Maleovelant crush now works like intended
+3) Fel spark and fel pool now work as intended
+4) Claws of Argus abillity now works as intended
+5) Claw Of Argus summoned mobs are automatically aggrod upon spawn
+
+Teronogor:
+1. Boss reset animation changed.
+2. Boss death sequence added
+3. Boss now use right visual effects (not the flask vial crap) when getting into the 2nd phase
+4. Most of the 2nd phase abilities got fixed.
+5. Corruption is now dealing the correct damage
+6. Other abilities damage has changed aswell
+
+
+Update: 7/14/2016
+
+Everbloom:
+
+* Xeritac:
+1. Xeritac movement issues and crashes are finally resolved.
+2. Xeritac now spawn venom sprayers
+3. Xeritac Venom Sprayers are now working as intended.
+
+* Yalnu:
+1. Yalnu issues are resolved, he no longer despawns.
+
+Auchindoun:
+
+* Kaathar:
+1. Kaathar teleport is now working as intended
+2. If you die after the fight of kaathar, you'll be spawning in the right place (in kaathar's place).
+3. Sancitfied Ground dot will now be removed if not in contact with the areatrigger
+3. Sancitfied ground is now always infront of boss
+
+Iron Docks:
+
+* Bugged waypoints and creatures has been respawned without any issues)
+
+Skulloc:
+1. Skulloc now begins bombardmenet
+
+
+
+
+

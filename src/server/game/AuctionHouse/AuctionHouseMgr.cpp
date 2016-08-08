@@ -53,26 +53,26 @@ AuctionHouseObject* AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
         return &mNeutralAuctions;
 }
 
-uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count)
+uint32 AuctionHouseMgr::GetAuctionDeposit(uint32 p_DepositTime, Item* p_Item, uint32 p_ItemCount)
 {
-    uint32 MSV = pItem->GetTemplate()->SellPrice;
+    uint32 l_SellPrice = p_Item->GetTemplate()->SellPrice;
 
-    if (MSV <= 0)
-        return AH_MINIMUM_DEPOSIT;
+    if (l_SellPrice <= 0)
+        return eAuctionHouse::AH_MINIMUM_DEPOSIT * sWorld->getRate(Rates::RATE_AUCTION_DEPOSIT);
 
-    float multiplier = CalculatePct(float(entry->DepositRate), 3);
-    uint32 timeHr = (((time / 60) / 60) / 12);
-    uint32 deposit = uint32(((multiplier * MSV * count / 3) * timeHr * 3) * sWorld->getRate(RATE_AUCTION_DEPOSIT));
+    /// Magic value found in full-debug client, this is working just right
+    float l_Multiplier  = 0.0041666669f;
+    uint32 l_RunTime    = p_DepositTime / 60;
+    uint32 l_Deposit    = p_ItemCount * uint32(l_RunTime * l_Multiplier * floor(l_SellPrice * 5.0f / 100.0f)) * sWorld->getRate(Rates::RATE_AUCTION_DEPOSIT);
 
-    sLog->outDebug(LOG_FILTER_AUCTIONHOUSE, "MSV:        %u", MSV);
-    sLog->outDebug(LOG_FILTER_AUCTIONHOUSE, "Items:      %u", count);
-    sLog->outDebug(LOG_FILTER_AUCTIONHOUSE, "Multiplier: %f", multiplier);
-    sLog->outDebug(LOG_FILTER_AUCTIONHOUSE, "Deposit:    %u", deposit);
+    sLog->outDebug(LogFilterType::LOG_FILTER_AUCTIONHOUSE, "SellPrice:  %u", l_SellPrice);
+    sLog->outDebug(LogFilterType::LOG_FILTER_AUCTIONHOUSE, "Items:      %u", p_ItemCount);
+    sLog->outDebug(LogFilterType::LOG_FILTER_AUCTIONHOUSE, "Deposit:    %u", l_Deposit);
 
-    if (deposit < AH_MINIMUM_DEPOSIT)
-        return AH_MINIMUM_DEPOSIT;
+    if (l_Deposit < eAuctionHouse::AH_MINIMUM_DEPOSIT * sWorld->getRate(Rates::RATE_AUCTION_DEPOSIT))
+        return eAuctionHouse::AH_MINIMUM_DEPOSIT * sWorld->getRate(Rates::RATE_AUCTION_DEPOSIT);
     else
-        return deposit;
+        return l_Deposit;
 }
 
 //does not clear ram

@@ -1024,6 +1024,11 @@ class spell_npc_warl_wild_imp : public CreatureScript
 
             void Reset()
             {
+                if (!me->GetOwner())
+                {
+                    me->DespawnOrUnsummon();
+                    return;
+                }
                 me->SetReactState(REACT_HELPER);
                 if (me->GetOwner())
                 {
@@ -1074,6 +1079,72 @@ class spell_npc_warl_wild_imp : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new spell_npc_warl_wild_impAI(creature);
+        }
+};
+
+/// Imp - 416
+class spell_npc_warl_imp : public CreatureScript
+{
+    public:
+        spell_npc_warl_imp() : CreatureScript("npc_imp") { }
+
+        enum eSpells
+        {
+            Firebolt = 104318,
+        };
+
+        struct spell_npc_warl_impAI : public ScriptedAI
+        {
+            spell_npc_warl_impAI(Creature *p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset() override
+            {
+                if (!me->GetOwner())
+                {
+                    me->DespawnOrUnsummon();
+                    return;
+                }
+
+                me->SetReactState(REACT_HELPER);
+                if (Guardian* l_OwnerPet = me->GetOwner()->GetGuardianPet())
+                {
+                    if (l_OwnerPet->GetEntry() != ENTRY_IMP)
+                        l_OwnerPet->UpdateAllStats();
+                }
+            }
+
+            void UpdateAI(const uint32 /*p_Diff*/) override
+            {
+                if (Unit* l_Owner = me->GetOwner())
+                {
+                    Unit* l_OwnerTarget = l_Owner->getVictim();
+
+                    if (l_OwnerTarget == nullptr)
+                    {
+                        if (Player* l_Player = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Player->GetSelectedUnit();
+                    }
+
+                    if (l_OwnerTarget && me->isTargetableForAttack(l_OwnerTarget) && (!me->getVictim() || me->getVictim() != l_OwnerTarget))
+                        AttackStart(l_OwnerTarget);
+                }
+
+                if (!me->getVictim())
+                    return;
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                if (!me->IsValidAttackTarget(me->getVictim()))
+                    return;
+
+                me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new spell_npc_warl_impAI(creature);
         }
 };
 
@@ -1714,6 +1785,7 @@ void AddSC_npc_spell_scripts()
 
     /// Warlock NPC
     new spell_npc_warl_wild_imp();
+    new spell_npc_warl_imp();
     new spell_npc_warl_doomguard();
     new spell_npc_warl_demonic_gateway_purple();
     new spell_npc_warl_demonic_gateway_green();

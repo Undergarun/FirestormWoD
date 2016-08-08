@@ -824,6 +824,14 @@ class Guild
         int32 GetChallengeCount(int32 p_Type) const { return m_ChallengeCount[p_Type]; }
         void LoadBank();
 
+        bool RankExist(uint32 p_RankId)
+        {
+            for (auto itr : m_ranks)
+                if (itr.GetId() == p_RankId)
+                    return true;
+            return false;
+        }
+
     protected:
         uint32 m_id;
         std::string m_name;

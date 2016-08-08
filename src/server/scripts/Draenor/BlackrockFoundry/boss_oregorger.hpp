@@ -227,3 +227,6 @@ float const g_OregorgerPatternsY[eFoundryDatas::MaxOregorgerPatterns] =
 };
 
 Position const g_VolatileOreSpawn = { 34.08f, 3636.04f, 281.19f, 4.83f };
+
+float g_BaseRunSpeed    = 2.85714f;
+float g_P2RunSpeed      = g_BaseRunSpeed * 2.0f;

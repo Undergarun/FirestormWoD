@@ -1283,7 +1283,7 @@ uint32 AuraEffect::AbsorbBonusTaken(Unit* p_Caster, int32 p_Amount)
     return p_Amount;
 }
 
-void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= true*/, bool load /*= false*/)
+void AuraEffect::CalculatePeriodic(Unit* p_Caster, bool p_ResetPeriodicTimer /*= true*/, bool p_Load /*= false*/, bool p_Recalculation /* = false*/)
 {
     m_amplitude = m_spellInfo->Effects[m_effIndex].Amplitude;
 
@@ -1317,7 +1317,7 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
     if (!m_isPeriodic)
         return;
 
-    Player* modOwner = caster ? caster->GetSpellModOwner() : NULL;
+    Player* modOwner = p_Caster ? p_Caster->GetSpellModOwner() : NULL;
 
     // Apply casting time mods
     if (m_amplitude)
@@ -1326,20 +1326,23 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
         if (modOwner)
             modOwner->ApplySpellMod(GetId(), SPELLMOD_ACTIVATION_TIME, m_amplitude);
 
-        if (caster)
+        if (p_Caster)
         {
             // Haste modifies periodic time of channeled spells
             if (m_spellInfo->IsChanneled())
             {
                 if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
-                    caster->ModSpellCastTime(m_spellInfo, m_amplitude);
+                    p_Caster->ModSpellCastTime(m_spellInfo, m_amplitude);
             }
             else if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
-                m_amplitude = int32(m_amplitude * std::max<float>(caster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED), 0.5f));
+                m_amplitude = int32(m_amplitude * std::max<float>(p_Caster->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED), 0.5f));
         }
     }
 
-    if (load) // aura loaded from db
+    if (p_Recalculation) ///< Case of Update Amplitude, we don't need to recalculate TickNumber
+        return;
+
+    if (p_Load) // aura loaded from db
     {
         m_tickNumber = m_amplitude ? GetBase()->GetDuration() / m_amplitude : 0;
         m_periodicTimer = m_amplitude ? GetBase()->GetDuration() % m_amplitude : 0;
@@ -1352,7 +1355,7 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
         // reset periodic timer on aura create or on reapply when aura isn't dot
         // possibly we should not reset periodic timers only when aura is triggered by proc
         // or maybe there's a spell attribute somewhere
-        if (resetPeriodicTimer)
+        if (p_ResetPeriodicTimer)
         {
             m_periodicTimer = 0;
             // Start periodic on next tick or at aura apply
@@ -1769,13 +1772,16 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
            break;
     }
     /// Update Amplitude since WoD, should be recalculated dynamically
-    CalculatePeriodic(caster, false);
+    CalculatePeriodic(caster, false, true, true);
     GetBase()->CallScriptEffectUpdatePeriodicHandlers(this);
 }
 
 bool AuraEffect::CanPeriodicTickCrit(Unit* target, Unit const* caster) const
 {
     ASSERT(caster);
+
+    if ((GetSpellInfo()->AttributesEx2 & SPELL_ATTR2_CANT_CRIT))
+        return false;
 
     if (caster->HasAuraTypeWithAffectMask(SPELL_AURA_ABILITY_PERIODIC_CRIT, m_spellInfo))
         return true;

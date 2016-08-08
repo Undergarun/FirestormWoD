@@ -91,7 +91,7 @@ void WorldSession::HandleLootItemOpcode(WorldPacket & p_RecvData)
             bool l_IsLootAllowed = l_Creature && l_Creature->isAlive() == (m_Player->getClass() == CLASS_ROGUE && l_Creature->lootForPickPocketed);
 
             /// Check for Glyph of Fetch too
-            if (!l_IsLootAllowed || (!l_Creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125050)))
+            if (!l_IsLootAllowed || (!l_Creature->IsWithinDistInMap(m_Player, 40.0f) && !m_Player->HasSpell(125050)))
             {
                 m_Player->SendLootRelease(l_LootGuid);
                 return;

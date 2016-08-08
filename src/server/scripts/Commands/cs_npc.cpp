@@ -851,16 +851,6 @@ public:
             }
         }
 
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_POSITION);
-
-        stmt->setFloat(0, x);
-        stmt->setFloat(1, y);
-        stmt->setFloat(2, z);
-        stmt->setFloat(3, o);
-        stmt->setUInt32(4, lowguid);
-
-        WorldDatabase.Execute(stmt);
-
         handler->PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
         return true;
     }

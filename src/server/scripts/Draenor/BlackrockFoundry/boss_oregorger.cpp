@@ -145,6 +145,8 @@ class boss_oregorger : public CreatureScript
             {
                 ClearDelayedOperations();
 
+                me->SetSpeed(UnitMoveType::MOVE_RUN, g_BaseRunSpeed);
+
                 m_Events.Reset();
                 m_CosmeticEvents.Reset();
 
@@ -308,6 +310,8 @@ class boss_oregorger : public CreatureScript
                 {
                     m_Events.Reset();
 
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, g_P2RunSpeed);
+
                     Talk(eTalks::Phase2);
 
                     m_Phase = ePhases::PhaseRolling;
@@ -439,6 +443,8 @@ class boss_oregorger : public CreatureScript
                 /// When Oregorger reaches full Mana, Phase One restarts.
                 else if (p_Value == 100)
                 {
+                    me->SetSpeed(UnitMoveType::MOVE_RUN, g_BaseRunSpeed);
+
                     Talk(eTalks::ReturnToPhase1);
 
                     m_Phase = ePhases::PhaseFight;
@@ -608,8 +614,6 @@ class boss_oregorger : public CreatureScript
                         }
                         case MovementGeneratorType::EFFECT_MOTION_TYPE:
                         {
-                            me->SetWalk(false);
-                            me->SetSpeed(UnitMoveType::MOVE_WALK, 2.85714f);
                             me->SetHomePosition(*me);
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
@@ -745,10 +749,6 @@ class boss_oregorger : public CreatureScript
                             m_Init = true;
 
                             me->CastSpell(me, eSpells::RollingFuryVisual, true);
-
-                            me->SetWalk(true);
-                            me->SetSpeed(UnitMoveType::MOVE_WALK, 10.0f);
-
                             me->SetReactState(ReactStates::REACT_PASSIVE);
 
                             me->GetMotionMaster()->Clear();
@@ -1367,7 +1367,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
                 else
                     return false;
 
-                m_DamageTimer = 500;
+                m_DamageTimer = 1 * TimeConstants::IN_MILLISECONDS;
                 return true;
             }
 
@@ -1390,7 +1390,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
                                 l_Iter->CastSpell(l_Iter, eSpell::RollingFuryDamage, true, nullptr, nullptr, l_Caster->GetGUID());
                         }
 
-                        m_DamageTimer = 500;
+                        m_DamageTimer = 1 * TimeConstants::IN_MILLISECONDS;
                     }
                     else
                         m_DamageTimer -= p_Diff;

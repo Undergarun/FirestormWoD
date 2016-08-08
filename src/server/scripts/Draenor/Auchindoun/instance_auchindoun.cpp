@@ -19,31 +19,6 @@ static BossScenarios const g_BossScenarios[] =
     { 0,                                    0 }
 };
 
-class EventTeleport : public BasicEvent
-{
-public:
-
-    explicit EventTeleport(Unit* p_Unit, int p_Value) : m_Obj(p_Unit), m_Modifier(p_Value), BasicEvent()
-    {
-    }
-
-    bool Execute(uint64 /*p_CurrTime*/, uint32 /*p_Diff*/)
-    {
-        if (m_Obj)
-        {
-            m_Obj->ToPlayer()->TeleportTo(1182, 1904.29f, 3185.111f, 30.799f, 3.34086f);
-        }
-
-        return true;
-    }
-
-private:
-    InstanceScript* m_InstanceScript;
-    Unit* m_Obj;
-    int m_Modifier;
-    int m_Event;
-};
-
 class instance_auchindoun : public InstanceMapScript
 {
 public:
@@ -139,7 +114,7 @@ public:
 
             LoadScenariosInfos(g_BossScenarios, instance->IsChallengeMode() ? eAuchindounChallengeDatas::ChallengeScenarioID : eAuchindounChallengeDatas::NormalScenarioID);
         }
-
+        /*
         void OnPlayerEnter(Player* p_Player) override
         {
             InstanceScript::OnPlayerEnter(p_Player);
@@ -149,6 +124,7 @@ public:
                 p_Player->m_Events.AddEvent(new EventTeleport(p_Player, 1), p_Player->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
             }
         }
+        */
 
         void OnGameObjectCreate(GameObject* p_Go) override
         {

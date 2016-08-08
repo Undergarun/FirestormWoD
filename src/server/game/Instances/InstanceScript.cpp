@@ -383,6 +383,8 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                     {
                         SendChallengeStopElapsedTimer(1);
 
+                        SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
+
                         if (instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
                         {
                             m_ChallengeStarted = false;
@@ -393,8 +395,6 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                             SaveChallengeDatasIfNeeded();
 
                             DoUpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON, instance->GetId(), m_MedalType);
-
-                            SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
                         }
                     }
 

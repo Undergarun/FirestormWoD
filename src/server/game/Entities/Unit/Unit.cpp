@@ -264,6 +264,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_GlaiveOfTossTargetGUID = 0;
     iciclesTargetGUID    = 0;
     lastMoonfireTargetGUID = 0;
+    dfoComboPoints = 0;
     lastSunfireTargetGUID = 0;
 
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
@@ -595,6 +596,16 @@ bool Unit::IsWithinMeleeRange(const Unit* obj, float dist) const
     float maxdist = dist + sizefactor;
 
     return distsq < maxdist * maxdist;
+}
+
+bool Unit::IsWithinBoundaryRadius(Unit const* p_Unit) const
+{
+    if (!p_Unit || !IsInMap(p_Unit) || !IsInPhase(p_Unit))
+        return false;
+
+    float l_ObjBoundaryRadius = std::max(p_Unit->GetBoundaryRadius(), MIN_MELEE_REACH);
+
+    return IsInDist(p_Unit, l_ObjBoundaryRadius);
 }
 
 void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const
@@ -3921,7 +3932,7 @@ AuraApplication * Unit::_CreateAuraApplication(Aura* aura, uint32 effMask)
     uint32 aurId = aurSpellInfo->Id;
 
     // ghost spell check, allow apply any auras at player loading in ghost mode (will be cleanup after load)
-    if (!isAlive() && !aurSpellInfo->IsDeathPersistent() &&
+    if (!isAlive() && !aurSpellInfo->IsDeathPersistent() && !(aurSpellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD) &&
         (GetTypeId() != TYPEID_PLAYER || !ToPlayer()->GetSession()->PlayerLoading()))
         return NULL;
 
@@ -7720,6 +7731,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (!l_Player)
                         return false;
 
+                    if (procSpell == nullptr && l_Player->GetGUID() != target->GetGUID())
+                        return false;
+
                     if (!l_Player->isInCombat())
                         return false;
 
@@ -8819,6 +8833,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     if (!damage || !procSpell)
                         return false;
 
+                    if (procSpell->Id == 158221)
+                        return false;
+
                     if (procSpell->IsPositive())
                         return false;
 
@@ -9524,8 +9541,11 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
             break;
         }
-        // Item - Mage T13 2P Bonus (Haste)
-        case 105788:
+        case 51530: ///< Maelstrom Weapon
+            if (procSpell && procSpell->Id == 25504 && !HasAura(184920))
+                return false;
+            break;
+        case 105788:  // Item - Mage T13 2P Bonus (Haste)
             if (!procSpell)
                 return false;
             if (procSpell->Id != 30451 && !roll_chance_i(50))
@@ -12213,6 +12233,7 @@ uint32 Unit::GetMultistrikeBasePoints(uint32 p_Damage) const
 void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* /*p_Target*/, int32& p_Amount)
 {
     Player* l_ModOwner = GetSpellModOwner();
+    int32 l_BaseAmount = p_Amount;
 
     if (IsSpellMultistrike() &&
         (p_ProcSpell->Id == 17 || p_ProcSpell->Id == 152118 || p_ProcSpell->Id == 114908 || p_ProcSpell->Id == 65148))
@@ -12220,10 +12241,10 @@ void Unit::ProcAuraMultistrike(SpellInfo const* p_ProcSpell, Unit* /*p_Target*/,
         uint8 l_ProcTimes = ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
         for (uint8 l_Idx = 0; l_Idx < l_ProcTimes; l_Idx++)
         {
-            uint32 l_MultistrikeAbsorbAmount = GetMultistrikeBasePoints(p_Amount);
+            uint32 l_MultistrikeAbsorbAmount = GetMultistrikeBasePoints(l_BaseAmount);
 
             if (IsAuraAbsorbCrit(p_ProcSpell, p_ProcSpell->GetSchoolMask()))
-                l_MultistrikeAbsorbAmount = SpellCriticalAuraAbsorbBonus(p_ProcSpell, p_Amount);
+                l_MultistrikeAbsorbAmount = SpellCriticalAuraAbsorbBonus(p_ProcSpell, l_MultistrikeAbsorbAmount);
 
             p_Amount += l_MultistrikeAbsorbAmount;
         }
@@ -12238,8 +12259,8 @@ uint8 Unit::ProcTimesMultistrike(SpellInfo const* p_ProcSpell, Unit* /*p_Target*
     uint8 l_MaxProcTimes = ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()) ? 1 : 2;
     uint8 l_ProcTimes = 0;
 
-    /// Hackfix for Blade Flurry
-    if (p_ProcSpell && (p_ProcSpell->Id == 22482 || p_ProcSpell->Id == 12654))
+    /// Hackfix for Blade Flurry and Echo of Light
+    if (p_ProcSpell && (p_ProcSpell->Id == 22482 || p_ProcSpell->Id == 12654 || p_ProcSpell->Id == 77489))
         l_MaxProcTimes = 0;
 
     for (uint8 l_Idx = 0; l_Idx < l_MaxProcTimes; l_Idx++)
@@ -12386,6 +12407,7 @@ uint8 Unit::ProcMultistrike(SpellInfo const* p_ProcSpell, Unit* p_Target, uint32
             SendAttackStateUpdate(&damageInfo);
             ProcDamageAndSpell(damageInfo.target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, damageInfo.damage, damageInfo.attackType);
         }
+
     }
     return l_ProcTimes;
 }
@@ -12959,6 +12981,13 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     // Done Percentage for DOT is already calculated, no need to do it again. The percentage mod is applied in Aura::HandleAuraSpecificMods.
     float heal = float(int32(healamount) + DoneTotal) * (damagetype == DOT ? 1.0f : SpellHealingPctDone(victim, spellProto));
 
+    /// 6.2 : All healing and damage absorption has been reduced by 15% in PvP combat.
+    if (Player* l_ModOwner = GetSpellModOwner())
+    {
+        if ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat())
+            AddPct(heal, -15.0f);
+    }
+
     // apply spellmod to Done amount
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, damagetype == DOT ? SPELLMOD_DOT : SPELLMOD_DAMAGE, heal);
@@ -13000,13 +13029,6 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
     {
         float l_Bonus = CalculatePct((100.0f - victim->GetHealthPct()), (*i)->GetAmount());
         DoneTotalMod += (l_Bonus / 100);
-    }
-
-    /// 6.2 : All healing and damage absorption has been reduced by 15% in PvP combat.
-    if (Player* l_ModOwner = GetSpellModOwner())
-    {
-        if ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat())
-            AddPct(DoneTotalMod, -15.0f);
     }
 
     return DoneTotalMod;
@@ -15085,8 +15107,12 @@ void Unit::TauntApply(Unit* taunter)
         return;
 
     SetInFront(taunter);
+
     if (creature->IsAIEnabled)
-        creature->AI()->AttackStart(taunter);
+    {
+        if (creature->AI()->OnTaunt(taunter))
+            creature->AI()->AttackStart(taunter);
+    }
 
     //m_ThreatManager.tauntApply(taunter);
 }
@@ -15625,6 +15651,10 @@ float Unit::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spell
         return 0;
     if (spellInfo->RangeEntry->minRangeFriend == spellInfo->RangeEntry->minRangeHostile)
         return spellInfo->GetMinRange();
+
+    if (target == nullptr)
+        return spellInfo->GetMinRange(true);
+
     return spellInfo->GetMinRange(!IsHostileTo(target));
 }
 
@@ -15682,7 +15712,7 @@ bool Unit::IsInDisallowedMountForm() const
 
     CreatureDisplayInfoExtraEntry const* l_DisplayExtra = sCreatureDisplayInfoExtraStore.LookupEntry(l_Display->ExtendedDisplayInfoID);
     if (!l_DisplayExtra)
-        return true;
+        return false;
 
     CreatureModelDataEntry const* l_Model = sCreatureModelDataStore.LookupEntry(l_Display->ModelId);
     ChrRacesEntry const* l_Race = sChrRacesStore.LookupEntry(l_DisplayExtra->DisplayRaceID);
@@ -16125,9 +16155,6 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
     if (p_PowerValue > l_MaxPower)
         p_PowerValue = l_MaxPower;
 
-    if (ToCreature() && ToCreature()->IsAIEnabled)
-        ToCreature()->AI()->SetPower(p_PowerType, p_PowerValue);
-
     /// Hook playerScript OnModifyPower
     if (IsPlayer())
         sScriptMgr->OnModifyPower(ToPlayer(), p_PowerType, m_powers[l_PowerIndex], p_PowerValue, p_Regen, false);
@@ -16135,6 +16162,9 @@ void Unit::SetPower(Powers p_PowerType, int32 p_PowerValue, bool p_Regen)
     uint32 l_OldPower = m_powers[l_PowerIndex];
 
     m_powers[l_PowerIndex] = p_PowerValue;
+
+    if (ToCreature() && ToCreature()->IsAIEnabled)
+        ToCreature()->AI()->SetPower(p_PowerType, p_PowerValue);
 
     uint32 l_RegenDiff = getMSTime() - m_lastRegenTime[l_PowerIndex];
 
@@ -16946,10 +16976,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     }
 
     /// Death Siphon
-    if (procSpell && procSpell->Id == 108196 && !isVictim)
+    if (procSpell && procSpell->Id == 108196 && !isVictim && target)
     {
-        int32 bp = l_TotalDamage * 4;
-        CastCustomSpell(this, 116783, &bp, NULL, NULL, true);
+        int32 l_Bp = l_TotalDamage;
+        if (IsPlayer() && target->ToCreature())
+            l_Bp /= CalculateDamageDealtFactor(this, target->ToCreature());
+        l_Bp *= 4;
+        CastCustomSpell(this, 116783, &l_Bp, NULL, NULL, true);
     }
 
     /// Words of Mending - 152117
@@ -17236,7 +17269,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     // chargeable mods are breaking on hit
                     if (useCharges)
                         takeCharges = true;
-                    else if (isVictim && damage && (!procSpell || GetSpellMaxRangeForTarget(this, procSpell) < 100.0f))
+                    else if (isVictim && damage && (!procSpell || GetSpellMaxRangeForTarget(this, procSpell) < 101.0f))
                     {
                         int32 damageLeft = triggeredByAura->GetCrowdControlDamage();
                         // No damage left
@@ -17283,6 +17316,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_PROC_TRIGGER_SPELL_COPY:
                     {
                         if (isVictim && procSpell && procSpell->Id == 108853 && triggeredByAura->GetId() == 44448)
+                            break;
+
+                        /// Main Gauche can't trigger Ruthlessness
+                        if (procSpell && procSpell->Id == 86392 && triggeredByAura->GetId() == 14161)
                             break;
 
                         if (HandleDummyAuraProc(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
@@ -20310,7 +20347,7 @@ void Unit::SendMoveKnockBack(Player* p_Player, float p_SpeedXY, float p_SpeedZ, 
     SendMessageToSet(&data, false);
 }
 
-void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
+void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ, Unit* p_Caster /*= nullptr*/)
 {
     Player* player = NULL;
     if (IsPlayer())
@@ -20327,7 +20364,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
     else
     {
         float vcos, vsin;
-        GetSinCos(x, y, vsin, vcos);
+        GetSinCos(x, y, vsin, vcos, p_Caster);
         SendMoveKnockBack(player, speedXY, -speedZ, vcos, vsin);
     }
 }
@@ -21754,7 +21791,7 @@ bool Unit::SetCanFly(bool p_Enable)
 
     bool l_IsPlayer = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
 
-    if (l_IsPlayer)
+    if (l_IsPlayer || (GetCharmer() && GetCharmer()->IsPlayer()))
     {
         WorldPacket l_Data(l_FlyOpcodeTable[p_Enable][1]);
         l_Data.appendPackGUID(GetGUID());
@@ -22956,6 +22993,42 @@ void Unit::BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_T
         p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 16 + 2);
         p_Data->append(GetPackGUID());
     }
+}
+
+int32 Unit::GetCommandDemonSpellByEntry(uint32 p_Entry)
+{
+    switch (p_Entry)
+    {
+        case ENTRY_IMP:
+        case ENTRY_FEL_IMP:
+            return 119905;// Cauterize Master
+        case ENTRY_VOIDWALKER:
+        case ENTRY_VOIDLORD:
+            return 119907;// Disarm Removed since 6.0.2 please clean me
+        case ENTRY_SUCCUBUS:
+            return 119909; // Whiplash
+        case ENTRY_SHIVARRA:
+            return 119913;// Fellash
+        case ENTRY_FELHUNTER:
+            return 119910;// Spell Lock
+        case ENTRY_OBSERVER:
+            return 119911;// Optical Blast
+        case ENTRY_FELGUARD:
+            return 119914;// Felstorm
+        case ENTRY_WRATHGUARD:
+            return 119915;// Wrathstorm
+        case ENTRY_DOOMGUARD_PET:
+        case ENTRY_TERRORGUARD_PET:
+            return 171140; // Shadow Lock
+        case ENTRY_INFERNAL_PET:
+            return 171152; // Meteor Strike (Infernal)
+        case ENTRY_ABYSSAL_PET:
+        case ENTRY_ABYSSAL_PET_GREENFIRED:
+            return 171154; // Meteor Strike (Abyssal)
+        default:
+            return 0;
+    }
+    return 0;
 }
 
 bool Unit::AddPoisonTarget(uint32 p_SpellID, uint32 p_LowGuid)

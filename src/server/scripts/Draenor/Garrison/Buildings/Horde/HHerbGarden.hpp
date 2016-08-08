@@ -21,8 +21,9 @@ namespace MS { namespace Garrison
     /// Herbs game object entries
     extern std::vector<uint32> g_HordeHerbsGobsEntry;
 
-    /// FarmSimulator positions
+    /// Farm positions
     extern std::vector<GatheringPlotInfos> g_HordeHerbGardenFlowerPlot;
+    extern std::vector<SequencePosition> g_HordeTreeFruitsPosition;
 
     //////////////////////////////////////////////////////////////////////////
     /// 85783 - Nali Softsoil                                              ///
@@ -41,7 +42,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     /// 81981 - Tarnon                                                     ///
     //////////////////////////////////////////////////////////////////////////
-    class npc_TarnonAI : public GatheringBuildingMaster<&g_HordeHerbGardenFlowerPlot>
+    class npc_TarnonAI : public GatheringBuildingMaster<&g_HordeHerbGardenFlowerPlot, &g_HordeTreeFruitsPosition>
     {
         public:
             /// Constructor
@@ -78,13 +79,6 @@ namespace MS { namespace Garrison
             /// @p_Player     : Source player instance
             /// @p_Creature   : Target creature instance
             virtual bool OnGossipHello(Player* p_Player, Creature* p_Creature) override;
-
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
