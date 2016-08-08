@@ -1770,6 +1770,12 @@ class spell_hun_a_murder_of_crows_damage : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_a_murder_of_crows_damage_SpellScript);
 
+            enum eSpells
+            {
+                GlyphOfSolace = 119407,
+                FreezingTrap = 3355
+            };
+
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Target = GetHitUnit();
@@ -1777,6 +1783,12 @@ class spell_hun_a_murder_of_crows_damage : public SpellScriptLoader
 
                 if (l_Target == nullptr || l_Player == nullptr)
                     return;
+
+                if (l_Player->HasAura(eSpells::GlyphOfSolace) && l_Target->HasAura(eSpells::FreezingTrap))
+                {
+                    SetHitDamage(0);
+                    return;
+                }
 
                 /// A Murder of Crows now deals only 75% of normal damage against player-controlled targets.
                 if (l_Target->GetSpellModOwner() && l_Player->GetSpecializationId() == SpecIndex::SPEC_HUNTER_BEASTMASTERY)
