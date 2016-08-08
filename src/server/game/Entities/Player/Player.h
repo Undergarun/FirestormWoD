@@ -3665,7 +3665,7 @@ class Player : public Unit, public GridObject<Player>
             m_CriticalOperationLock.release();
         }
 
-        static void HandleFactionChangeActions(char const* p_KnownTitle, uint64 p_PlayerGUID, uint8 p_Race);
+        static void HandleFactionChangeActions(char const* p_KnownTitle, uint64 p_PlayerGUID, uint8 p_Race, bool p_AtFactionChange);
 
         void SetQuestBit(uint32 p_BitIndex, bool p_Completed);
         bool IsQuestBitFlaged(uint32 p_BitIndex) const;
