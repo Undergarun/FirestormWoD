@@ -468,7 +468,12 @@ namespace MS { namespace Garrison
                     if (l_Plot.BuildingLevel != l_BuildingEntry->Level)
                         continue;
 
-                    uint32 l_StateOrGobEntry = atol(l_Datas[l_Index++]);
+                    uint32 l_StateOrGobEntry = 0;
+
+                    if (l_Index + 1 >= (uint16)l_Datas.size())
+                        l_StateOrGobEntry = atol(l_Datas[l_Index++]);
+                    else
+                        continue;
 
                     float l_PlotX = l_Plot.X;
                     float l_PlotY = l_Plot.Y;
