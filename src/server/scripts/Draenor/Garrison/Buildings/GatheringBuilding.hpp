@@ -470,7 +470,7 @@ namespace MS { namespace Garrison
 
                     uint32 l_StateOrGobEntry = 0;
 
-                    if (l_Index + 1 >= (uint16)l_Datas.size())
+                    if (l_Index + 1 < (uint16)l_Datas.size())
                         l_StateOrGobEntry = atol(l_Datas[l_Index++]);
                     else
                         continue;
