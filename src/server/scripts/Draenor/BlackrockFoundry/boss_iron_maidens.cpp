@@ -111,6 +111,8 @@ class boss_admiral_garan : public CreatureScript
             bool m_CanJumpToShip;
             bool m_IsOnBoat;
 
+            std::set<uint64> m_ShipAdds;
+
             void Reset() override
             {
                 me->setPowerType(Powers::POWER_ENERGY);
@@ -201,6 +203,8 @@ class boss_admiral_garan : public CreatureScript
                 m_BossDisabled      = false;
                 m_CanJumpToShip     = true;
                 m_IsOnBoat          = false;
+
+                m_ShipAdds.clear();
 
                 if (m_Instance != nullptr)
                 {
@@ -383,6 +387,14 @@ class boss_admiral_garan : public CreatureScript
                                     l_Chain->AI()->SetData(eIronMaidensDatas::LoadingChainAvailable, uint32(true));
                             }
                         }
+
+                        for (uint64 l_Guid : m_ShipAdds)
+                        {
+                            if (Creature* l_Spawn = Creature::GetCreature(*me, l_Guid))
+                                l_Spawn->DespawnOrUnsummon();
+                        }
+
+                        m_ShipAdds.clear();
 
                         if (!m_IsOnBoat)
                             break;
@@ -785,8 +797,12 @@ class boss_admiral_garan : public CreatureScript
 
                         me->GetMotionMaster()->MovePoint(eMoves::MoveToZipline, g_EnterZiplinePos);
 
-                        me->SummonCreature(eIronMaidensCreatures::Uktar, *g_ShipSpawnPos[eIronMaidensCreatures::Uktar].begin());
-                        me->SummonCreature(eIronMaidensCreatures::BattleMedicRogg, *g_ShipSpawnPos[eIronMaidensCreatures::BattleMedicRogg].begin());
+                        if (Creature* l_Spawn = me->SummonCreature(eIronMaidensCreatures::Uktar, *g_ShipSpawnPos[eIronMaidensCreatures::Uktar].begin()))
+                            m_ShipAdds.insert(l_Spawn->GetGUID());
+
+                        if (Creature* l_Spawn = me->SummonCreature(eIronMaidensCreatures::BattleMedicRogg, *g_ShipSpawnPos[eIronMaidensCreatures::BattleMedicRogg].begin()))
+                            m_ShipAdds.insert(l_Spawn->GetGUID());
+
                         break;
                     }
                     default:
@@ -913,6 +929,8 @@ class boss_enforcer_sorka : public CreatureScript
             bool m_CanJumpToShip;
             bool m_IsOnBoat;
 
+            std::set<uint64> m_ShipAdds;
+
             void Reset() override
             {
                 me->setPowerType(Powers::POWER_ENERGY);
@@ -948,6 +966,8 @@ class boss_enforcer_sorka : public CreatureScript
                 m_BossDisabled      = false;
                 m_CanJumpToShip     = true;
                 m_IsOnBoat          = false;
+
+                m_ShipAdds.clear();
             }
 
             uint32 GetData(uint32 p_ID) override
@@ -1063,6 +1083,14 @@ class boss_enforcer_sorka : public CreatureScript
                     {
                         if (!m_IsOnBoat)
                             break;
+
+                        for (uint64 l_Guid : m_ShipAdds)
+                        {
+                            if (Creature* l_Spawn = Creature::GetCreature(*me, l_Guid))
+                                l_Spawn->DespawnOrUnsummon();
+                        }
+
+                        m_ShipAdds.clear();
 
                         me->ExitVehicle();
 
@@ -1399,9 +1427,15 @@ class boss_enforcer_sorka : public CreatureScript
 
                         me->GetMotionMaster()->MovePoint(eMoves::MoveToZipline, g_EnterZiplinePos);
 
-                        me->SummonCreature(eIronMaidensCreatures::Gorak, *g_ShipSpawnPos[eIronMaidensCreatures::Gorak].begin());
-                        me->SummonCreature(eIronMaidensCreatures::IronEviscerator, g_ShipSpawnPos[eIronMaidensCreatures::IronEviscerator][0]);
-                        me->SummonCreature(eIronMaidensCreatures::IronEviscerator, g_ShipSpawnPos[eIronMaidensCreatures::IronEviscerator][1]);
+                        if (Creature* l_Spawn = me->SummonCreature(eIronMaidensCreatures::Gorak, *g_ShipSpawnPos[eIronMaidensCreatures::Gorak].begin()))
+                            m_ShipAdds.insert(l_Spawn->GetGUID());
+
+                        if (Creature* l_Spawn = me->SummonCreature(eIronMaidensCreatures::IronEviscerator, g_ShipSpawnPos[eIronMaidensCreatures::IronEviscerator][0]))
+                            m_ShipAdds.insert(l_Spawn->GetGUID());
+
+                        if (Creature* l_Spawn = me->SummonCreature(eIronMaidensCreatures::IronEviscerator, g_ShipSpawnPos[eIronMaidensCreatures::IronEviscerator][1]))
+                            m_ShipAdds.insert(l_Spawn->GetGUID());
+
                         break;
                     }
                     default:
@@ -1528,6 +1562,8 @@ class boss_marak_the_blooded : public CreatureScript
             bool m_CanJumpToShip;
             bool m_IsOnBoat;
 
+            std::set<uint64> m_ShipAdds;
+
             void Reset() override
             {
                 me->setPowerType(Powers::POWER_ENERGY);
@@ -1564,6 +1600,8 @@ class boss_marak_the_blooded : public CreatureScript
                 m_BossDisabled      = false;
                 m_CanJumpToShip     = true;
                 m_IsOnBoat          = false;
+
+                m_ShipAdds.clear();
             }
 
             uint32 GetData(uint32 p_ID) override
@@ -1675,6 +1713,14 @@ class boss_marak_the_blooded : public CreatureScript
                     {
                         if (!m_IsOnBoat)
                             break;
+
+                        for (uint64 l_Guid : m_ShipAdds)
+                        {
+                            if (Creature* l_Spawn = Creature::GetCreature(*me, l_Guid))
+                                l_Spawn->DespawnOrUnsummon();
+                        }
+
+                        m_ShipAdds.clear();
 
                         me->ExitVehicle();
 
@@ -1989,7 +2035,9 @@ class boss_marak_the_blooded : public CreatureScript
 
                         me->GetMotionMaster()->MovePoint(eMoves::MoveToZipline, g_EnterZiplinePos);
 
-                        me->SummonCreature(eIronMaidensCreatures::Ukurogg, *g_ShipSpawnPos[eIronMaidensCreatures::Ukurogg].begin());
+                        if (Creature* l_Spawn = me->SummonCreature(eIronMaidensCreatures::Ukurogg, *g_ShipSpawnPos[eIronMaidensCreatures::Ukurogg].begin()))
+                            m_ShipAdds.insert(l_Spawn->GetGUID());
+
                         break;
                     }
                     default:
