@@ -661,10 +661,10 @@ class instance_blackrock_foundry : public InstanceMapScript
                     return false;
 
                 /// Handle Blackhand's doors - must be here in case of loading
-                for (uint8 l_I = 0; l_I < eFoundryDatas::DataBlackhand; ++l_I)
+                /*for (uint8 l_I = 0; l_I < eFoundryDatas::DataBlackhand; ++l_I)
                 {
                     if (GetBossState(l_I) != EncounterState::DONE)
-                        break;
+                        break;*/
 
                     if (GameObject* l_SpikeGate = instance->GetGameObject(m_SpikeGateGuid))
                         l_SpikeGate->SetGoState(GOState::GO_STATE_ACTIVE);
@@ -673,7 +673,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                         l_CrucibleEntrance->SetGoState(GOState::GO_STATE_ACTIVE);
 
                     instance->SetObjectVisibility(500.0f);
-                }
+                //}
 
                 /// Just cosmetic stuff
                 if (p_BossID == eFoundryDatas::DataBlastFurnace && p_State == EncounterState::DONE)
@@ -1021,16 +1021,11 @@ class instance_blackrock_foundry : public InstanceMapScript
                             }
                             case EncounterState::IN_PROGRESS:
                             {
-#ifndef CROSS
                                 AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                                 {
                                     if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
                                         l_IronGate->SetGoState(GOState::GO_STATE_READY);
                                 });
-#else /* CROSS */
-                                if (GameObject* l_IronGate = instance->GetGameObject(m_IronGateDoorGuid))
-                                    l_IronGate->SetGoState(GOState::GO_STATE_READY);
-#endif /* CROSS */
 
                                 break;
                             }
@@ -1374,7 +1369,7 @@ class instance_blackrock_foundry : public InstanceMapScript
 
                         break;
                     }
-                    case eFoundryDatas::DataBlackhand:
+                    /*case eFoundryDatas::DataBlackhand:
                     {
                         for (uint8 l_I = 0; l_I < eFoundryDatas::DataBlackhand; ++l_I)
                         {
@@ -1383,7 +1378,7 @@ class instance_blackrock_foundry : public InstanceMapScript
                         }
 
                         break;
-                    }
+                    }*/
                     default:
                         break;
                 }
