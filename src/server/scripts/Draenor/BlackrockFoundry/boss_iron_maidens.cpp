@@ -3769,6 +3769,8 @@ class spell_foundry_end_ship_phase : public SpellScriptLoader
                 if (l_Target == nullptr || !l_Target->HasAura(eIronMaidensSpells::OnABoatPeriodic))
                     return;
 
+                l_Target->RemoveAura(eIronMaidensSpells::OnABoatPeriodic);
+
                 l_Target->CastSpell(g_AfterShipPlayerJumpPos, GetSpellInfo()->Effects[p_EffIndex].TriggerSpell, true);
             }
 
