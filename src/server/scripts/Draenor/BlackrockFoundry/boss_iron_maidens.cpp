@@ -2229,8 +2229,11 @@ class npc_foundry_loading_chain : public CreatureScript
                 switch (p_ID)
                 {
                     case eIronMaidensDatas::LoadingChainAvailable:
-                        m_IsAvailable = p_Value != 0;
+                    {
+                        m_IsAvailable   = p_Value != 0;
+                        m_IsOnBoat      = !m_IsAvailable;
                         break;
+                    }
                     default:
                         break;
                 }
