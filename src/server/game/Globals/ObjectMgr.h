@@ -32,6 +32,7 @@
 #include <functional>
 #include "PhaseMgr.h"
 #include <ace/Thread_Mutex.h>
+#include <unordered_set>
 
 class Item;
 class PhaseMgr;
@@ -1774,18 +1775,12 @@ class ObjectMgr
 
         bool IsInvalidSpell(uint32 p_SpellId)
         {
-            if (std::find(m_SpellInvalid.begin(), m_SpellInvalid.end(), p_SpellId) != m_SpellInvalid.end())
-                return true;
-
-            return false;
+            return m_SpellInvalid.find(p_SpellId) != m_SpellInvalid.end();
         }
 
         bool IsStolenSpell(uint32 p_SpellId)
         {
-            if (std::find(m_SpellStolen.begin(), m_SpellStolen.end(), p_SpellId) != m_SpellStolen.end())
-                return true;
-
-            return false;
+            return m_SpellStolen.find(p_SpellId) != m_SpellStolen.end();
         }
 
         bool IsDisabledEncounter(uint32 p_EncounterID, uint32 p_DifficultyID) const
@@ -1994,8 +1989,8 @@ class ObjectMgr
         std::set<uint32> _difficultyEntries[Difficulty::MaxDifficulties - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
         std::set<uint32> _hasDifficultyEntries[Difficulty::MaxDifficulties - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
 
-        std::list<uint32> m_SpellInvalid;
-        std::list<uint32> m_SpellStolen;
+        std::unordered_set<uint32> m_SpellInvalid;
+        std::unordered_set<uint32> m_SpellStolen;
 
         std::set<uint32> _overwriteExtendedCosts;
 

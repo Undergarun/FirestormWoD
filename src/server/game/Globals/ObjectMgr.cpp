@@ -11270,7 +11270,7 @@ void ObjectMgr::LoadSpellInvalid()
         Field* l_Fields    = l_Result->Fetch();
         uint32 l_SpellID   = l_Fields[0].GetUInt32();
 
-        m_SpellInvalid.push_back(l_SpellID);
+        m_SpellInvalid.insert(l_SpellID);
 
         l_Count++;
     }
@@ -11305,7 +11305,7 @@ void ObjectMgr::LoadSpellStolen()
             continue;
         }
 
-        m_SpellStolen.push_back(l_SpellID);
+        m_SpellStolen.insert(l_SpellID);
 
         l_Count++;
     } while (l_Result->NextRow());
