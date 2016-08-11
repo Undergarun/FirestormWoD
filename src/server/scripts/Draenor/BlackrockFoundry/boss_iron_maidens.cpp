@@ -2251,12 +2251,28 @@ class npc_foundry_loading_chain : public CreatureScript
 
             void OnSpellClick(Unit* p_Clicker) override
             {
-                if (!m_IsAvailable || p_Clicker->HasAura(eIronMaidensSpells::RideLoadingChain))
+                if (!m_IsAvailable || m_IsOnBoat/* || p_Clicker->HasAura(eIronMaidensSpells::RideLoadingChain)*/)
                     return;
 
                 m_IsAvailable = false;
 
-                p_Clicker->CastSpell(me, eIronMaidensSpells::RideLoadingChain, true);
+                ///p_Clicker->CastSpell(me, eIronMaidensSpells::RideLoadingChain, true);
+
+                /// Reset threat to prevent EnterEvadeMode
+                for (uint8 l_I = 0; l_I < 3; ++l_I)
+                {
+                    if (Creature* l_Maiden = Creature::GetCreature(*me, m_Instance->GetData64(g_IronMaidensEntries[l_I])))
+                    {
+                        if (ScriptedAI* l_AI = CAST_AI(ScriptedAI, l_Maiden->AI()))
+                            l_AI->DoModifyThreatPercent(p_Clicker, -100);
+                    }
+                }
+
+                if (m_ChainID < eIronMaidensDatas::MaxLoadingChains)
+                {
+                    p_Clicker->NearTeleportTo(g_LoadingChainsMoveBoatPos[m_ChainID]);
+                    me->NearTeleportTo(g_LoadingChainsMoveBoatPos[m_ChainID]);
+                }
             }
 
             void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
