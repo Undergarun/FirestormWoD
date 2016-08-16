@@ -3658,6 +3658,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155265: ///< Containment (Primal Elementalist)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
+            case 158686: ///< Expose Armor (Iron Eviscerator - Iron Maidens)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
             case 175091: ///< Animate Slag
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
