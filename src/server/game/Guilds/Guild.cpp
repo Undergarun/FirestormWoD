@@ -1235,7 +1235,6 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
         if (l_Player && l_Player->GetSession()->GetInterRealmBG())
             l_InInterRealm = true;
 
-
         uint8 l_Flags = GUILDMEMBER_STATUS_NONE;
         if (l_Player)
         {
@@ -1258,6 +1257,9 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
         else if (l_Player)
             l_ZoneId = l_Player->GetZoneId();
 
+        /// Avoid bad zone ID
+        if (!sAreaStore.LookupEntry(l_ZoneId))
+            l_ZoneId = 4395;    ///< Dalaran center
 
         l_Data << uint32(l_ZoneId);
         l_Data << uint32(l_Player ? l_Player->GetAchievementMgr().GetAchievementPoints() : 0);

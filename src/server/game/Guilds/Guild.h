@@ -349,7 +349,7 @@ class Guild
                 uint32 GetRankId() const { return m_rankId; }
                 uint8 GetClass() const { return m_class; }
                 uint8 GetLevel() const { return m_level; }
-                uint8 GetZone() const { return m_zoneId; }
+                uint32 GetZone() const { return m_zoneId; }
                 uint64 GetLogoutTime() const { return m_logoutTime; }
 
                 void ChangeRank(uint8 newRank);
