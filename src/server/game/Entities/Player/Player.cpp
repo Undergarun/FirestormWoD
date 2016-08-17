@@ -32046,7 +32046,9 @@ void Player::MountSetFavorite(uint32 p_SpellID, bool p_IsFavorite)
         return;
 
     m_spells[p_SpellID]->IsMountFavorite = p_IsFavorite;
+#ifndef CROSS
     m_spells[p_SpellID]->state = PLAYERSPELL_CHANGED;
+#endif /* CROSS */
 
     WorldPacket l_Data(SMSG_ACCOUNT_MOUNT_UPDATE, 1 + 4 + 4 + 4 + 1);
     l_Data.WriteBit(false); ///< Is full update
