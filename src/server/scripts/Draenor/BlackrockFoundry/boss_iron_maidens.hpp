@@ -60,7 +60,8 @@ enum eIronMaidensDatas
     /// Misc datas
     AdmiralGaran            = 0,
     EnforcerSorka           = 1,
-    MarakTheBlooded         = 2
+    MarakTheBlooded         = 2,
+    IronMaidensEncounterID  = 1695
 };
 
 enum eIronMaidensSpells

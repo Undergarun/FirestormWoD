@@ -306,7 +306,7 @@ class boss_admiral_garan : public CreatureScript
                 /// Check if the maiden is the last killed (the one who loots)
                 if (me->GetLootRecipient() != nullptr)
                 {
-                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                    if (sObjectMgr->IsDisabledEncounter(eIronMaidensDatas::IronMaidensEncounterID, GetDifficulty()))
                         me->SetLootRecipient(nullptr);
                     else
                         CastSpellToPlayers(me->GetMap(), me, eIronMaidensSpells::IronMaidensBonus, true);
@@ -1032,7 +1032,7 @@ class boss_enforcer_sorka : public CreatureScript
                 /// Check if the maiden is the last killed (the one who loots)
                 if (me->GetLootRecipient() != nullptr)
                 {
-                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                    if (sObjectMgr->IsDisabledEncounter(eIronMaidensDatas::IronMaidensEncounterID, GetDifficulty()))
                         me->SetLootRecipient(nullptr);
                     else
                         CastSpellToPlayers(me->GetMap(), me, eIronMaidensSpells::IronMaidensBonus, true);
@@ -1666,7 +1666,7 @@ class boss_marak_the_blooded : public CreatureScript
                 /// Check if the maiden is the last killed (the one who loots)
                 if (me->GetLootRecipient() != nullptr)
                 {
-                    if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
+                    if (sObjectMgr->IsDisabledEncounter(eIronMaidensDatas::IronMaidensEncounterID, GetDifficulty()))
                         me->SetLootRecipient(nullptr);
                     else
                         CastSpellToPlayers(me->GetMap(), me, eIronMaidensSpells::IronMaidensBonus, true);
