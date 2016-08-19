@@ -2486,9 +2486,15 @@ class npc_foundry_ukurogg : public CreatureScript
                 {
                     case eEvent::EventCorruptedBlood:
                     {
-                        if (Player* l_Tank = SelectMainTank())
-                            me->CastSpell(l_Tank, eSpells::CorruptedBloodAoE, true);
-                        m_Events.ScheduleEvent(eEvent::EventCorruptedBlood, 2 * TimeConstants::IN_MILLISECONDS);
+                        std::vector<int32> l_ExcludeAuras = { int32(eIronMaidensSpells::OnABoatPeriodic), -int32(eIronMaidensSpells::RideLoadingChain) };
+                        std::list<Unit*>   l_Targets;
+
+                        SelectTargetList(l_Targets, 6, SelectAggroTarget::SELECT_TARGET_RANDOM, 5.0f, true, l_ExcludeAuras);
+
+                        for (Unit* l_Target : l_Targets)
+                            me->CastSpell(l_Target, eSpells::CorruptedBloodMissile, true);
+
+                        m_Events.ScheduleEvent(eEvent::EventCorruptedBlood, 3 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -3957,43 +3963,6 @@ class spell_foundry_rapid_fire_periodic : public SpellScriptLoader
         }
 };
 
-/// Corrupted Blood - 158669
-class spell_foundry_corrupted_blood : public SpellScriptLoader
-{
-    public:
-        spell_foundry_corrupted_blood() : SpellScriptLoader("spell_foundry_corrupted_blood") { }
-
-        class spell_foundry_corrupted_blood_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_foundry_corrupted_blood_SpellScript)
-
-            void HandleForceCast(SpellEffIndex p_EffIndex)
-            {
-                /// Prevent generic cast spell because we want to cast on a destination
-                PreventHitDefaultEffect(p_EffIndex);
-
-                Unit* l_Target = GetHitUnit();
-                if (l_Target == nullptr)
-                    return;
-
-                if (l_Target->HasAura(eIronMaidensSpells::RideLoadingChain) || !l_Target->HasAura(eIronMaidensSpells::OnABoatPeriodic))
-                    return;
-
-                GetCaster()->CastSpell(*l_Target, GetSpellInfo()->Effects[p_EffIndex].TriggerSpell, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_foundry_corrupted_blood_SpellScript::HandleForceCast, EFFECT_1, SPELL_EFFECT_FORCE_CAST);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_foundry_corrupted_blood_SpellScript();
-        }
-};
-
 /// Chain Lightning - 158710
 class spell_foundry_chain_lightning : public SpellScriptLoader
 {
@@ -4248,7 +4217,6 @@ void AddSC_boss_iron_maidens()
     new spell_foundry_bombardment_pattern_alpha();
     new spell_foundry_detonation_sequence();
     new spell_foundry_rapid_fire_periodic();
-    new spell_foundry_corrupted_blood();
     new spell_foundry_chain_lightning();
 
     /// AreaTriggers (spells)

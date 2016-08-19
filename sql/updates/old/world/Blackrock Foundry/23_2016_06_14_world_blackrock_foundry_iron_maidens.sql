@@ -45,7 +45,7 @@ INSERT INTO `areatrigger_template` (`spell_id`, `eff_index`, `entry`, `type`, `s
 (158707, 0, 158707, 2, 1, 1, 16384, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_protective_earth"),
 (158684, 0, 158684, 2, 1, 1, 16384, 0, 0, 0, 0, 0, 0, 0, 0, "areatrigger_foundry_corrupted_blood");
 
-DELETE FROM spell_script_names WHERE spell_id IN (158078, 164271, 164279, 156214, 158315, 158009, 156601, 158148, 158724, 158849, 157854, 157867, 156626, 158669, 158710);
+DELETE FROM spell_script_names WHERE spell_id IN (158078, 164271, 164279, 156214, 158315, 158009, 156601, 158148, 158724, 158849, 157854, 157867, 156626, 158710);
 INSERT INTO spell_script_names VALUES
 (158078, "spell_foundry_blood_ritual"),
 (164271, "spell_foundry_penetrating_shot"),
@@ -60,7 +60,6 @@ INSERT INTO spell_script_names VALUES
 (157854, "spell_foundry_bombardment_pattern_alpha"),
 (157867, "spell_foundry_detonation_sequence"),
 (156626, "spell_foundry_rapid_fire_periodic"),
-(158669, "spell_foundry_corrupted_blood"),
 (158710, "spell_foundry_chain_lightning");
 
 DELETE FROM `conversation_template` WHERE `Entry` IN (118, 119);
