@@ -3317,7 +3317,7 @@ class npc_foundry_iron_eviscerator : public CreatureScript
                     {
                         if (Player* l_Target = Player::GetPlayer(*me, m_FixateTarget))
                             me->CastSpell(l_Target, eSpells::SpellExposeArmor, false);
-                        m_Events.ScheduleEvent(eEvent::EventExposeArmor, 15 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvent::EventExposeArmor, 3 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
