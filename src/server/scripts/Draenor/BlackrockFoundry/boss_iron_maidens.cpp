@@ -3122,7 +3122,7 @@ class npc_foundry_gorak : public CreatureScript
 
             void Reset() override
             {
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED | eUnitFlags::UNIT_FLAG_STUNNED);
 
                 me->UpdateAttackPowerAndDamage();
 
