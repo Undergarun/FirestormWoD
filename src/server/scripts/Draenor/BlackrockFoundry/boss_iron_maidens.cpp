@@ -582,7 +582,7 @@ class boss_admiral_garan : public CreatureScript
                     case eIronMaidensSpells::IronWill:
                     {
                         /// If any boss's health drops below 20%, all bosses will ignore the next scheduled Dreadnaught phase
-                        m_CustomEvent.DelayEvent(eEvents::EventDreadnaughtPhase, eTimers::TimerDreadnaughtPhase);
+                        m_CustomEvent.CancelEvent(eEvents::EventDreadnaughtPhase);
                         break;
                     }
                     default:
